@@ -1,0 +1,1342 @@
+# Week 3: Functions and Functional Programming {#sec-week3}
+
+```{r}
+#| include: false
+set.seed(7432)
+knitr::opts_chunk$set(fig.width = 6, fig.height = 4, out.width = "70%", fig.align = "center")
+```
+
+```{python}
+#| include: false
+import numpy as np
+rng = np.random.default_rng(7432)
+```
+
+Last week ended with us descending a hill by repeating `x <- x - gamma * slope` (`x = x - gamma * slope` in Python) inside a `for` loop, with the derivative hard-coded inline (@sec-week2-gd). It worked, but every new function to minimise meant rewriting the loop. This week we fix that properly. First we learn to write our own functions; then we go one step further and treat functions themselves as data — passing them around, building them on the fly, mapping them over collections. By the end of the chapter our gradient descent will take *any* function you throw at it, which is exactly the tool @sec-week5 is built on.
+
+## Writing your own functions {#sec-week3-functions}
+
+We have been using functions since minute one: `sqrt()`, `length()`, `mean()`, `seq()` — or, on the Python side, `np.sqrt()`, `len()`, `np.mean()`, `np.arange()`. Each takes an input, does its job, and hands back an output. The real power move is writing your own. The rule of thumb: if you find yourself copy-pasting the same code a third time, stop and write a function. In coding, laziness done right is a virtue.
+
+Let's write a function that converts pounds to grams, using $g = 453.5924 \cdot \text{lbs}$:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+lbs_to_grams <- function(lbs) {
+  grams <- 453.5924 * lbs
+  return(grams)
+}
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+def lbs_to_grams(lbs):
+    grams = 453.5924 * lbs
+    return grams
+```
+
+</div>
+:::
+
+Anatomy of the R snippet:
+
+-   `function(lbs)` creates a new function whose argument is called `lbs`;
+-   the body between `{ }` is the code that runs on every call;
+-   `return(grams)` says what comes out;
+-   the whole thing is assigned to the name `lbs_to_grams` with `<-`, exactly like any other variable. Keep that thought — it becomes important later in the chapter.
+
+**Note for Python users:** the anatomy differs in the details. `def lbs_to_grams(lbs):` both *names* the function and lists its arguments in one go — no separate assignment step; the body is marked by indentation rather than `{ }` (four spaces, consistently); and `return grams` needs no parentheses.
+
+Calling it works as you would expect:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+lbs_to_grams(2)
+lbs_to_grams(lbs = 3)   # naming the argument is optional here
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+lbs_to_grams(2)
+lbs_to_grams(lbs=3)   # naming the argument is optional here
+```
+
+</div>
+:::
+
+And because the body is just vectorised arithmetic (@sec-week1), it happily takes a whole vector:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+lbs_to_grams(c(1, 2, 3))
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+# importing numpy (the hidden setup did too; repeated imports are free)
+import numpy as np
+
+lbs_to_grams(np.array([1, 2, 3]))
+```
+
+</div>
+:::
+
+**Note for Python users:** hand it a numpy array, not a plain list — `453.5924 * [1, 2, 3]` is an error (and `3 * [1, 2]` would *repeat* the list, not multiply it).
+
+A few naming guidelines: lowercase, words separated by `_`, concise but meaningful, and avoid clobbering existing names like `mean` or `c` in R, or `len`, `sum` and `list` in Python (both languages will let you; your future self will not forgive you).
+
+### Arguments and defaults
+
+Functions can take several arguments. To convert pounds to millilitres we also need the specific mass $\rho$ of the substance, since $ml = g / \rho$:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+lbs_to_ml <- function(lbs, specific_mass) {
+  ml <- lbs_to_grams(lbs) / specific_mass
+  return(ml)
+}
+
+lbs_to_ml(2, 1)      # water
+lbs_to_ml(2, 0.92)   # oil
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+def lbs_to_ml(lbs, specific_mass):
+    ml = lbs_to_grams(lbs) / specific_mass
+    return ml
+
+
+lbs_to_ml(2, 1)      # water
+lbs_to_ml(2, 0.92)   # oil
+```
+
+</div>
+:::
+
+Note that `lbs_to_ml` calls the function we wrote earlier — functions building on functions is the normal way programs grow.
+
+If 90% of our conversions are for water, typing `1` every time gets old. We can make the argument optional by giving it a **default value**:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+lbs_to_ml <- function(lbs, specific_mass = 1) {
+  ml <- lbs_to_grams(lbs) / specific_mass
+  return(ml)
+}
+
+lbs_to_ml(2)                        # default: water
+lbs_to_ml(2, 0.92)                  # positional
+lbs_to_ml(2, specific_mass = 0.92)  # named -- same thing, more readable
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+def lbs_to_ml(lbs, specific_mass=1):
+    ml = lbs_to_grams(lbs) / specific_mass
+    return ml
+
+
+lbs_to_ml(2)                        # default: water
+lbs_to_ml(2, 0.92)                  # positional
+lbs_to_ml(2, specific_mass=0.92)    # named -- same thing, more readable
+```
+
+</div>
+:::
+
+Arguments are matched by position first, and by name when you spell the name out. With many arguments, naming the non-obvious ones makes code much easier to read — compare `rnorm(10, 5, 2)` with `rnorm(10, mean = 5, sd = 2)`. The same positional/keyword rules hold in Python: compare `rng.normal(5, 2, 10)` with `rng.normal(loc=5, scale=2, size=10)`.
+
+**Note for Python users:** default values are evaluated **once**, when the `def` statement runs — not afresh at each call, as in R. With immutable defaults like `1` you will never notice the difference. With a mutable default you will: in `def add_entry(x, log=[])`, every call shares the *same* list, which quietly accumulates entries across calls. The standard idiom is a `None` default plus `if log is None: log = []` inside the body.
+
+::: {.callout-tip title="Exercise 3.1: Cooking for Remy"}
+A small French rat with a strong culinary vision (title omitted for copyright reasons) has moved to the US, where recipes measure everything in *cups*. He has hired you to sort out the conversions.
+
+a.  Write `cups_to_ml(cups)` using $ml = 236.588 \cdot \text{cups}$.
+b.  Write `ml_to_grams(ml, specific_mass)` using $g = ml \cdot \rho$, where $\rho$ is the specific mass.
+c.  Write `cups_to_grams(cups, ingredient = "water")` which:
+    i.  converts cups to millilitres with `cups_to_ml`;
+    ii. picks the specific mass with an `if`/`else if`/`else` chain (`elif` in Python) on `ingredient` (@sec-week2), using: water 1, flour 0.53, oil 0.92, oat milk 1.03;
+    iii. returns the result of `ml_to_grams` with those values.
+d.  Test it on: 2 cups of water; half a cup of oil; 3 cups of oat milk; 2 cups of flour plus one cup of water.
+:::
+
+::: {.callout-tip title="Exercise 3.2: Standardise, with options"}
+Write `standardise(x, center = TRUE, scale = TRUE)` which takes a numeric vector and:
+
+-   subtracts `mean(x)` (Python: `np.mean(x)`) if `center` is `TRUE`;
+-   divides by `sd(x)` (Python: `np.std(x, ddof=1)`) if `scale` is `TRUE`;
+-   returns the transformed vector.
+
+Test all four combinations of `center` and `scale` on `x <- c(2, 4, 6, 8, 100)` (Python: `x = np.array([2, 4, 6, 8, 100])`). Then check the full standardisation with `mean(standardise(x))` and `sd(standardise(x))`. In the R run the mean will print as something like `1e-17` rather than exactly `0` (numpy users may see an exact `0.0` — a lucky cancellation, not a guarantee) — recall the floating-point discussion in @sec-week2, and confirm with `all.equal(mean(standardise(x)), 0)` (Python: `np.isclose(...)`).
+:::
+
+### Return values
+
+Three things worth knowing about what comes out of a function.
+
+**Implicit return.** If R reaches the end of the body, the value of the *last expression* is returned automatically — no `return()` needed:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+lbs_to_grams <- function(lbs) {
+  453.5924 * lbs      # last expression: returned automatically
+}
+lbs_to_grams(2)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+def lbs_to_grams(lbs):
+    return 453.5924 * lbs   # no implicit return in Python
+
+lbs_to_grams(2)
+```
+
+</div>
+:::
+
+This is idiomatic R; most functions in the wild are written this way, and we will mostly drop `return()` from here on.
+
+**Note for Python users:** there is no implicit return. A function that reaches the end of its body without hitting `return` hands back `None` — silently. Keep writing `return`; the R habit of leaving the last expression bare does not travel.
+
+**Early return.** `return()` exits the function *immediately*, which is handy for bailing out of bad inputs before they cause trouble:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+safe_log <- function(x) {
+  if (any(x <= 0)) {
+    return(NA)        # bail out early: log of a non-positive number
+  }
+  log(x)
+}
+
+safe_log(c(1, 10, 100))
+safe_log(c(-1, 10, 100))
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+def safe_log(x):
+    if np.any(x <= 0):
+        return np.nan   # bail out early: log of a non-positive number
+    return np.log(x)
+
+
+safe_log(np.array([1, 10, 100]))
+safe_log(np.array([-1, 10, 100]))
+```
+
+</div>
+:::
+
+**Invisible return.** Occasionally a function should return a value without printing it when called at the console. Wrapping the result in `invisible()` does exactly that:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+quiet_sqrt <- function(x) {
+  invisible(sqrt(x))
+}
+
+quiet_sqrt(2)        # nothing printed...
+y <- quiet_sqrt(2)   # ...but the value is really there
+y
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+def quiet_sqrt(x):
+    return np.sqrt(x)   # no invisible() here -- see the note
+
+quiet_sqrt(2)        # this one DOES print in Python...
+y = quiet_sqrt(2)    # ...assignment never prints, in either language
+y
+```
+
+</div>
+:::
+
+You have met this behaviour already: `library()` and most plotting functions return invisibly. That is all you need to know about it for now.
+
+**Note for Python users:** `invisible()` has no counterpart. At the console Python prints the value of every bare expression *unless it is `None`* — so the nearest thing to an invisible return is returning `None`, which is exactly what a function without a `return` does, but then there is no value to keep. Nothing to do here except know the difference.
+
+## Scoping: where variables live {#sec-week3-scope}
+
+Variables created inside a function are **local**: they live in a temporary environment created for that call, and vanish when the call ends.
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+#| error: true
+lbs_to_grams <- function(lbs) {
+  grams <- 453.5924 * lbs
+  grams
+}
+
+lbs_to_grams(2)
+grams    # does not exist out here
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+#| error: true
+def lbs_to_grams(lbs):
+    grams = 453.5924 * lbs
+    return grams
+
+
+lbs_to_grams(2)
+grams    # does not exist out here
+```
+
+</div>
+:::
+
+The reverse direction, however, *does* work: if R cannot find a name inside the function, it looks in the environment where the function was *defined* — for a function typed at the top level of a script, that is the **global environment** (where your script-level variables live). That sounds convenient. It is also a classic source of silent bugs. Watch:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+# an innocent global variable, defined at some point in a long script
+lbs <- 3
+
+# a typo: the argument is `lb`, but the body says `lbs`
+bug_lbs_to_grams <- function(lb) {
+  453.5924 * lbs
+}
+
+bug_lbs_to_grams(2)
+bug_lbs_to_grams(100)   # same answer, whatever we feed it!
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+# an innocent global variable, defined at some point in a long script
+lbs = 3
+
+# a typo: the argument is `lb`, but the body says `lbs`
+def bug_lbs_to_grams(lb):
+    return 453.5924 * lbs
+
+
+bug_lbs_to_grams(2)
+bug_lbs_to_grams(100)   # same answer, whatever we feed it!
+```
+
+</div>
+:::
+
+No error, no warning: R quietly grabbed the global `lbs` and returned $453.5924 \times 3$ forever. The input is ignored completely. The moral is short and worth memorising: **everything a function needs should arrive through its arguments**. A function that only reads its arguments and only communicates through its return value is called *pure*, and pure functions are dramatically easier to test, reuse and debug — this idea is the backbone of the second half of this chapter.
+
+**Note for Python users:** same lookup, same trap. Python's rule is called **LEGB** — Local, Enclosing, Global, Built-ins, searched in that order — which for our purposes is R's lexical scoping by another name. One genuine difference: *reading* a global from inside a function just works (as the bug shows), but *assigning* to one requires the `global` keyword — a plain `lbs = ...` inside a function always creates a local variable.
+
+**Note for Python users:** one more difference lives here, and it matters. R behaves *as if* every object passed to a function were copied: modify an argument inside a function and the caller's object is untouched (*copy-on-modify*). Python passes references instead: **rebinding** a name (`x = x + 1`) is local and safe, but **mutating** a mutable object in place (`x.append(3)`, or `x[0] = 99` on a list or numpy array) changes the caller's object too. A function that mutates its arguments is not pure — in Python, purity takes discipline that R's semantics give you for free.
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+rm(lbs)   # tidy up the crime scene
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+del lbs   # tidy up the crime scene
+```
+
+</div>
+:::
+
+::: {.callout-tip title="Exercise 3.3: Where does x live?"}
+Predict the output of each of the four final lines **before** running the code, then run it and check. For each one, explain which environment the value came from (or why there is an error).
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+#| eval: false
+x <- 1
+
+f <- function() {
+  x <- 10
+  x * 2
+}
+
+g <- function() {
+  x * 2
+}
+
+h <- function() {
+  y <- x * 2
+  y
+}
+
+f()
+g()
+x
+y
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+#| eval: false
+x = 1
+
+def f():
+    x = 10
+    return x * 2
+
+def g():
+    return x * 2
+
+def h():
+    y = x * 2
+    return y
+
+f()
+g()
+x
+y
+```
+
+</div>
+:::
+:::
+
+## The `...` argument
+
+Browse any help page and you will meet a mysterious argument literally called `...` (pronounced "dot-dot-dot"). It scoops up any extra arguments a caller supplies and lets you pass them on to another function. One example is worth a paragraph of theory:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+summary_stats <- function(x, ...) {
+  c(mean = mean(x, ...), sd = sd(x, ...))
+}
+
+heights <- c(1.62, 1.75, NA, 1.68)
+
+summary_stats(heights)
+summary_stats(heights, na.rm = TRUE)   # na.rm travels through ... to mean and sd
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+def summary_stats(x, **kwargs):
+    return {"mean": np.mean(x, **kwargs),
+            "sd":   np.std(x, ddof=1, **kwargs)}
+
+heights = np.array([1.62, 1.75, np.nan, 1.68])
+
+summary_stats(heights)
+summary_stats(heights, where=~np.isnan(heights))   # `where` travels through **kwargs
+```
+
+</div>
+:::
+
+We did not have to declare `na.rm` ourselves: whatever extras arrive get forwarded wholesale. Use it sparingly — it is wonderful for forwarding options, and terrible for hiding what a function actually depends on.
+
+**Note for Python users:** the Python spelling is `*args` / `**kwargs`: one star scoops extra *positional* arguments into a tuple, two stars scoop extra *keyword* arguments into a dict, and `np.mean(x, **kwargs)` unpacks them again on the way out. (numpy has no `na.rm`; the `where` mask above is the closest kwarg-shaped idiom, and `np.nanmean`/`np.nanstd` exist for exactly this job.)
+
+## Functions are values {#sec-week3-fp}
+
+Time for the second act. R is, at heart, a **functional programming** language: functions are *first-class* values. You have already seen the evidence — we create functions with `function()` and assign them with `<-`, like any number or vector. It follows that we can also store them, pass them to other functions as arguments, and even return them from functions. The same holds in Python: `def` and `lambda` both produce ordinary objects that can be assigned, stored and passed around.
+
+Storing them takes a container more permissive than the atomic vector, so meet the **list**: built with `list()`, it holds elements of *any* type — numbers, strings, vectors of different lengths, other lists, and yes, functions. Name the elements when you build it, then extract one with `$name` or with double brackets `[[ ]]` (by position or by name). Data frames, the stars of @sec-week4, are secretly lists of columns, so the `$` will look familiar there.
+
+**Note for Python users:** Python splits the job of R's list between two containers: the **list** `[...]` (ordered, extracted by position) and the **dict** `{"name": value}` (extracted by name). Both hold elements of any type, functions included. Where R writes `funs$root` or `funs[["root"]]`, Python writes `funs["root"]` — and pandas data frames (@sec-week4) are dict-like collections of columns in just the way R data frames are lists of columns.
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+square <- function(x) x^2            # one-expression body: no braces needed
+
+funs <- list(sq = square, root = sqrt)   # functions in a list, why not
+funs$sq(4)
+funs$root(4)
+funs[["root"]](9)   # double brackets: extract by name or position
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+def square(x):                       # one-expression body: still needs def...
+    return x**2                      # ...or a lambda, coming right up
+
+funs = {"sq": square, "root": np.sqrt}   # functions in a dict, why not
+funs["sq"](4)
+funs["root"](4)
+funs["root"](9)   # dicts extract by name only -- no positional [[ ]]
+```
+
+</div>
+:::
+
+### Lambdas
+
+For short, throwaway functions, R (since version 4.1) offers the **lambda** shorthand `\( )`, which is exactly equivalent to `function( )`:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+square <- \(x) x^2        # same as: function(x) x^2
+add    <- \(x, y) x + y
+
+square(4)
+add(1, 2)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+square = lambda x: x**2        # same as: def square(x): return x**2
+add    = lambda x, y: x + y
+
+square(4)
+add(1, 2)
+```
+
+</div>
+:::
+
+We will use `\(x)` for one-liners and anonymous functions, and keep the long form `function(x)` for anything with a multi-line body. They are the same thing; the backslash just saves seven keystrokes.
+
+**Note for Python users:** a `lambda` body must be a **single expression** — no statements, no assignments, no multi-line logic; the expression's value is returned automatically. R's `\(x)` carries no such restriction (it is literally `function(x)` respelled). The moment a Python function needs more than one expression, switch to `def`. Style guides also frown on *assigning* a lambda to a name as we just did — `def` is the official way — but for throwaway one-liners in these notes we allow ourselves the shorthand.
+
+### Function factories and currying {#sec-week3-factories}
+
+Here is where first-class functions start paying rent: a function can *return a function*. Such a function is called a **function factory**:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+make_power <- function(exponent) {
+  \(x) x^exponent       # the returned function remembers `exponent`
+}
+
+cube         <- make_power(3)
+to_the_tenth <- make_power(10)
+
+cube(2)
+to_the_tenth(2)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+def make_power(exponent):
+    return lambda x: x**exponent   # the returned function remembers `exponent`
+
+
+cube         = make_power(3)
+to_the_tenth = make_power(10)
+
+cube(2)
+to_the_tenth(2)
+```
+
+</div>
+:::
+
+Note the small miracle: `cube` still knows that `exponent` is 3, long after the call to `make_power` finished. The returned function carries its birth environment with it (the technical name is a *closure*) — and this works identically in both languages.
+
+Turning a function of several arguments into a chain of single-argument functions like this is called **currying** (after the logician Haskell Curry — the food connection is, sadly, coincidental). It shines when you fix some arguments once and vary the others a lot. A situation you will meet constantly in numerical work: evaluating a function on grids of different resolutions. Take this slightly unhinged function,
+
+$$
+f(x) = x^2 + x \sin(x - 1.5\,x^2),
+$$
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+f <- \(x) x^2 + x * sin(x - 1.5 * x^2)
+
+# a quick look -- we'll do plotting properly in week 4
+xs <- seq(0, 5, length.out = 400)
+plot(xs, f(xs), type = "l", xlab = "x", ylab = "f(x)")
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+import matplotlib.pyplot as plt
+
+f = lambda x: x**2 + x * np.sin(x - 1.5 * x**2)
+
+# a quick look -- we'll do plotting properly in week 4
+xs = np.linspace(0, 5, 400)
+plt.plot(xs, f(xs))
+plt.xlabel("x")
+plt.ylabel("f(x)")
+plt.show()
+```
+
+</div>
+:::
+
+and suppose we want its maximum over $[0, u]$ for various $u$, numerically, on grids of different resolutions. A grid factory currying `seq()` (Python: `np.linspace()`) does this neatly:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+grid_factory <- function(len) {
+  \(up) seq(from = 0, to = up, length.out = len)
+}
+
+coarse <- grid_factory(10)     # 10-point grids
+fine   <- grid_factory(1000)   # 1000-point grids
+
+max(f(coarse(4)))   # coarse grid: misses the wiggles
+max(f(fine(4)))     # fine grid: much closer to the true maximum
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+def grid_factory(length):     # `len` is a Python built-in: pick another name
+    return lambda up: np.linspace(0, up, length)
+
+
+coarse = grid_factory(10)     # 10-point grids
+fine   = grid_factory(1000)   # 1000-point grids
+
+max(f(coarse(4)))   # coarse grid: misses the wiggles
+max(f(fine(4)))     # fine grid: much closer to the true maximum
+```
+
+</div>
+:::
+
+The complementary move is a function that *takes* functions as arguments. Pass the function's name (`f`), not a call (`f(...)`):
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+# evaluate a function on a grid up to `up`, return the max
+max_over_grid <- function(f, grid, up) {
+  max(f(grid(up)))
+}
+
+f2 <- \(x) x^3 - x * cos(x - 1.5 * x^2)
+
+max_over_grid(f,  fine, 4)
+max_over_grid(f2, fine, 4)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+# evaluate a function on a grid up to `up`, return the max
+def max_over_grid(f, grid, up):
+    return max(f(grid(up)))
+
+
+f2 = lambda x: x**3 - x * np.cos(x - 1.5 * x**2)
+
+max_over_grid(f,  fine, 4)
+max_over_grid(f2, fine, 4)
+```
+
+</div>
+:::
+
+One generic `max_over_grid`, any function, any grid resolution. This pattern — machinery that accepts the mathematical object as an argument — is exactly how we will package gradient descent at the end of the chapter.
+
+::: {.callout-tip title="Exercise 3.4: A density factory"}
+The density of a $N(\mu, \sigma^2)$ distribution is
+
+$$
+\varphi_{\mu, \sigma}(x) = \frac{1}{\sigma\sqrt{2\pi}} \exp\!\left( -\frac{(x - \mu)^2}{2\sigma^2} \right).
+$$
+
+a.  Write a factory `make_dnorm(mu, sigma)` that returns the function $\varphi_{\mu,\sigma}$ (a lambda in `x`), implementing the formula yourself (`pi` is built in; Python: `np.pi`).
+b.  Create `standard <- make_dnorm(0, 1)` and `wide <- make_dnorm(0, 3)`, and evaluate both at $x = 0$ and $x = 1$.
+c.  Check your factory against R's `dnorm(x, mean, sd)` (Python: `scipy.stats.norm.pdf(x, mu, sigma)`) with `all.equal()` (Python: `np.allclose()`) on a vector of test points.
+d.  Quick base-plot sanity check: plot `standard` over $[-6, 6]$ with `type = "l"`, then overlay `wide` using `lines()` (Python: two `plt.plot` calls on the same figure).
+:::
+
+### map: one function, every element {#sec-week3-map}
+
+Vectorised arithmetic (@sec-week1) covers a lot of ground, but it works on atomic vectors. The moment your data lives in a list — samples of different sizes, say — `mean(samples)` is meaningless and a `for` loop feels like heavy machinery for such a small job. The functional answer is `map`: apply a function to every element of a collection, collect the results. It lives in the `purrr` package (part of the tidyverse, which we meet properly in @sec-week4); Python has its counterparts built in:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+library(purrr)
+
+set.seed(7432)   # randomness ahead: fix the seed so results are reproducible
+samples <- list(
+  small  = rnorm(5),
+  medium = rnorm(50),
+  large  = rnorm(5000)
+)
+
+map(samples, mean)       # returns a list
+map_dbl(samples, mean)   # returns a named numeric vector of doubles
+map_dbl(samples, sd)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+# no library needed: map() and comprehensions are built in
+
+rng = np.random.default_rng(7432)   # randomness ahead: fix the seed so results are reproducible
+samples = {
+    "small":  rng.normal(size=5),
+    "medium": rng.normal(size=50),
+    "large":  rng.normal(size=5000),
+}
+
+list(map(np.mean, samples.values()))                 # map(): a plain list, names lost
+{name: np.mean(x) for name, x in samples.items()}    # dict comprehension: names kept
+{name: np.std(x, ddof=1) for name, x in samples.items()}   # ddof=1 matches R's sd
+```
+
+</div>
+:::
+
+`map()` always returns a list, because *a priori* it cannot know what your function outputs. When you know the common type, the suffixed versions `map_dbl`, `map_int`, `map_chr`, `map_lgl` return an atomic vector of that type — and fail loudly if any result does not fit, which is exactly the kind of failure you want. (One current exception: `map_chr` handed a number coerces it with a deprecation warning rather than an error — purrr would rather you called `as.character()` yourself.)
+
+**Note for Python users:** `map(f, xs)` is built in and *lazy* — it returns an iterator that computes nothing until asked, hence the `list(...)` wrapper to see the results at once. The more idiomatic tool is the **comprehension**: `[f(x) for x in xs]` for lists, `{k: f(v) for k, v in d.items()}` for dicts (our named lists). There are no type-suffixed variants and no type checking — a comprehension happily builds a list of mixed types, so the discipline `map_dbl` enforces is on you.
+
+A word on the randomness: `set.seed(7432)` and `np.random.default_rng(7432)` each fix their own language's stream, so re-running reproduces the same numbers *within* a language — but the two generators are unrelated, so the R and Python columns print different samples. Nothing is wrong.
+
+Lambdas slot in perfectly as the function argument:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+# sample-mean of a N(k, 1) sample, for several k
+map_dbl(1:5, \(k) mean(rnorm(1000, mean = k)))
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+# sample-mean of a N(k, 1) sample, for several k
+[np.mean(rng.normal(loc=k, size=1000)) for k in range(1, 6)]
+```
+
+</div>
+:::
+
+When the function needs **two** varying inputs, use `map2`, which walks two collections in parallel:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+# trimmed means: a different trimming fraction for each sample
+trims <- c(0, 0.1, 0.2)
+map2_dbl(samples, trims, \(x, t) mean(x, trim = t))
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+from scipy.stats import trim_mean
+
+# trimmed means: a different trimming fraction for each sample
+trims = [0, 0.1, 0.2]
+[trim_mean(x, t) for x, t in zip(samples.values(), trims)]
+```
+
+</div>
+:::
+
+There is also `pmap` for three-or-more inputs, same idea. One line of caution: the collections passed to `map2` should have the same length.
+
+**Note for Python users:** `zip` pairs the collections up (and `map()` itself takes several iterables: `map(f, xs, ys)`); both stop silently at the *shortest* input rather than complaining, so check your lengths yourself.
+
+**Base R has this too.** The `apply` family predates purrr and you will see it everywhere: `lapply(x, f)` is essentially `map`, `sapply(x, f)` is `map` that then *simplifies* to a vector when it can (convenient interactively, mildly hair-raising in scripts, since the output type depends on the data), `vapply` is the type-safe version, and `apply(M, margin, f)` sweeps a function over the rows (`margin = 1`) or columns (`margin = 2`) of a matrix. We use purrr in these notes for its consistent naming and type-stable returns, but the two families are interchangeable for everything we do:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+sapply(samples, mean)   # base R equivalent of map_dbl(samples, mean)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+# Python has no purrr-vs-base split: comprehensions are the one idiom
+{name: np.mean(x) for name, x in samples.items()}
+```
+
+</div>
+:::
+
+::: {.callout-tip title="Exercise 3.5: Mapping the lab marks"}
+Three lab groups sat a test:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+#| eval: false
+marks <- list(
+  lab1 = c(72, 58, 91, 43, 65),
+  lab2 = c(80, 61, 75, 49, 70, 66),
+  lab3 = c(55, 95, 78, 62)
+)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+#| eval: false
+marks = {
+    "lab1": [72, 58, 91, 43, 65],
+    "lab2": [80, 61, 75, 49, 70, 66],
+    "lab3": [55, 95, 78, 62],
+}
+```
+
+</div>
+:::
+
+a.  Use `map_dbl` (Python: a dict comprehension) to get each group's average mark.
+b.  Use `map_int` (or `map_dbl`) with `length` (Python: `len`) to get each group's size.
+c.  Use `map_dbl` with a lambda to compute each group's mark *range* (max minus min).
+d.  Use `map` with `sort` (Python: `sorted`) — why would `map_dbl` be the wrong tool here (what *shape* does each result have)?
+e.  Which group did best on average? Answer in code with `which.max` (Python: `max(..., key=...)`).
+:::
+
+::: {.callout-tip title="Exercise 3.6: Currying the trimmed mean"}
+Reaction times (seconds) for four subjects, each with the occasional attention lapse:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+#| eval: false
+reaction_times <- list(
+  subj1 = c(0.31, 0.28, 0.35, 0.30, 4.20),
+  subj2 = c(0.25, 0.29, 0.26, 3.80, 0.27),
+  subj3 = c(0.33, 0.34, 0.31, 0.32, 0.30),
+  subj4 = c(0.29, 5.10, 0.28, 0.30, 0.26)
+)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+#| eval: false
+reaction_times = {
+    "subj1": [0.31, 0.28, 0.35, 0.30, 4.20],
+    "subj2": [0.25, 0.29, 0.26, 3.80, 0.27],
+    "subj3": [0.33, 0.34, 0.31, 0.32, 0.30],
+    "subj4": [0.29, 5.10, 0.28, 0.30, 0.26],
+}
+```
+
+</div>
+:::
+
+a.  Write a factory `make_trimmed_mean(trim)` that returns a function computing `mean(x, trim = trim)` (Python: `scipy.stats.trim_mean(x, trim)`).
+b.  Use `map_dbl` (Python: a comprehension) with `make_trimmed_mean(0)` and then with `make_trimmed_mean(0.2)` on `reaction_times`.
+c.  Compare the two sets of results. Which subjects change most, and why is the trimmed version a better summary here?
+:::
+
+### Reduce: fold a collection to one value {#sec-week3-reduce}
+
+Where `map` applies a function elementwise, `Reduce` (base R; purrr spells it `reduce`, Python keeps it in `functools.reduce`) *folds* a whole collection down to a single value with a two-argument function: combine the first two elements, combine the result with the third, and so on.
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+attended <- list(
+  week1 = c("Ada", "Bea", "Carl", "Dan", "Eve"),
+  week2 = c("Ada", "Carl", "Dan", "Eve"),
+  week3 = c("Ada", "Carl", "Eve", "Fay")
+)
+
+# who has attended every single week? intersect two at a time:
+Reduce(intersect, attended)
+
+Reduce(`+`, 1:5)                      # ((((1 + 2) + 3) + 4) + 5): the sum
+Reduce(`+`, 1:5, accumulate = TRUE)   # keep the partial results: cumsum
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+from functools import reduce
+from operator import add
+from itertools import accumulate
+
+attended = {
+    "week1": ["Ada", "Bea", "Carl", "Dan", "Eve"],
+    "week2": ["Ada", "Carl", "Dan", "Eve"],
+    "week3": ["Ada", "Carl", "Eve", "Fay"],
+}
+
+# who has attended every single week? intersect two at a time:
+reduce(lambda a, b: [name for name in a if name in b], attended.values())
+
+reduce(add, range(1, 6))          # ((((1 + 2) + 3) + 4) + 5): the sum
+list(accumulate(range(1, 6)))     # keep the partial results: cumsum
+```
+
+</div>
+:::
+
+The backticks around `` `+` `` let us pass an operator where a function is expected — operators *are* functions in R. That is the whole idea; `Reduce` is niche but irreplaceable when it fits.
+
+**Note for Python users:** the pieces live in three standard-library modules: `functools.reduce` is the fold, the `operator` module wraps the operators as functions (`operator.add` is Python's `` `+` ``), and running folds come from `itertools.accumulate` rather than an `accumulate =` flag. There is no built-in `intersect` for lists, hence the lambda.
+
+::: {.callout-tip title="Exercise 3.7: Reduce, reuse, recycle"}
+a.  Compute $10!$ with a single `Reduce` call (no loops, no `factorial`). (Python: `functools.reduce` with `operator.mul`.)
+b.  Given `x <- c(3, 1, 4, 1, 5, 9, 2, 6)`, compute the *running maximum* with `Reduce` and `accumulate = TRUE` (Python: `itertools.accumulate` with `max`), and check it against the built-in `cummax(x)` (Python: `np.maximum.accumulate(x)`).
+c.  With the `attended` list from above, use `Reduce` and `union` to list everyone who attended *at least once*, and check it against `unique(unlist(attended))` (Python: write the union step yourself, and check with `np.unique` on the concatenated lists — noting that `np.unique` also sorts).
+:::
+
+## Packaging gradient descent {#sec-week3-gd}
+
+Time to cash in. In @sec-week2-gd we minimised a function by iterating
+
+$$
+x_{n+1} = x_n - \gamma \, f'(x_n),
+$$
+
+with the derivative typed straight into the loop body. Every new target function meant surgery on the loop. Now we know better: the function and its derivative can simply be *arguments*.
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+grad_descent <- function(f, grad, x0, gamma, n) {
+  x <- x0
+  for (i in 1:n) {
+    x <- x - gamma * grad(x)   # the week 2 update, verbatim
+  }
+  x
+}
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+def grad_descent(f, grad, x0, gamma, n):
+    x = x0
+    for i in range(n):
+        x = x - gamma * grad(x)   # the week 2 update, verbatim
+    return x
+```
+
+</div>
+:::
+
+That is the whole algorithm: pure (no globals touched), reusable, half a dozen lines. You may notice `grad_descent` never actually calls `f` — the update only needs the gradient. We keep `f` in the signature anyway: the objective is how we *check* the answer (see the plot below), and in @sec-week5 this exact interface will carry monitoring, stochastic variants and fancier updates without changing shape. Consider the signature `grad_descent(f, grad, x0, gamma, n)` — identical in both languages, deliberately — a contract between this week and week 5.
+
+Minimising $f(x) = (x-2)^2$, whose gradient is $f'(x) = 2(x-2)$, is now a matter of two lambdas:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+f      <- \(x) (x - 2)^2
+grad_f <- \(x) 2 * (x - 2)
+
+grad_descent(f, grad_f, x0 = 10, gamma = 0.1, n = 100)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+f      = lambda x: (x - 2)**2
+grad_f = lambda x: 2 * (x - 2)
+
+grad_descent(f, grad_f, x0=10, gamma=0.1, n=100)
+```
+
+</div>
+:::
+
+Swapping in a completely different problem costs nothing. Here is the double-well function $g(x) = x^4/4 - x^2/2$, with $g'(x) = x^3 - x$ and *two* local minima at $\pm 1$:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+g      <- \(x) x^4 / 4 - x^2 / 2
+grad_g <- \(x) x^3 - x
+
+grad_descent(g, grad_g, x0 =  2, gamma = 0.1, n = 200)
+grad_descent(g, grad_g, x0 = -2, gamma = 0.1, n = 200)   # other basin
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+g      = lambda x: x**4 / 4 - x**2 / 2
+grad_g = lambda x: x**3 - x
+
+grad_descent(g, grad_g, x0=2, gamma=0.1, n=200)
+grad_descent(g, grad_g, x0=-2, gamma=0.1, n=200)   # other basin
+```
+
+</div>
+:::
+
+Gradient descent rolls downhill from wherever you drop it, so it finds the *local* minimum of its starting basin — a theme we return to at length in @sec-week5. A quick base-plot sanity check that the answer really sits at the bottom:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+xhat <- grad_descent(g, grad_g, x0 = 2, gamma = 0.1, n = 200)
+
+xs <- seq(-2, 2, length.out = 400)
+plot(xs, g(xs), type = "l", xlab = "x", ylab = "g(x)")
+points(xhat, g(xhat), col = "red", pch = 19)   # our minimiser
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+xhat = grad_descent(g, grad_g, x0=2, gamma=0.1, n=200)
+
+xs = np.linspace(-2, 2, 400)
+plt.plot(xs, g(xs))
+plt.xlabel("x")
+plt.ylabel("g(x)")
+plt.plot(xhat, g(xhat), "ro")   # our minimiser
+plt.show()
+```
+
+</div>
+:::
+
+One last cautionary demonstration — the step size $\gamma$ is not a detail:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+grad_descent(f, grad_f, x0 = 10, gamma = 1.05, n = 50)   # too greedy: diverges
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+grad_descent(f, grad_f, x0=10, gamma=1.05, n=50)   # too greedy: diverges
+```
+
+</div>
+:::
+
+Each step overshoots the minimum by more than it gained, and the iterates explode (no randomness here, so for once the two columns agree to the last digit). Why this happens, how to choose $\gamma$, and what to do when the problem is multivariate and the data are big — that is precisely the programme of @sec-week5, where `grad_descent` and its descendants do statistics for real.
+
+::: {.callout-tip title="Exercise 3.8: A new client for grad_descent"}
+Consider $h(x) = e^x + x^2$.
+
+a.  Derive $h'(x)$ by hand, and write both as lambdas.
+b.  Run `grad_descent(h, grad_h, x0 = 1, gamma = 0.1, n = 100)`.
+c.  Sanity-check the result with a base plot (Python: matplotlib) of $h$ over $[-2, 1]$, marking your minimiser with `points()` (Python: `plt.plot(..., "ro")`).
+d.  Compare your answer with R's built-in one-dimensional optimiser: `optimize(h, interval = c(-2, 1))` (Python: `scipy.optimize.minimize_scalar(h, bounds = (-2, 1))`).
+e.  Re-run with `gamma = 1` and with `gamma = 0.001` (same `n`). Describe what goes wrong in each case.
+:::
+
+::: {.callout-important title="Challenge 3.1: Stop when you're done"}
+Our `grad_descent` runs for exactly `n` steps, even if it converged after ten. Write an improved `grad_descent_tol(f, grad, x0, gamma, max_n, tol = 1e-8)` that:
+
+a.  iterates at most `max_n` times, but **stops early** when the step becomes tiny: $|x_{\text{new}} - x_{\text{old}}| < \texttt{tol}$;
+b.  records every iterate along the way (including `x0`);
+c.  returns a **list** (Python: a dict) with three elements: `minimiser` (the final $x$), `path` (the vector of all iterates), and `iterations` (how many updates were performed).
+
+Run it on $f(x) = (x-2)^2$ with `x0 = 10`, `gamma = 0.1`, `max_n = 1000`. How many iterations did it actually need? Finish with a base plot of `f(path)` against iteration number — add `log = "y"` to the plot call (Python: `plt.yscale("log")`) and admire the straight line (linear convergence, literally).
+:::
+
+::: {.callout-important title="Challenge 3.2: Generic FizzBuzz"}
+The classic FizzBuzz problem: for the numbers $1, \dots, n$, print "Fizz" for multiples of 3, "Buzz" for multiples of 5, "FizzBuzz" for multiples of both, and the number itself otherwise. You are a mathematician, so you will of course generalise it.
+
+Write `generic_fizzbuzz(x, divisors, phrases)` taking a vector of numbers, a vector of divisors, and a vector of phrases (same length as `divisors`). Each number maps to the concatenation of the phrases of all divisors that divide it, or to the number itself (as a character) if none do. The classic game is then:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+#| eval: false
+generic_fizzbuzz(1:15, c(3, 5), c("Fizz", "Buzz"))
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+#| eval: false
+generic_fizzbuzz(range(1, 16), [3, 5], ["Fizz", "Buzz"])
+```
+
+</div>
+:::
+
+and your test case:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+#| eval: false
+generic_fizzbuzz(1:20, c(2, 3, 5, 7), c("Skibbidi", "Fizz", "Buzz", "Yo"))
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+#| eval: false
+generic_fizzbuzz(range(1, 21), [2, 3, 5, 7], ["Skibbidi", "Fizz", "Buzz", "Yo"])
+```
+
+</div>
+:::
+
+Hint: `map_chr` over `x`, and inside the lambda, logical indexing of `phrases` plus `paste0(..., collapse = "")` gets you there in very few lines. Python route: a list comprehension over `x`, and inside, `"".join` over `zip(phrases, divisors)` plays the role of the logical indexing plus `paste0` — and an empty string is falsy, which handles the fallback.
+:::
+
+## Looking ahead
+
+We now hold both halves of the toolkit this module runs on: writing clean, pure functions, and wiring them together functionally — factories to build them, `map` to spread them over data, and higher-order functions like `grad_descent` that take the mathematics as an argument. In @sec-week4 we meet the data structures and plotting tools that real datasets deserve, and in @sec-week5 everything converges (pun fully intended) on optimisation for statistics.

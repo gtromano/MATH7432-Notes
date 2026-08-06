@@ -1,0 +1,1556 @@
+# Week 4: Data Frames and Plotting {#sec-week4}
+
+```{r}
+#| include: false
+set.seed(7432)
+knitr::opts_chunk$set(fig.width = 6, fig.height = 4, out.width = "70%", fig.align = "center")
+```
+
+```{python}
+#| include: false
+import numpy as np
+rng = np.random.default_rng(7432)   # the Python companion of set.seed(7432)
+```
+
+Three weeks of machinery: vectors and matrices (@sec-week1), loops (@sec-week2), functions
+(@sec-week3). This week we point all of it at what statisticians actually spend their days on:
+tables of data. We will learn how to store data in *data frames*, manipulate them with `dplyr`
+(in Python: `pandas`), and — at last — plot them properly with `ggplot2` (in Python:
+`plotnine`). The quick-and-dirty `plot()` and `plt.plot()` calls from the previous weeks retire
+this week.
+
+## The tidyverse
+
+Modern data work in R happens largely inside the **tidyverse**, a collection of packages that
+share a common design: `dplyr` for manipulation, `readr` for import/export, `tibble` for nicer
+data frames, `ggplot2` for graphics, and `purrr`, which you already met in @sec-week3.
+
+**Note for Python users:** Python spreads the same jobs over separate packages: `pandas` covers
+what `dplyr`, `readr` and `tibble` do, and `plotnine` is a deliberate port of `ggplot2` — same
+grammar, nearly the same code. Together with `numpy` they are this week's toolkit, installed
+and imported alongside the R column below.
+
+Install it once (already done on university machines):
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+#| eval: false
+install.packages("tidyverse")
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+#| eval: false
+!python -m pip install pandas plotnine
+```
+
+</div>
+:::
+
+then load it at the top of every script:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+#| message: false
+library(tidyverse)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+# several packages instead of one — import them together, at the top
+import numpy as np
+import pandas as pd
+from plotnine import (
+    ggplot, aes, geom_point, geom_smooth, geom_histogram, geom_boxplot,
+    geom_line, geom_hline, facet_wrap, labs, theme_minimal
+)
+```
+
+</div>
+:::
+
+Installing happens once per computer; loading happens once per session — a distinction everyone
+mixes up exactly once.
+
+## Data frames {#sec-week4-df}
+
+A **data frame** is a table: each column is a named vector, and different columns may hold
+different types (numeric, character, logical). This is the crucial difference from the matrices
+of @sec-week1, where every entry had to share one type. In statistics-speak, columns are
+**variables** and rows are **observations**.
+
+### Building one
+
+Here is a small dataset of plant-based milks and their nutritional content per 250 ml glass:
+
+| type   | calories | protein | fibre | carbs | sugars | fat |
+|--------|----------|---------|-------|-------|--------|-----|
+| Almond | 60       | 1       | 1     | 8     | 7      | 2.5 |
+| Soy    | 100      | 7       | 2     | 10    | NA     | 4   |
+| Oat    | 120      | 3       | NA    | 20    | 19     | 2.5 |
+| Rice   | 130      | 1       | NA    | 25    | NA     | 2.5 |
+
+Note the `NA`s: real data is rarely complete, and R has a dedicated value for "not available"
+(in Python, `pandas` marks missing numbers with the floating-point `NaN`, written `np.nan`).
+We build the data frame column by column with `data.frame()` — in Python, from a dictionary
+mapping column names to lists:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+# each argument is one column (a vector); all must have the same length
+milk <- data.frame(
+  type     = c("Almond", "Soy", "Oat", "Rice"),
+  calories = c(60, 100, 120, 130),
+  protein  = c(1, 7, 3, 1),
+  fibre    = c(1, 2, NA, NA),
+  carbs    = c(8, 10, 20, 25),
+  sugars   = c(7, NA, 19, NA),
+  fat      = c(2.5, 4, 2.5, 2.5)
+)
+milk
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+# each entry is one column (a list); all must have the same length
+milk = pd.DataFrame({
+    "type":     ["Almond", "Soy", "Oat", "Rice"],
+    "calories": [60, 100, 120, 130],
+    "protein":  [1, 7, 3, 1],
+    "fibre":    [1, 2, np.nan, np.nan],
+    "carbs":    [8, 10, 20, 25],
+    "sugars":   [7, np.nan, 19, np.nan],
+    "fat":      [2.5, 4, 2.5, 2.5]
+})
+milk
+```
+
+</div>
+:::
+
+### Columns, rows and cells
+
+Single columns come out with the dollar syntax in R and single square brackets in Python,
+returning a plain vector (in pandas: a `Series`):
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+milk$calories
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+milk["calories"]
+```
+
+</div>
+:::
+
+In R, square brackets with a column name return instead a *smaller data frame* — pandas does
+the same when you double the brackets:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+milk["calories"]           # still a data frame
+milk[c("type", "protein")] # two columns, still a data frame
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+milk[["calories"]]          # double brackets: still a data frame
+milk[["type", "protein"]]   # two columns, still a data frame
+```
+
+</div>
+:::
+
+**Note for Python users:** the single/double bracket split is worth committing to memory:
+`milk["calories"]` is a `Series` (the vector-like object), `milk[["calories"]]` is a one-column
+`DataFrame`. The attribute shorthand `milk.calories` also works, but only for names that are
+valid Python identifiers — brackets are the safe habit.
+
+For rows (and row/column combinations) we index in two dimensions, exactly as we did with
+matrices: `df[rows, columns]`, with an empty slot meaning "everything":
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+milk[2, ]                        # second row, all columns
+milk[1:2, c("type", "calories")] # first two rows, two columns
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+milk.iloc[[1]]                       # second row: position 1 — Python counts from 0!
+milk.loc[0:1, ["type", "calories"]]  # first two rows, two columns
+```
+
+</div>
+:::
+
+**Note for Python users:** pandas splits two-dimensional indexing over two *indexers*: `.iloc`
+takes integer **positions** (0-based, end excluded — the rules of @sec-week1), while `.loc`
+takes **labels** — here the row labels happen to be the integers 0, 1, 2, ... — and includes
+*both* ends, which is why `0:1` above returns two rows. Also, `milk.iloc[1]` without the inner
+brackets squeezes the row into a `Series`; the doubled brackets keep it a one-row `DataFrame`.
+
+The comparison operators of @sec-week2 work here too — a logical vector selects rows:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+# rows where calories exceed 100
+milk[milk$calories > 100, ]
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+# rows where calories exceed 100
+milk[milk["calories"] > 100]
+```
+
+</div>
+:::
+
+New columns are created by assigning to a name that does not exist yet:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+# what fraction of the carbs is sugar?
+milk$sugar_frac <- milk$sugars / milk$carbs
+milk
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+# what fraction of the carbs is sugar?
+milk["sugar_frac"] = milk["sugars"] / milk["carbs"]
+milk
+```
+
+</div>
+:::
+
+### Getting to know a data frame
+
+For a data frame you did not build yourself, four functions tell you almost everything:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+nrow(milk)     # number of rows (ncol() and dim() also exist)
+str(milk)      # structure: column names, types, first values
+summary(milk)  # summary statistics per column, NAs included
+head(milk, 2)  # first few rows (useful for big data)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+len(milk)        # number of rows (milk.shape gives rows and columns)
+milk.info()      # structure: column names, types, non-missing counts
+milk.describe()  # summary statistics per numeric column
+milk.head(2)     # first few rows (useful for big data)
+```
+
+</div>
+:::
+
+`summary()` counts the `NA`s for us — and those `NA`s are contagious. Any computation touching a
+missing value returns `NA`, unless you explicitly ask R to drop them:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+mean(milk$sugars)               # NA: R refuses to guess
+mean(milk$sugars, na.rm = TRUE) # mean of the observed values
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+milk["sugars"].mean()               # pandas skips NaN by default!
+milk["sugars"].mean(skipna=False)   # the R-style refusal is opt-in
+```
+
+</div>
+:::
+
+**Note for Python users:** the two languages picked *opposite* defaults: R propagates `NA`
+until you say `na.rm = TRUE`; pandas silently skips `NaN` until you say `skipna=False`. Neither
+is wrong, but know which one you are getting — a summary that quietly ignores missing values
+can hide a data problem R would have shouted about.
+
+::: {.callout-tip title="Exercise 4.1: A data frame of distributions"}
+Build a data frame `dists` describing five distributions, with columns:
+
+- `name`: `"Bernoulli"`, `"Poisson"`, `"Exponential"`, `"Gaussian"`, `"Uniform"`;
+- `n_params`: the number of parameters of each: 1, 1, 1, 2, 2;
+- `discrete`: `TRUE, TRUE, FALSE, FALSE, FALSE`.
+
+Then:
+
+a. Extract the `name` column as a vector.
+b. Using logical indexing, extract the rows of the discrete distributions. (Hint: `discrete` is
+   already a logical vector — no comparison needed.)
+c. Add a logical column `symmetric` using the dollar syntax (Python: bracket assignment) — only
+   the Gaussian and the Uniform are symmetric.
+d. Check your work with `str()` and `dim()` (Python: `.info()` and `.shape`).
+:::
+
+## Tibbles {#sec-week4-tibbles}
+
+The tidyverse ships a modernised data frame called a **tibble**. It *is* a data frame —
+everything above applies — with two behavioural upgrades. First, printing: a tibble shows ten
+rows, only the columns that fit, and the type of each. A classic data frame would happily dump
+every last row of a 50,000-row dataset into your console. Second, no partial matching. Watch
+this data.frame quirk:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+milk$cal   # base data frame: silently matches "calories"!
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+#| error: true
+milk["cal"]   # pandas never guesses: unknown column, immediate error
+```
+
+</div>
+:::
+
+That is a bug waiting to happen — mistype a column name and R may "helpfully" return a different
+column. A tibble warns you and returns `NULL`:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+as_tibble(milk)$cal
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+print(milk.get("cal"))   # the forgiving lookup: None (Python's NULL)
+```
+
+</div>
+:::
+
+**Note for Python users:** there is no tibble to reach for because there is no quirk to fix —
+pandas has exactly **one** table type, the `DataFrame` you have been using all along, and it
+never partial-matches (as the `KeyError` above shows; `.get()` is the polite version). The
+genuinely new thing to watch is the **index**: every `DataFrame` carries row labels — the
+unnamed left column in the printouts — which stick to their rows through filtering and sorting.
+It is pandas' (heavily used) version of R's (rarely used) row names; when it gets in your way,
+`.reset_index()` demotes it to an ordinary column, and `index=False` keeps it out of your CSV
+files. Both will appear below.
+
+You create tibbles directly with `tibble()` (same syntax as `data.frame()`, with the bonus that
+later columns can use earlier ones), or convert with `as_tibble()`. From now on we work with
+tibbles, and we need a bigger dataset to play with: `mtcars`, a built-in table of 32 cars from a
+1974 issue of *Motor Trend* (in Python it ships with plotnine, as `plotnine.data.mtcars`). The
+variables we will use most: `mpg` (miles per gallon — higher means more fuel-efficient), `cyl`
+(cylinders), `hp` (horsepower), `wt` (weight, 1000 lbs), `qsec` (quarter-mile time in seconds),
+`am` (transmission: 0 automatic, 1 manual).
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+head(mtcars, 3)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+from plotnine.data import mtcars
+mtcars.head(3)
+```
+
+</div>
+:::
+
+One wrinkle: `mtcars` stores the car names as *row names*, a base-R feature tibbles deliberately
+drop. `as_tibble()` can rescue them into a proper column:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+cars <- as_tibble(mtcars, rownames = "model")
+cars
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+# plotnine's copy already keeps the names in a column; just rename it
+cars = mtcars.rename(columns={"name": "model"})
+cars
+```
+
+</div>
+:::
+
+**Note for Python users:** pandas' index (see the note above) is exactly the row-names idea, and
+`mtcars.set_index("name")` would recreate R's original layout — but, as in R, the tidy habit is
+to keep data in ordinary columns.
+
+## Reading and writing data {#sec-week4-io}
+
+Data usually lives in files, and the lingua franca of data files is the CSV (comma-separated
+values). The `readr` package (in the tidyverse) provides `write_csv()` and `read_csv()`:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+# write the milk data next to this script...
+write_csv(milk, "week4_milk.csv")
+
+# ...and read it back
+milk2 <- read_csv("week4_milk.csv")
+milk2
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+# write the milk data next to this script...
+milk.to_csv("week4_milk_py.csv", index=False)
+
+# ...and read it back
+milk2 = pd.read_csv("week4_milk_py.csv")
+milk2
+```
+
+</div>
+:::
+
+`read_csv()` reads the file, guesses each column's type (it prints its guesses — read them, they
+catch import bugs early), and returns a tibble. Base R has `read.csv()` — dot, not underscore —
+which does the same job into a plain data frame, more slowly on large files. Recall from
+@sec-week1 that a bare filename like `"week4_milk.csv"` is relative to your working directory —
+if the file cannot be found, `getwd()` (Python: `os.getcwd()`) is the first thing to check.
+
+**Note for Python users:** two things in the chunk above. First, the filename: throughout these
+notes the Python column writes `_py` files (`week4_milk_py.csv`) so the two languages never
+overwrite each other's output. Second, `index=False`: without it pandas saves the index as an
+anonymous extra column, which comes back to haunt you at reading time. `pd.read_csv()` guesses
+column types just like `readr` — but silently; run `.info()` on an import when it matters.
+
+::: {.callout-tip title="Exercise 4.2: A CSV round trip"}
+Using the `dists` data frame from Exercise 4.1:
+
+a. Write it to `"week4_dists.csv"` with `write_csv()` (Python: to `"week4_dists_py.csv"` with
+   `.to_csv(..., index=False)`).
+b. Find the file and open it with a text editor (or click it in the RStudio Files pane and choose
+   *View File*). What does the raw format look like?
+c. Read it back with `read_csv()` (Python: `pd.read_csv()`) and compare `str()` (Python:
+   `.info()`) of the original and the copy. Did the logical column survive the trip?
+d. Read it once more with base `read.csv()`. What differs? (**R only** — Python has just the one
+   CSV reader.)
+:::
+
+## The pipe `|>` {#sec-week4-pipe}
+
+Data analysis is a sequence of steps, and code reads best when it is written in the order the
+steps happen. The **pipe** operator `|>` takes the value on its left and passes it as the *first
+argument* of the function on its right — programming's version of function composition
+$(f_2 \circ f_1)(x)$, which we met in @sec-week3. So to compute $\ln(1 + 2 + \dots + 10)$:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+x <- 1:10
+x |> sum() |> log()   # same as log(sum(x))
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+x = np.arange(1, 11)
+np.log(x.sum())       # no pipe in Python: nest the calls, or chain methods
+```
+
+</div>
+:::
+
+Read it left to right: "take `x`, sum it, take the log". Further arguments go in their usual
+place, after the piped-in first one:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+x |> sum() |> log(base = 10)   # same as log(sum(x), base = 10)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+np.log10(x.sum())     # numpy's dedicated base-10 logarithm
+```
+
+</div>
+:::
+
+In the wild you will also meet `%>%`, the older pipe from the `magrittr` package — for our
+purposes it does the same thing, but write the native `|>`.
+
+The pipe matters this week because every `dplyr` verb takes a data frame as its first argument
+and returns a data frame: they are *built* to be piped.
+
+**Note for Python users:** Python has no pipe operator; the idiom that plays its role is
+**method chaining**. Every pandas verb below is a *method* that returns a new `DataFrame`, so a
+pipeline reads left to right as `cars.query(...).assign(...).sort_values(...)` — dots instead
+of pipes. Wrap a chain in parentheses to split it over several lines, one verb per line; you
+will see that layout constantly from here on.
+
+## Data manipulation with dplyr (and pandas) {#sec-week4-dplyr}
+
+`dplyr` provides one verb per manipulation you would want to do to a table:
+
+| Verb          | Action                                             | pandas counterpart        |
+|---------------|----------------------------------------------------|---------------------------|
+| `filter()`    | keep a subset of the **rows**                      | `.query()` / boolean mask |
+| `select()`    | keep a subset of the **columns**                   | `[[...]]` double brackets |
+| `mutate()`    | add new columns computed from existing ones        | `.assign()`               |
+| `arrange()`   | reorder the rows                                   | `.sort_values()`          |
+| `summarise()` | collapse rows down to summary statistics           | `.agg()`                  |
+
+Inside a verb you refer to columns by bare name — no `cars$` prefix needed; `dplyr` knows to
+look inside the data frame first. (One side effect of loading the tidyverse: its `filter()`
+masks the base function of the same name. If `filter()` ever behaves strangely, be explicit and
+call `dplyr::filter()`.)
+
+**Note for Python users:** pandas gives you the bare-name comfort only inside `.query()`, whose
+condition is a *string* evaluated inside the data frame. Elsewhere columns are spelled
+`cars["mpg"]` — and inside a chain, where the intermediate data frame has no name, `.assign()`
+accepts functions of it (`lambda df: ...`). Both appear below.
+
+### filter and select
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+# rows: frugal cars only
+cars |> filter(mpg > 25)
+
+# conditions combine with the logical operators of week 2
+cars |> filter(cyl == 4 & hp > 90)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+# rows: frugal cars only
+cars.query("mpg > 25")
+
+# conditions combine with the logical operators of week 2
+cars.query("cyl == 4 & hp > 90")
+```
+
+</div>
+:::
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+# columns: just the ones we care about
+cars |> select(model, mpg, hp) |> head(3)
+
+# or everything except some
+cars |> select(-vs, -am) |> head(3)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+# columns: just the ones we care about
+cars[["model", "mpg", "hp"]].head(3)
+
+# or everything except some
+cars.drop(columns=["vs", "am"]).head(3)
+```
+
+</div>
+:::
+
+### mutate and arrange
+
+`mutate()` adds columns. Let's add fuel efficiency in sensible units, and — while we are at it —
+turn the 0/1 codes into labelled categorical variables. R's type for categorical data is the
+**factor**: a vector with a fixed set of levels and readable labels, which `summary()` and
+`ggplot2` treat as labelled groups — discrete colour scales, one box or line per level — rather
+than as numbers on a continuous axis.
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+cars <- cars |>
+  mutate(
+    kpl = mpg * 0.425,                                # kilometres per litre
+    am  = factor(am, labels = c("automatic", "manual")),
+    vs  = factor(vs, labels = c("V-shaped", "straight"))
+  )
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+cars = cars.assign(
+    kpl = cars["mpg"] * 0.425,                        # kilometres per litre
+    am  = pd.Categorical(cars["am"].map({0: "automatic", 1: "manual"})),
+    vs  = pd.Categorical(cars["vs"].map({0: "V-shaped", 1: "straight"}))
+)
+```
+
+</div>
+:::
+
+**Note for Python users:** the factor's pandas counterpart is the **categorical** dtype:
+`.map()` swaps the 0/1 codes for readable labels, and `pd.Categorical()` marks the result as
+categorical, which plotnine then treats exactly as ggplot2 treats factors — discrete colour
+scales, one box or line per level.
+
+`arrange()` sorts rows, ascending by default, descending inside `desc()` (pandas:
+`ascending=False`). And because every verb pipes into the next, a whole analysis becomes one
+readable chain:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+# the most frugal 4-cylinder cars
+cars |>
+  filter(cyl == 4) |>
+  arrange(desc(kpl)) |>
+  select(model, kpl, hp) |>
+  head(3)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+# the most frugal 4-cylinder cars
+(
+  cars
+  .query("cyl == 4")
+  .sort_values("kpl", ascending=False)
+  [["model", "kpl", "hp"]]
+  .head(3)
+)
+```
+
+</div>
+:::
+
+::: {.callout-tip title="Exercise 4.3: dplyr drills"}
+Working on `cars` (the `mtcars` table with the labelled categorical columns from above):
+
+a. Find all manual cars that do more than 25 miles per gallon.
+b. Add a column `efficiency = mpg / hp`, miles per gallon per horsepower.
+c. Show the `model`, `mpg`, `hp` and `efficiency` of the five most efficient cars.
+d. Now do (b) and (c) as a single pipeline, starting from `cars` and using each verb at most
+   once.
+:::
+
+### group_by and summarise {#sec-week4-groupby}
+
+`summarise()` collapses a data frame to summary statistics — `n()` counts the rows, and any
+vector-to-number function (`mean`, `sd`, `median`, `min`, ...) works:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+cars |> summarise(n = n(), mean_mpg = mean(mpg), sd_mpg = sd(mpg))
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+# ungrouped: pick the column, name the summaries
+cars["mpg"].agg(n = "size", mean_mpg = "mean", sd_mpg = "std")
+```
+
+</div>
+:::
+
+On its own this is a glorified `mean()`. The power move is `group_by()`: it splits the data
+frame into groups by the values of one or more columns, so that `summarise()` produces *one row
+per group*. Group means and group spreads are the first step of nearly every statistical
+analysis, and here they cost one pipeline:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+cars |>
+  group_by(am) |>
+  summarise(n = n(), mean_mpg = mean(mpg), sd_mpg = sd(mpg))
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+(
+  cars
+  .groupby("am", observed=True)
+  .agg(n        = ("mpg", "size"),
+       mean_mpg = ("mpg", "mean"),
+       sd_mpg   = ("mpg", "std"))
+  .reset_index()
+)
+```
+
+</div>
+:::
+
+Manual cars in this dataset do, on average, about 7 more miles per gallon — though with 1974
+technology, the causal story is mostly "small cheap cars had manual gearboxes". Grouping by two
+variables gives one row per combination:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+#| message: false
+cars |>
+  group_by(am, cyl) |>
+  summarise(n = n(), mean_mpg = mean(mpg))
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+(
+  cars
+  .groupby(["am", "cyl"], observed=True)
+  .agg(n = ("mpg", "size"), mean_mpg = ("mpg", "mean"))
+  .reset_index()
+)
+```
+
+</div>
+:::
+
+**Note for Python users:** each `.agg()` pair reads `new_column = (column, function)` — the
+counterpart of `summarise()`'s `new_column = f(column)`. `groupby()` moves the grouping values
+into the index, so we finish with `.reset_index()` to get ordinary columns back; and
+`observed=True` keeps only group combinations that actually occur, which is what `summarise()`
+does (it also silences a pandas warning about its changing default).
+
+::: {.callout-tip title="Exercise 4.4: Group statistics on mtcars"}
+a. Group `cars` by number of cylinders and compute, per group: the number of cars, the mean and
+   standard deviation of `mpg`, and the mean of `hp`.
+b. Group by transmission *and* cylinders, computing group sizes and mean `mpg`.
+c. Compare (b) with the transmission-only summary in the notes: within each cylinder class, is
+   the manual advantage still around 7 mpg? What does that tell you about comparing group means
+   without controlling for other variables?
+:::
+
+### Joining data frames
+
+Real analyses often need to combine two tables that share a common column (a *key*). Suppose we
+find supermarket prices for some of our milks:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+prices <- tibble(
+  type  = c("Almond", "Oat", "Soy"),
+  price = c(1.80, 1.50, 1.40)   # £ per litre
+)
+
+# match rows of `milk` with rows of `prices` by the shared column `type`
+left_join(milk, prices, by = "type")
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+prices = pd.DataFrame({
+    "type":  ["Almond", "Oat", "Soy"],
+    "price": [1.80, 1.50, 1.40]   # £ per litre
+})
+
+# match rows of `milk` with rows of `prices` by the shared column `type`
+milk.merge(prices, on="type", how="left")
+```
+
+</div>
+:::
+
+`left_join()` keeps every row of its first argument and attaches the matching information from
+the second; rows with no match (poor Rice) get `NA`. There is a whole family — `full_join()`,
+`inner_join()`, `right_join()` — differing only in which unmatched rows survive. (pandas folds
+the whole family into `.merge()`'s `how` argument: `"left"`, `"outer"`, `"inner"`, `"right"`.)
+
+## Plotting with ggplot2 (and plotnine) {#sec-week4-ggplot}
+
+`ggplot2` implements the **grammar of graphics**: instead of memorising one function per chart
+type, you describe a plot with three ingredients:
+
+- the **data**: a data frame;
+- the **aesthetic mapping** `aes()`: which variables map to which visual channels — x-position,
+  y-position, colour, fill, shape;
+- the **geometries** `geom_*()`: how the mapped data is drawn — points, lines, bars, boxes.
+
+Layers are glued together with `+` (a historical quirk: ggplot2 predates the pipe). Swap the
+geometry and the same data-to-aesthetics mapping becomes a different plot; that is the whole
+grammar. Easier done than said:
+
+**Note for Python users:** `plotnine` is a faithful port of `ggplot2`: same grammar, same
+function names, same `+`. Two mechanical differences only: column names inside `aes()` are
+quoted strings — `aes(x="wt", y="mpg")` — and a plot spread over several lines needs wrapping
+parentheses (plus `.show()` to display it from a script). Both spellings of `colour`/`color`
+work, in either language.
+
+### Scatter plots
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+ggplot(cars, aes(x = wt, y = mpg)) +
+  geom_point()
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+(
+  ggplot(cars, aes(x="wt", y="mpg")) +
+  geom_point()
+).show()
+```
+
+</div>
+:::
+
+Dissecting it: `ggplot(cars, ...)` starts a plot from the `cars` data; `aes(x = wt, y = mpg)`
+maps weight to the x-axis and fuel consumption to the y-axis; `+ geom_point()` draws one point
+per row. Heavier cars burn more fuel — a relationship crying out for a line through it:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+#| message: false
+ggplot(cars, aes(x = wt, y = mpg)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+(
+  ggplot(cars, aes(x="wt", y="mpg")) +
+  geom_point() +
+  geom_smooth(method="lm", se=False)
+).show()
+```
+
+</div>
+:::
+
+`geom_smooth(method = "lm")` overlays the least-squares regression line — the line minimising
+the sum of squared vertical distances to the points, the same fit you would get from R's
+`lm(mpg ~ wt, data = cars)` (in Python, from `statsmodels`, which is exactly what plotnine's
+`method="lm"` calls under the hood). Fitting models by minimising a loss is precisely the
+business of @sec-week5.
+
+To bring in a third variable, map it to a third aesthetic:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+ggplot(cars, aes(x = wt, y = mpg, colour = am)) +
+  geom_point()
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+(
+  ggplot(cars, aes(x="wt", y="mpg", colour="am")) +
+  geom_point()
+).show()
+```
+
+</div>
+:::
+
+One extra word in `aes()` bought us a coloured grouping *and* a legend.
+
+### Mapping vs setting aesthetics
+
+There are two ways to control colour, and mixing them up is the most common ggplot bug in
+existence. **Mapping** (inside `aes()`) ties an aesthetic to a *variable*; **setting** (outside
+`aes()`, inside the geom) fixes it to a *constant*:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+# setting: every point steelblue, no legend — a constant, so OUTSIDE aes()
+ggplot(cars, aes(x = wt, y = mpg)) +
+  geom_point(colour = "steelblue")
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+# setting: every point steelblue, no legend — a constant, so OUTSIDE aes()
+(
+  ggplot(cars, aes(x="wt", y="mpg")) +
+  geom_point(colour="steelblue")
+).show()
+```
+
+</div>
+:::
+
+Put a constant *inside* `aes()` and ggplot does something legal but absurd: it invents a
+variable whose every value is the string `"blue"`, and dutifully assigns it the first default
+colour — which is red:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+# the classic mistake: "blue" is not a variable
+ggplot(cars, aes(x = wt, y = mpg, colour = "blue")) +
+  geom_point()
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+# the classic mistake: "blue" is not a variable
+(
+  ggplot(cars, aes(x="wt", y="mpg", colour='"blue"')) +
+  geom_point()
+).show()
+```
+
+</div>
+:::
+
+If your plot sports a legend titled `"blue"` full of red points, you now know why.
+
+**Note for Python users:** mind the doubled quotes in `aes(colour='"blue"')`. plotnine
+evaluates `aes()` strings as expressions, so the inner quotes are what make `"blue"` a constant
+string — a plain `aes(colour="blue")` would go looking for a *column* called `blue` and raise
+an error instead of drawing red points. Different failure, same moral: constants do not belong
+in `aes()`.
+
+::: {.callout-tip title="Exercise 4.5: Reproduce this scatter plot"}
+Build, from `cars`, the following plot (described in words — your job is to translate it into
+one ggplot call):
+
+- a scatter plot with gross horsepower `hp` on the x-axis and quarter-mile time `qsec` on the
+  y-axis;
+- points coloured by transmission (`am`);
+- one least-squares line per transmission group, without the confidence band.
+
+You should find that mapping `colour` automatically makes `geom_smooth()` fit one line per
+group. Does more horsepower mean a faster quarter mile? Does the relationship differ between
+transmissions?
+:::
+
+### Histograms and boxplots
+
+The distribution of a single variable needs only an `x` mapping; `geom_histogram()` bins it and
+draws bar heights:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+ggplot(cars, aes(x = mpg)) +
+  geom_histogram(binwidth = 2)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+(
+  ggplot(cars, aes(x="mpg")) +
+  geom_histogram(binwidth=2)
+).show()
+```
+
+</div>
+:::
+
+The `binwidth` is your choice, and an important one — too narrow is noise, too wide smooths away
+every feature. Always try a few values.
+
+For comparing a distribution *across groups*, the boxplot is the tool: a box from the first to
+the third quartile with the median inside, whiskers spanning the rest of the data, and any
+outliers as lone points. Map the group to `x` and the variable to `y`; boxes and bars are filled
+shapes, so their interior colour is the `fill` aesthetic (`colour` is just the outline):
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+ggplot(cars, aes(x = am, y = mpg, fill = am)) +
+  geom_boxplot()
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+(
+  ggplot(cars, aes(x="am", y="mpg", fill="am")) +
+  geom_boxplot()
+).show()
+```
+
+</div>
+:::
+
+The medians echo our `group_by()` summary — manual cars sit visibly higher — but the boxplot
+also shows the overlap and spread that a table of means quietly hides.
+
+::: {.callout-tip title="Exercise 4.6: Petal boxplots"}
+The built-in `iris` data frame records sepal and petal measurements for 150 flowers of three
+species. (**Python users:** `iris` ships with R, not Python — download `iris.csv` from Moodle
+into your working directory and load it with `iris = pd.read_csv("iris.csv")`; the R-style
+column names such as `Petal.Length` carry over, and plotnine accepts them.)
+
+a. Draw boxplots of `Petal.Length` by `Species`, with each box filled in a different colour.
+b. Which species is clearly separated from the others? Would a single overall histogram of
+   `Petal.Length` have shown you this?
+c. Change `fill` from a mapping to a setting: fill *all* boxes `"orchid"`. Where does
+   `fill = "orchid"` have to go?
+:::
+
+### Line plots
+
+`geom_line()` connects observations in x-order — the right geometry when x is time, iteration
+count, or anything sequential. Let's watch the law of large numbers in action: simulate 10000
+fair-coin flips (`rbinom(10000, size = 1, prob = 0.5)` in R, `rng.binomial(1, 0.5, size=10000)`
+in Python — both draw 10000 independent 0/1 values) and plot the running proportion of heads.
+Since randomness is involved, we set the seed so that each "random" figure is exactly
+reproducible — though not the *same* figure: R's and numpy's generators produce different
+streams, so the two columns show two different, equally fair, coin sequences:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+set.seed(7432)
+lln <- tibble(
+  n            = 1:10000,
+  running_mean = cumsum(rbinom(10000, size = 1, prob = 0.5)) / n
+)
+
+ggplot(lln, aes(x = n, y = running_mean)) +
+  geom_line() +
+  geom_hline(yintercept = 0.5, linetype = "dashed")
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+rng = np.random.default_rng(7432)
+n = np.arange(1, 10001)
+lln = pd.DataFrame({
+    "n":            n,
+    "running_mean": np.cumsum(rng.binomial(1, 0.5, size=10000)) / n
+})
+
+(
+  ggplot(lln, aes(x="n", y="running_mean")) +
+  geom_line() +
+  geom_hline(yintercept=0.5, linetype="dashed")
+).show()
+```
+
+</div>
+:::
+
+In both runs the wild early swings settle onto the dashed line at $1/2$: the sample mean
+converging to the expectation — slowly, as the fluctuations only shrink like $1/\sqrt{n}$.
+(`geom_hline()` draws a horizontal reference line; note how it stacks onto the plot as just
+another layer.) In @sec-week5 the very same plot template — value against iteration — will
+track optimisation algorithms as they converge.
+
+**Note for Python users:** watch the argument names — they swap roles across the languages.
+R's `rbinom(10000, size = 1, prob = 0.5)` asks for 10000 draws of `size = 1` trial each;
+numpy's `rng.binomial(1, 0.5, size=10000)` says the same thing, but now `size` counts the
+*draws*. Copying arguments across languages by name, without reading, is how "10000 flips of
+one coin" silently becomes "one flip of 10000 coins".
+
+### Facets
+
+Colour handles a third variable; a fourth would get crowded. **Faceting** splits one plot into a
+panel per value of a variable, with shared axes so panels compare fairly:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+ggplot(cars, aes(x = wt, y = mpg, colour = am)) +
+  geom_point() +
+  facet_wrap(~ cyl)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+(
+  ggplot(cars, aes(x="wt", y="mpg", colour="am")) +
+  geom_point() +
+  facet_wrap("~cyl")
+).show()
+```
+
+</div>
+:::
+
+`facet_wrap(~ cyl)` means "one panel per value of `cyl`" (the `~` is R's formula syntax — you
+will meet it again in regression). Arrange the panels with `nrow` or `ncol`, e.g.
+`facet_wrap(~ cyl, ncol = 1)` stacks them vertically, which is ideal for comparing
+distributions along a shared x-axis.
+
+**Note for Python users:** plotnine takes the formula as a string — `facet_wrap("~cyl")`, or
+just `facet_wrap("cyl")` — with the same `nrow`/`ncol` arguments.
+
+::: {.callout-tip title="Exercise 4.7: Facet the histograms"}
+Back to `iris`: draw histograms of `Petal.Length` (pick a sensible `binwidth`), faceted by
+`Species`, with the three panels stacked in a single column. Why does stacking them vertically
+(rather than side by side) make the species easier to compare? How does this figure relate to
+the boxplots of Exercise 4.6?
+:::
+
+### Labels, themes and saving
+
+Everything so far was exploratory: quick plots for you. A figure for a report needs proper
+labels — nobody downstream knows what `wt` means — and a cleaner look. `labs()` names every
+mapped aesthetic plus the title, and `theme_minimal()` swaps the grey default for something
+publication-friendly (we will use it from now on):
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+p <- ggplot(cars, aes(x = wt, y = mpg, colour = am)) +
+  geom_point() +
+  labs(
+    title  = "Lighter cars go further on a gallon",
+    x      = "Weight (1000 lbs)",
+    y      = "Miles per US gallon",
+    colour = "Transmission"
+  ) +
+  theme_minimal()
+p
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+p = (
+  ggplot(cars, aes(x="wt", y="mpg", colour="am")) +
+  geom_point() +
+  labs(
+      title  = "Lighter cars go further on a gallon",
+      x      = "Weight (1000 lbs)",
+      y      = "Miles per US gallon",
+      colour = "Transmission"
+  ) +
+  theme_minimal()
+)
+p.show()
+```
+
+</div>
+:::
+
+Note we stored the plot in a variable — plots are ordinary objects in both languages, so you
+can print them, add more layers later (`p + facet_wrap(~ cyl)`), or save them to a file with
+`ggsave()` (in plotnine, the plot's `.save()` method):
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+ggsave("week4_mpg_wt.png", p, width = 6, height = 4)  # inches
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+p.save("week4_mpg_wt_py.png", width=6, height=4, verbose=False)  # inches
+```
+
+</div>
+:::
+
+Change the extension to get a different format (`.pdf` scales beautifully in documents). If a
+figure looks wrong in your report, resize it here, in code — never by dragging its corner in a
+word processor.
+
+## Challenges
+
+::: {.callout-important title="Challenge 4.1: The full pipeline"}
+Time to run the whole week end to end: file → table → wrangle → summarise → figure → file.
+First create the raw data file by running:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+write_csv(as_tibble(mtcars, rownames = "model"), "week4_cars.csv")
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+mtcars.rename(columns={"name": "model"}).to_csv("week4_cars_py.csv", index=False)
+```
+
+</div>
+:::
+
+Now, starting from that CSV (pretend someone emailed it to you):
+
+a. Read `week4_cars.csv` (Python: `week4_cars_py.csv`) with `read_csv()` (Python:
+   `pd.read_csv()`).
+b. In one `mutate()` (Python: one `.assign()`): convert `am` to a factor (Python: categorical)
+   labelled `"automatic"`/`"manual"`, `vs` to one labelled `"V-shaped"`/`"straight"`, and add
+   `efficiency = mpg / hp`.
+c. Produce a per-`cyl` summary table: number of cars, mean and standard deviation of `mpg`.
+d. Draw a scatter plot of `hp` against `mpg`, coloured by transmission, faceted by `cyl`, with a
+   least-squares line per transmission (no confidence band), full labels, and `theme_minimal()`.
+e. Save the figure to `week4_analysis.png` (Python: `week4_analysis_py.png`) with `ggsave()`
+   (Python: `.save()`).
+
+Bonus points if (a)–(b) happen in a single pipeline.
+:::
+
+::: {.callout-important title="Challenge 4.2: Waves, functionally"}
+A plotting challenge that resurrects @sec-week3. Reproduce this figure:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+#| echo: false
+wave_x <- seq(0, 10, by = 0.01)
+wave <- \(fr) bind_rows(
+  tibble(x = wave_x, y = sin(fr * x), func = "sin", freq = fr),
+  tibble(x = wave_x, y = cos(fr * x), func = "cos", freq = fr)
+)
+waves <- map(c(0.5, 1, 2), wave) |> bind_rows()
+ggplot(waves, aes(x = x, y = y, colour = func)) +
+  geom_line() +
+  facet_wrap(~ freq, ncol = 1, labeller = label_both) +
+  theme_minimal()
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+#| echo: false
+wave_x = np.linspace(0, 10, 1001)
+wave = lambda fr: pd.concat([
+    pd.DataFrame({"x": wave_x, "y": np.sin(fr * wave_x), "func": "sin", "freq": fr}),
+    pd.DataFrame({"x": wave_x, "y": np.cos(fr * wave_x), "func": "cos", "freq": fr})
+])
+waves = pd.concat([wave(fr) for fr in [0.5, 1, 2]])
+(
+  ggplot(waves, aes(x="x", y="y", colour="func")) +
+  geom_line() +
+  facet_wrap("~freq", ncol=1, labeller="label_both") +
+  theme_minimal()
+).show()
+```
+
+</div>
+:::
+
+That is six curves — $\sin(fx)$ and $\cos(fx)$ for frequencies $f \in \{0.5, 1, 2\}$ over
+$x \in [0, 10]$ — in one data frame with columns `x`, `y`, `func` and `freq`, plotted with
+colour mapped to the function and one facet per frequency (`labeller = label_both` prints
+`freq: 0.5` etc. in the panel strips).
+
+The rules: no copy-pasting six blocks of data-frame code, and no `for` loops. Write a lambda
+that builds the data frame for one frequency, `map()` it over the three frequencies (Python:
+a list comprehension does the same job), and stitch the results with `bind_rows()` (Python:
+`pd.concat()`), both of which happily accept a list of data frames.
+:::
+
+That completes the toolbox: data structures, control flow, functions, and now data wrangling
+and graphics. Next week (@sec-week5) we put everything to work on the central computational
+problem of statistics — optimisation.

@@ -1,0 +1,1744 @@
+# Week 1: Introduction to R Programming {#sec-week1}
+
+```{r}
+#| include: false
+set.seed(7432)
+knitr::opts_chunk$set(fig.width = 6, fig.height = 4, out.width = "70%", fig.align = "center")
+```
+
+```{python}
+#| include: false
+import matplotlib.pyplot as plt
+plt.rcParams["figure.figsize"] = (6, 4)
+```
+
+Welcome to MATH7432! Over the next five weeks we will learn how to program — in R or in
+Python, your choice — and how to use it to build the computational tools that modern
+statistics runs on. By the end of the module you will have implemented, from scratch,
+algorithms that estimate statistical models — the same family of algorithms that trains
+neural networks. This week we start from zero: no programming background is assumed.
+
+Before the code, three definitions, compressed as much as academically acceptable.
+A **computer** is a device with a processor (which does arithmetic, very fast), memory (which
+holds the numbers the processor is currently working on) and storage (which holds files that
+survive a reboot). A **program** is a list of instructions for the processor. Processors only
+understand *machine code* — streams of 0s and 1s — which humans are famously bad at writing,
+so we write programs in a **programming language**: a formal language that is readable by
+humans and translated for the machine. R and Python — the two languages of this module — are
+both *high-level*, *interpreted* languages: high-level means they read almost like
+mathematics, and interpreted means each line is translated and executed on the spot, so you
+can have a live conversation with your computer — type a command, get an answer, type the
+next one. This makes them ideal for data analysis, where you rarely know step 10 before
+seeing the result of step 3.
+
+**R** was created in 1993 by Ross Ihaka and Robert Gentleman in Auckland as an open-source
+descendant of the S language, and it has since become the lingua franca of statistics: free,
+open source, with thousands of contributed packages covering essentially every statistical
+method ever published.
+
+**Python** was created in 1991 by Guido van Rossum in the Netherlands, and is named after
+the comedy group Monty Python, not the snake. It is a free, open-source, general-purpose
+language with a philosophy of readability, and — through the libraries numpy and pandas,
+which we will lean on heavily — it has become the other lingua franca of scientific
+computing, and the language most machine learning is written in.
+
+A good statistician picks the right tool for the task, and today the tasks of statistics
+are done in these two. In this module you are expected to *learn one of them* — your pick,
+unless your programme has already picked for you. Every example in these notes appears in
+both languages, so whichever you choose, the notes double as a dictionary for reading the
+other.
+
+If you have ever felt that working with data means being trapped in a spreadsheet, dragging
+formulas across cells until the heat death of the universe:
+
+![](images/chapter1/skyrim-finally-awake.jpg){width="450" fig-alt="Skyrim meme: 'Hey you, you're finally awake.'"}
+
+Throughout these notes you will meet chunks of code with their output printed underneath —
+**side by side in the two languages, R always on the left, Python always on the right** (on
+a narrow screen the columns stack, and the bold label above each chunk tells you which is
+which). Follow the column of the language you are learning; glancing at the other one
+occasionally is how you become bilingual for free:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+# I am a comment: R ignores everything after a '#'. The line below does the work.
+print("Beep bop beep")
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+# I am a comment: Python ignores everything after a '#'. The line below does the work.
+print("Beep bop beep")
+```
+
+</div>
+:::
+
+The notes are designed for the labs: read a section, copy the code into RStudio, run it,
+break it, fix it, and do the exercises as you meet them. Programming is not a spectator
+sport.
+
+## R and RStudio
+
+You will interact with R through **RStudio**, a program that wraps R in a friendly interface.
+Both are installed on the university machines; for your own laptop, install R from
+[r-project.org](https://www.r-project.org) first and RStudio from
+[posit.co](https://posit.co/download/rstudio-desktop/) second. When you open RStudio you will
+see several panels:
+
+-   the **console** (look for the `>` prompt): type a command, press `Enter`, R answers
+    immediately;
+-   the **script editor**: a text file of commands you are preparing. Press `Ctrl + Enter`
+    (`Cmd + Enter` on a Mac) on a line to send it to the console;
+-   the **environment** panel: lists the objects you have created so far;
+-   a miscellaneous panel showing files, plots and help pages.
+
+**Note for Python users:** everything in this section applies to you too. RStudio speaks
+Python as well, and it is what we use in the labs for both languages: a Python script ends
+in `.py` instead of `.R`, the Python console prompt is `>>>` rather than `>`, and on your
+own laptop you will want Python from [python.org](https://www.python.org) (the university
+machines have it already). Comments are `#` in Python too, so everything below about
+commenting transfers unchanged.
+
+The console is for experiments; a **script** (a plain text file with extension `.R`, created
+via *File > New File > R Script*) is for anything you want to keep. The console forgets, a
+saved script does not. A good workflow, and the one to use in the labs, is: type your commands
+in a script, run them with `Ctrl + Enter`, and save the script as you go. Future you, who
+returns after a week and remembers nothing, will be grateful.
+
+Future you will be even more grateful for **comments**. Any text after a `#` on a line is
+ignored, in both languages, which makes it the place to explain *why* the code does what it
+does:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+# convert a temperature from Celsius to Fahrenheit
+20 * 9 / 5 + 32
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+# convert a temperature from Celsius to Fahrenheit
+20 * 9 / 5 + 32
+```
+
+</div>
+:::
+
+We comment code generously in these notes, and you should do the same in yours.
+
+### Getting help
+
+Every R function has a help page: `?seq` (or `help(seq)`) opens the documentation for `seq`.
+The *Description*, *Usage* and *Arguments* sections are the ones to read first, and the
+*Examples* at the bottom can be copy-pasted. Python's equivalent is `help()` — e.g.
+`help(len)`, or `help(np.arange)` once numpy is loaded — and the online documentation for
+numpy and pandas is excellent. For anything the help pages cannot answer, the internet is
+full of people who had your exact error message before you — Stack Overflow in particular.
+Reading other people's answers is a core programming skill, not cheating.
+
+## R as a glorified calculator
+
+At its heart, the processor is a very fast calculator, and the console gives you direct
+access to it. All the basic operations are here:
+
+| Operation          | R             | Python        |
+|--------------------|---------------|---------------|
+| Add / subtract     | `2 + 3`, `2 - 3` | `2 + 3`, `2 - 3` |
+| Multiply / divide  | `2 * 3`, `2 / 3` | `2 * 3`, `2 / 3` |
+| Power              | `2^10`        | `2**10`       |
+| Integer division   | `7 %/% 2`     | `7 // 2`      |
+| Modulus (remainder)| `7 %% 2`      | `7 % 2`       |
+| Square root        | `sqrt(2)`     | `math.sqrt(2)` |
+| Natural log        | `log(2)`      | `math.log(2)` |
+| Exponential        | `exp(1)`      | `math.exp(1)` |
+| Trigonometry       | `sin(pi / 2)`, `cos(2 * pi)` | `math.sin(math.pi / 2)`, `math.cos(2 * math.pi)` |
+
+: Basic mathematical operations in the two languages. `pi` is built into R; Python keeps it in the `math` library.
+
+**Note for Python users:** the `math.` prefix in the right-hand column means those functions
+live in the **math** *library*, which must be loaded — once, at the top of your script —
+with `import math`. That includes the constant `math.pi`, since bare `pi` does not exist in
+Python. Loading libraries is everyday Python life; numpy and pandas arrive later this
+chapter in exactly the same way. And one trap deserves its own sentence: **the power
+operator in Python is `**`**, because `^` exists there too but means something entirely
+different (bitwise XOR) — `2^10` runs happily in Python and returns `8`. Ouch.
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+3 + 5 * 2
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+3 + 5 * 2
+```
+
+</div>
+:::
+
+In the R output, the `[1]` tells you that `13` is the first element of the answer — for now
+answers have only one element, but that changes very soon (Python just prints the bare
+number). Operations follow the usual algebraic precedence (powers, then multiplication and
+division, then addition and subtraction, left to right), and parentheses override it:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+3 + 7 * 5 / 3 - 2
+(3 + 7) * 5 / (3 - 2)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+3 + 7 * 5 / 3 - 2
+(3 + 7) * 5 / (3 - 2)
+```
+
+</div>
+:::
+
+So any formula you can write on paper, you can type — for instance the one that circles
+your lecturer's mind at 4am like a haunted seagull:
+$$
+\frac{\sqrt{3/4}}{\frac{1}{3} - \frac{2}{\pi^2}}.
+$$
+Here you go, be free, little bird:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+sqrt(3 / 4) / (1 / 3 - 2 / pi^2)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+import math   # sqrt, log, pi & co. live in the math library
+
+math.sqrt(3 / 4) / (1 / 3 - 2 / math.pi**2)
+```
+
+</div>
+:::
+
+::: {.callout-tip title="Exercise 1.1: A glorified calculator"}
+Use the console to evaluate:
+
+a.  $\dfrac{49^2 - 542}{42 + 63^2}$
+b.  $\sqrt{\pi^3} - \cos(2\pi)$
+c.  whether $2026$ is divisible by $7$, and whether it is divisible by $1013$
+    (the `%%` operator — `%` in Python — is your friend: what should the remainder be?);
+d.  each person's share when a £147.68 dinner bill is split among 7 people.
+:::
+
+## Variables and assignment
+
+A calculator with no memory forces you to re-type intermediate results. Our languages
+instead let you store any result in a **variable** — a labelled box in memory — using the
+assignment operator: `<-` in R (read it as "gets"), the plain `=` in Python:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+x <- 20 - 16
+y <- 4 + 5
+x - y
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+x = 20 - 16
+y = 4 + 5
+x - y
+```
+
+</div>
+:::
+
+**Note on `<-` vs `=`:** R also accepts `=` for assignment, and Python users will type it
+on reflex — but the R community's convention is `<-`, and we follow it in these notes.
+Python offers no choice: assignment is `=`, and `<-` is not assignment at all there — in
+Python `x <- 3` parses as "`x` less than `-3`", a comparison that quietly returns `True` or
+`False`. Beware when switching columns.
+
+Typing a variable's name prints its content, and the environment panel of RStudio lists
+everything you have created:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+x
+y
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+x
+y
+```
+
+</div>
+:::
+
+Three things to know about assignment. First, both languages are case-sensitive, so `x` and
+`X` are different names, and asking for a variable that does not exist is an error:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+#| error: true
+X
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+#| error: true
+X
+```
+
+</div>
+:::
+
+Second, assigning to an existing variable silently overwrites it — neither language asks
+"are you sure?":
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+x <- -100
+x
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+x = -100
+x
+```
+
+</div>
+:::
+
+Third, a variable can appear on both sides of the assignment. The statement below is
+nonsense as an equation but perfectly sensible as an instruction: *take the current value
+of `x`, add 1, store the result back in `x`*:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+x <- x + 1
+x
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+x = x + 1
+x
+```
+
+</div>
+:::
+
+This little idiom is the beating heart of every iterative algorithm we will write in this
+module, so stare at it until it feels normal.
+
+Variables also make code readable. Compare the seagull formula from earlier with:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+numerator   <- sqrt(3 / 4)
+denominator <- 1 / 3 - 2 / pi^2
+numerator / denominator
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+numerator   = math.sqrt(3 / 4)
+denominator = 1 / 3 - 2 / math.pi**2
+numerator / denominator
+```
+
+</div>
+:::
+
+Same result, but each piece now has a name, can be inspected separately, and can be reused.
+Name your variables like this — lowercase, words separated by `_`, meaning over brevity
+(a convention both language communities happen to agree on).
+
+::: {.callout-tip title="Exercise 1.2: Compound interest, minimal effort"}
+You deposit £2000 in an account paying 3.5% interest per year. After $t$ years the balance
+is $2000 \times 1.035^{t}$.
+
+a.  Create variables `deposit`, `rate` and `years` (10 years), and compute the final
+    balance *using only the variables*, storing it in `balance`.
+b.  How much interest did you earn in total?
+c.  A rival bank offers 5%. Change `rate`, re-run your lines, and report the new balance.
+    Notice how little typing part (c) took: that is why we use variables.
+:::
+
+### Types, briefly
+
+Not everything in a variable is a number. Both languages distinguish several **types** of
+value, and R's `class()` — Python's `type()` — tells you which one you are holding:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+class(3.14)          # numeric: real numbers
+class("statistics")  # character: text, always in quotes
+class(TRUE)          # logical: TRUE or FALSE
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+type(3.14)          # float: real numbers
+type("statistics")  # str: text, always in quotes
+type(True)          # bool: True or False
+```
+
+</div>
+:::
+
+Numbers you know. **Character** values (strings) are text wrapped in quotes — without the
+quotes, `statistics` would be the name of a variable. **Logical** values are the atoms of
+decision-making in a program; @sec-week2 is largely about them, so we park them here.
+
+**Note for Python users:** the type names differ — `float` for numeric, `str` for
+character, `bool` for logical — and so does the spelling of the logicals: R shouts `TRUE`
+and `FALSE` in full capitals, Python writes `True` and `False` with a capital initial only.
+Each language rejects the other's spelling.
+
+## Vectors {#sec-week1-vectors}
+
+Statistics is not done one number at a time: you have $n$ observations, and you want to act
+on all of them at once. R's fundamental data structure, the **vector**, is exactly that — an
+ordered collection of values of the same type. The workhorse for creating one is `c()`,
+short for *combine*.
+
+**Note for Python users:** plain Python has *lists* — `[1.62, 1.85]`, square brackets —
+but the object that matches R's vector, elementwise mathematics included, is the **array**
+from the **numpy** library, the foundation of all scientific Python. Load it once per
+script with `import numpy as np`; everything in it is then available as `np.something`, and
+`np.array([...])` is your `c()`. Every vector and matrix in these notes goes through numpy.
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+heights <- c(1.62, 1.85, 1.71, 1.68, 1.79)   # heights in metres
+heights
+length(heights)   # how many elements?
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+import numpy as np                                    # load numpy once per script
+
+heights = np.array([1.62, 1.85, 1.71, 1.68, 1.79])    # heights in metres
+heights
+len(heights)   # how many elements?
+```
+
+</div>
+:::
+
+Vectors of text work the same way (`c("Ada", "Bea", "Cal")`), but one vector cannot mix
+types: if you try `c(1, "two")`, R silently converts everything to character — worth knowing
+before it surprises you. (numpy plays it exactly the same: `np.array([1, "two"])` comes
+back as two strings.)
+
+### Sequences and repetitions
+
+Typing long vectors by hand does not scale, so both languages give you generators. In R the
+colon operator builds integer sequences, `seq()` builds general ones, and `rep()` repeats;
+numpy's counterparts are `np.arange`, `np.linspace`, `np.tile` and `np.repeat`:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+1:10                                # integers from 1 to 10
+5:-5                                # sequences can go downhill
+seq(from = 0, to = 1, by = 0.1)     # step size 0.1
+seq(from = 0, to = 1, length.out = 5)  # exactly 5 equally spaced points
+rep(c(1, 2), times = 3)             # repeat the whole vector 3 times
+rep(c(1, 2), each = 3)              # repeat each element 3 times
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+np.arange(1, 11)                    # integers from 1 to 10 (end point EXCLUDED)
+np.arange(5, -6, -1)                # sequences can go downhill
+np.arange(0, 1.1, 0.1)              # step size 0.1 (stop just past 1 so 1 makes it in)
+np.linspace(0, 1, 5)                # exactly 5 equally spaced points
+np.tile([1, 2], 3)                  # repeat the whole vector 3 times
+np.repeat([1, 2], 3)                # repeat each element 3 times
+```
+
+</div>
+:::
+
+**Note for Python users:** `np.arange(a, b)` stops *one step before* `b` — the end point is
+excluded, which is why the integers 1 to 10 take `np.arange(1, 11)`. This end-exclusion
+habit runs right through Python (it returns in slicing, below), so burn it in now.
+
+`seq()` is our first function with named arguments: `from`, `to`, `by`, `length.out`.
+Naming the arguments (rather than relying on their order) keeps calls readable — check
+`?seq` for the full story. Python has named (*keyword*) arguments too:
+`np.linspace(start = 0, stop = 1, num = 5)` reads just as well.
+
+::: {.callout-tip title="Exercise 1.3: Sequence like you mean it"}
+Produce each of the following vectors in a single command, without typing out all the
+elements:
+
+a.  $0, 0.25, 0.5, \ldots, 3$
+b.  $10, 8, 6, 4, 2, 0$
+c.  $1, 1, 1, 2, 2, 2, 3, 3, 3$
+d.  $1, 2, 3, 1, 2, 3, 1, 2, 3$
+e.  21 equally spaced points from $-1$ to $1$.
+:::
+
+### Vectorised arithmetic
+
+Here is the superpower: arithmetic on vectors happens **elementwise**, with no extra effort
+on your part. A scalar is applied to every element:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+x <- c(1, 2, 77, 2, -2, 14)
+x + 2
+x * 10
+x^2
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+x = np.array([1, 2, 77, 2, -2, 14])
+x + 2
+x * 10
+x**2
+```
+
+</div>
+:::
+
+Two vectors of the same length are combined element by element:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+y <- c(1, 1, 2, 2, 3, 3)
+x + y
+x * y
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+y = np.array([1, 1, 2, 2, 3, 3])
+x + y
+x * y
+```
+
+</div>
+:::
+
+And mathematical functions map over every element too:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+sqrt(c(1, 4, 9, 16))
+exp(c(0, 1, 2))
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+np.sqrt(np.array([1, 4, 9, 16]))
+np.exp(np.array([0, 1, 2]))
+```
+
+</div>
+:::
+
+This style — one expression acting on $n$ numbers at once — is called **vectorised** code.
+It is how R — and numpy, which exists for precisely this — wants to be written: compact,
+close to the mathematical notation, and (as we will measure in @sec-week2) much faster than
+handling elements one at a time.
+
+Some functions instead *summarise* a whole vector into one number, which covers a good
+share of day-one statistics:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+sum(heights)
+mean(heights)
+max(heights)
+min(heights)
+which.max(heights)   # the POSITION of the largest element
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+np.sum(heights)
+np.mean(heights)
+np.max(heights)
+np.min(heights)
+np.argmax(heights)   # the INDEX of the largest element -- counted from 0!
+```
+
+</div>
+:::
+
+(numpy also offers these as *methods* attached to the array itself — `heights.mean()` — a
+spelling you will meet everywhere in the wild; the function form keeps our columns aligned.
+And yes, `which.max` and `np.argmax` just disagreed by one about the same element — the
+next-but-one section explains why.)
+
+### Recycling, and its footgun
+
+What if the two vectors have different lengths? R does not give up: it **recycles** the
+shorter vector, repeating it until it matches the longer one. Sometimes that is exactly
+what you want:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+1:6 + c(0, 100)     # c(0, 100) becomes 0, 100, 0, 100, 0, 100
+1:6 * c(1, -1)      # alternating signs, in one command
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+np.arange(1, 7) + np.tile([0, 100], 3)   # numpy will NOT stretch a length-2 array: tile it yourself
+np.arange(1, 7) * np.tile([1, -1], 3)    # alternating signs, repetition made explicit
+```
+
+</div>
+:::
+
+**Note for Python users — recycling vs broadcasting:** numpy does *not* recycle. Its rule,
+called **broadcasting**, only stretches a scalar (or, once we reach matrices, a length-1
+axis) to fit; two vectors of lengths 6 and 2 simply refuse to combine, with an error, not a
+warning. That is why the Python column above repeats the short array explicitly with
+`np.tile`. You lose a convenience and dodge a footgun — many would call that a win.
+
+R only complains when the longer length is not a multiple of the shorter — and even then
+it is a *warning*, not an error, and you still get an answer. numpy, meanwhile, refuses
+outright and names the two shapes it could not reconcile:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+1:6 + c(0, 10, 100, 1000)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+#| error: true
+np.arange(1, 7) + np.array([0, 10, 100, 1000])
+```
+
+</div>
+:::
+
+This is the footgun: if your two vectors were *supposed* to be the same length and are not
+— say a typo dropped an observation — R may silently recycle and hand you plausible-looking
+garbage. When a warning like the one above appears, treat it as an error until proven
+innocent, and check your `length()`s. (**Note for Python users:** this footgun is R-only —
+numpy's refusal to broadcast mismatched lengths turns the silent bug into an immediate,
+honest error.)
+
+::: {.callout-tip title="Exercise 1.4: The recycling plant"}
+For each command, write down your predicted output *before* running it, then check.
+One point per correct prediction, minus ten if you skip the predicting part.
+
+a.  `1:6 + c(0, 10)`
+b.  `c(1, 2, 3) * c(1, -1)`
+c.  `1:8 / c(1, 2, 4, 8)`
+d.  `(1:3)^(1:6)`
+
+*Python users:* translate each expression into numpy (`np.arange`, `np.array`) and predict
+instead whether numpy *runs it or raises an error* — and, for those that refuse, reproduce
+R's answer with an explicit `np.tile`.
+:::
+
+### Indexing: getting elements out
+
+Every element of a vector has a position — and here the two languages part ways in the most
+consequential fashion of the whole module: R counts positions from 1, like humans and
+mathematicians; Python counts from 0. Square brackets extract elements by position:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+x <- c(5, 8, 1, 9, 3, 7)
+x[1]           # first element
+x[3]           # third element
+x[length(x)]   # last element, whatever the length is
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+x = np.array([5, 8, 1, 9, 3, 7])
+x[0]           # first element
+x[2]           # third element
+x[len(x) - 1]  # last element (see the note: x[-1] is slicker)
+```
+
+</div>
+:::
+
+::: {.callout-warning title="1-based vs 0-based indexing (read this twice)"}
+R counts positions **from 1**, Python **from 0**: the first element is `x[1]` in R but
+`x[0]` in Python, and the element in position $k$ of your maths is `x[k]` in R but
+`x[k - 1]` in Python.
+
+Negative indices are worse than different — they are *false friends*. In R, `x[-1]` means
+"everything **except** the first element". In Python, `x[-1]` means "count **from the
+end**": it *is* the last element (a beloved idiom — no `len(x) - 1` needed). The same
+characters, two entirely different results, and no error message to warn you. More
+translation bugs are born on this line than anywhere else: when in doubt, print and check.
+:::
+
+The index can itself be a vector, which lets you take slices, cherry-pick, or reorder:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+x[2:4]         # elements 2 to 4
+x[c(1, 5)]     # elements 1 and 5
+x[c(5, 1)]     # same elements, opposite order
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+x[1:4]         # elements 2 to 4: indices 1, 2, 3 -- the slice EXCLUDES its end
+x[[0, 4]]      # elements 1 and 5
+x[[4, 0]]      # same elements, opposite order
+```
+
+</div>
+:::
+
+(There is the end-exclusion again: Python's slice `a:b` runs from index `a` up to, but not
+including, index `b` — just like `np.arange`.)
+
+A **negative** index means "everything except" in R — and something else entirely in
+Python:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+x[-1]          # drop the first element
+x[-c(2, 3)]    # drop the second and third
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+np.delete(x, 0)        # drop the first element -- x[-1] would NOT do this...
+np.delete(x, [1, 2])   # drop the second and third
+x[-1]                  # ...because in Python this counts from the end
+```
+
+</div>
+:::
+
+And indexing on the left of the assignment overwrites elements in place:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+x[3] <- 100    # replace the third element
+x
+x[c(1, 2)] <- 0  # replace several at once
+x
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+x[2] = 100     # replace the third element
+x
+x[[0, 1]] = 0  # replace several at once
+x
+```
+
+</div>
+:::
+
+One teaser before we move on: in both languages, brackets also accept conditions, so
+`x[x > 50]` returns the elements larger than 50. How and why that works is the business of
+@sec-week2 — resist the urge for one more week.
+
+:::: {.callout-tip title="Exercise 1.5: Marking spree"}
+Ten students sat a test, scoring (out of 100):
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+#| eval: false
+marks <- c(63, 58, 71, 45, 82, 69, 77, 52, 88, 60)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+#| eval: false
+marks = np.array([63, 58, 71, 45, 82, 69, 77, 52, 88, 60])
+```
+
+</div>
+:::
+
+a.  Compute the mean mark and the range (maximum minus minimum).
+b.  Which student (i.e. which *position*) got the top mark? Extract their mark using that
+    position — in one command, without typing the position yourself.
+c.  Extract the marks of students 2, 5 and 9 in a single command.
+d.  Extract everyone *except* student 4, who has an exceptional-circumstances claim pending.
+e.  The lecturer, feeling generous, adds 3 marks to everyone. Compute the new vector and
+    its mean. How does the new mean relate to the old one, and why did that not require
+    any statistics?
+::::
+
+### A first plot
+
+Two vectors of equal length are begging to be plotted against each other, and base R
+obliges with `plot()`; Python's counterpart is the **matplotlib** library:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+x <- seq(-3, 3, by = 0.1)
+y <- x^2 - x
+plot(x, y, type = "l")   # type = "l" joins the points with a line
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+import matplotlib.pyplot as plt   # Python's plotting library
+
+x = np.arange(-3, 3.1, 0.1)
+y = x**2 - x
+plt.plot(x, y)    # plt.plot draws a line by default
+plt.show()
+```
+
+</div>
+:::
+
+That is genuinely all it takes to graph a function. (One asymmetry: base R plots points
+unless you ask for a line with `type = "l"`; matplotlib's `plt.plot` draws a line unless
+you ask otherwise — `plt.scatter` is its point-plotter.) We will keep using quick
+one-liners like this as visual checks, and do plotting *properly* — labels, colours,
+themes, publication quality — in @sec-week4.
+
+## Saving your work: csv files and the working directory
+
+Variables live in memory, and memory is wiped when your session closes. To keep results —
+or to share them with anyone who is not inside your session — you write them to a file on
+disk. The standard exchange format for data is the **csv** (comma-separated values) file, a
+plain text table that every spreadsheet and statistics package can read:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+lancaster_rain <- c(12.5, 8.0, 0.0, 3.2, 21.7)   # mm of rain, Mon-Fri. The 0.0 is a typo, surely
+write.csv(lancaster_rain, file = "week1_rain.csv", row.names = FALSE)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+import pandas as pd                              # Python's table library
+
+lancaster_rain = np.array([12.5, 8.0, 0.0, 3.2, 21.7])   # mm of rain, Mon-Fri. The 0.0 is a typo, surely
+pd.DataFrame(lancaster_rain).to_csv("week1_rain_py.csv", index=False)
+```
+
+</div>
+:::
+
+**Note for Python users:** csv duty falls to **pandas**, Python's data-frame library
+(imported as `pd` by near-universal convention). pandas thinks in tables, so the array is
+wrapped in a `DataFrame` on its way to disk, and `index=False` is the counterpart of R's
+`row.names = FALSE`. The Python column writes to `week1_rain_py.csv` — a different file
+name from the R column, so the two languages never overwrite each other's work.
+
+But *where* did that file go? Into your **working directory**: the folder on disk where
+your session currently "stands". Any file name without a folder in front of it is read
+from, or written to, this directory.
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+#| eval: false
+getwd()          # print the current working directory
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+#| eval: false
+import os
+os.getcwd()      # print the current working directory
+```
+
+</div>
+:::
+
+You can point elsewhere with a **path**: `"data/week1_rain.csv"` means "inside the folder
+`data` under the working directory", and `"../week1_rain.csv"` means "one folder up".
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+#| eval: false
+write.csv(lancaster_rain, file = "data/week1_rain.csv")  # needs a 'data' folder to exist
+write.csv(lancaster_rain, file = "../week1_rain.csv")    # parent directory
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+#| eval: false
+pd.DataFrame(lancaster_rain).to_csv("data/week1_rain_py.csv")  # needs a 'data' folder to exist
+pd.DataFrame(lancaster_rain).to_csv("../week1_rain_py.csv")    # parent directory
+```
+
+</div>
+:::
+
+Rather than hard-coding long paths like `"C:/Users/you/Desktop/stuff/..."` (which break the
+moment the script moves to another machine), the sane workflow is to keep your scripts and
+data in one folder and make that the working directory — in RStudio: *Session > Set Working
+Directory > To Source File Location*.
+
+Reading the file back in is the mirror image:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+rain_from_file <- read.csv("week1_rain.csv")
+rain_from_file
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+rain_from_file = pd.read_csv("week1_rain_py.csv")
+rain_from_file
+```
+
+</div>
+:::
+
+The printout looks slightly different from a vector: it has a column name (`x` in R;
+pandas defaults to `0`) and numbered rows (from 0 in Python, naturally). That is because
+`read.csv()` — and equally pandas' `read_csv()` — returns a **data frame**: the
+table-shaped cousin of the vector, and the single most important object in applied
+statistics. It gets the star treatment in @sec-week4; for now, csv out and csv in is all
+we need.
+
+::: {.callout-tip title="Exercise 1.6: There and back again (a csv's tale)"}
+a.  Create a vector `temps` with the daily maximum temperatures
+    $4.2, 6.8, 7.5, 3.1, 5.0, 8.4, 6.9$ (°C, a week in a Lancaster spring).
+b.  Write it to a file called `week1_temps.csv` (Python users: `week1_temps_py.csv`, so
+    the two languages stay out of each other's way), without row names (pandas: without
+    the index).
+c.  Find the file on disk and open it with a plain text editor (Notepad, TextEdit) —
+    *not* Excel. Describe what you see: how are the values laid out?
+d.  Read the file back into a new variable and check the values survived the round trip.
+e.  What does the file look like if you forget `row.names = FALSE` (`index=False`) in
+    part (b)?
+:::
+
+## Matrices and a taste of linear algebra {#sec-week1-matrices}
+
+You know matrices from linear algebra; both our languages know them too, and — R being
+built by statisticians, numpy by numerical scientists — they are very good at them. A
+matrix in R is a vector wrapped onto rows and columns by `matrix()`; in numpy, a matrix is
+simply a 2-D array:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+A <- matrix(c(1, 2, 3, 4, 5, 6), nrow = 2)
+A
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+A = np.array([1, 2, 3, 4, 5, 6]).reshape(2, 3, order="F")   # "F" = fill column by column, like R
+A
+```
+
+</div>
+:::
+
+Note the order: R fills matrices **column by column** by default. If your data reads row by
+row (as it usually does on paper), say so with `byrow = TRUE`:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+A <- matrix(c(1, 2, 3, 4, 5, 6), nrow = 2, byrow = TRUE)
+A
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+A = np.array([[1, 2, 3],
+              [4, 5, 6]])   # a list of rows: numpy's natural reading order
+A
+```
+
+</div>
+:::
+
+**Note for Python users:** numpy's own filling order is the opposite of R's — row by row
+("C order"); the `order="F"` above ("Fortran order", the column-major convention R
+inherited) was only there to imitate R's default. The idiomatic numpy build is the second
+chunk's: hand `np.array` a list of rows and no reshaping is needed — the code looks like
+the matrix.
+
+The dimensions are always rows first, columns second:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+dim(A)     # rows, columns
+nrow(A)
+ncol(A)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+A.shape      # (rows, columns)
+A.shape[0]   # rows
+A.shape[1]   # columns
+```
+
+</div>
+:::
+
+You can also build matrices by gluing vectors together: `cbind()` (numpy:
+`np.column_stack`) binds them as columns, `rbind()` (`np.vstack`) as rows — remember the
+column one, it earns its keep in the challenge at the end of this chapter.
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+cbind(c(1, 2), c(3, 4))   # two columns
+rbind(c(1, 2), c(3, 4))   # two rows
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+np.column_stack([[1, 2], [3, 4]])   # two columns
+np.vstack([[1, 2], [3, 4]])         # two rows
+```
+
+</div>
+:::
+
+### Indexing a matrix
+
+Same square brackets as vectors, now with two positions: `[row, column]`. Leaving one slot
+empty (R) or putting a bare colon `:` in it (Python) means "all of them":
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+A[1, 2]    # row 1, column 2
+A[2, ]     # all of row 2
+A[, 3]     # all of column 3
+A[, c(1, 3)]  # columns 1 and 3
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+A[0, 1]    # row 1, column 2 (0-based, as ever)
+A[1, :]    # all of row 2
+A[:, 2]    # all of column 3
+A[:, [0, 2]]  # columns 1 and 3
+```
+
+</div>
+:::
+
+And `t()` — in numpy the `.T` attribute — transposes:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+t(A)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+A.T
+```
+
+</div>
+:::
+
+### Matrix arithmetic: `*` is not what you think
+
+Here is the classic trap — and it is the same trap in both languages. The ordinary
+arithmetic operators work on matrices exactly as they do on vectors — **elementwise**:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+B <- matrix(c(1, 2, 3, 4), nrow = 2, byrow = TRUE)
+C <- matrix(c(10, 20, 30, 40), nrow = 2, byrow = TRUE)
+B + C
+B * C     # elementwise! NOT the matrix product
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+B = np.array([[1, 2], [3, 4]])
+C = np.array([[10, 20], [30, 40]])
+B + C
+B * C     # elementwise! NOT the matrix product
+```
+
+</div>
+:::
+
+The actual matrix product — rows times columns, as in $\left(BC\right)_{ij} = \sum_k B_{ik}
+C_{kj}$ — has its own operator: `%*%` in R, `@` in Python:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+B %*% C
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+B @ C
+```
+
+</div>
+:::
+
+The usual conformity rule applies: an $(n \times k)$ matrix can only `%*%` a
+$(k \times m)$ one. Writing `*` where you meant `%*%` (or `@`) is a rite of passage in
+either language; the resulting bug is nasty precisely because both versions run without
+error and return a matrix of the same size. Check a small case by hand when in doubt —
+which is, conveniently, the next exercise.
+
+::: {.callout-tip title="Exercise 1.7: Matrix products, by hand and by machine"}
+Let
+$$
+A = \begin{pmatrix} 2 & 0 \\ 1 & 3 \end{pmatrix}, \qquad
+B = \begin{pmatrix} 1 & 4 \\ 2 & 5 \end{pmatrix}.
+$$
+
+a.  Compute $AB$ with pen and paper.
+b.  Build `A` and `B` (mind R's filling order!) and verify your answer with `%*%`
+    (Python: `@`).
+c.  Compute `A * B` and explain, in one sentence, what your language did instead.
+d.  Compute $B^\top\!A$ using `t()` and `%*%` (`.T` and `@`). Is it equal to $(AB)^\top$?
+    Should it be?
+:::
+
+### Inverses, determinants and linear systems
+
+The function with the most misleading name in base R, `solve()`, computes matrix inverses:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+B_inv <- solve(B)   # the inverse of B
+B_inv
+round(B %*% B_inv, 10)   # B times its inverse: the identity (up to rounding)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+B_inv = np.linalg.inv(B)   # the inverse of B
+B_inv
+np.round(B @ B_inv, 10)    # B times its inverse: the identity (up to rounding)
+```
+
+</div>
+:::
+
+**Note for Python users:** numpy files all of linear algebra under `np.linalg`, and names
+things honestly: `np.linalg.inv` inverts, `np.linalg.solve` (coming below) solves systems,
+`np.linalg.det` takes determinants. R's `solve()` carries the misleading-name burden alone.
+
+(The `round()` is there because floating-point arithmetic leaves microscopic dust like
+`2.2e-16` where exact zeros should be — more on that in @sec-week2.) The identity matrix
+itself, should you need one, is `diag(2)` in R, `np.eye(2)` in Python.
+
+A matrix is invertible if and only if its determinant is non-zero, and `det()`
+(`np.linalg.det`) will tell you:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+det(B)
+S <- matrix(c(1, 2, 2, 4), nrow = 2)   # second column = 2 * first: singular
+det(S)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+np.linalg.det(B)                 # -2, plus a speck of that floating-point dust
+S = np.array([[1, 2], [2, 4]])   # second column = 2 * first: singular
+np.linalg.det(S)
+```
+
+</div>
+:::
+
+Asking for the inverse of a singular matrix fails loudly in both languages (an *error*,
+not a warning — priorities in the right place):
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+#| error: true
+solve(S)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+#| error: true
+np.linalg.inv(S)
+```
+
+</div>
+:::
+
+The name `solve()` starts making sense with its two-argument form, which solves the linear
+system $A\mathbf{x} = \mathbf{b}$. For
+$$
+\begin{aligned}
+x + 2y &= 5 \\
+3x + 4y &= 6
+\end{aligned}
+\qquad\text{i.e.}\qquad
+\underbrace{\begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}}_{A}
+\mathbf{x}
+=
+\underbrace{\begin{pmatrix} 5 \\ 6 \end{pmatrix}}_{\mathbf{b}},
+$$
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+A <- matrix(c(1, 2, 3, 4), nrow = 2, byrow = TRUE)
+b <- c(5, 6)
+solve(A, b)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+A = np.array([[1, 2], [3, 4]])
+b = np.array([5, 6])
+np.linalg.solve(A, b)
+```
+
+</div>
+:::
+
+Mathematically this is $\mathbf{x} = A^{-1}\mathbf{b}$, and `solve(A) %*% b` (Python:
+`np.linalg.inv(A) @ b`) gives the same answer — but the two-argument `solve(A, b)` /
+`np.linalg.solve(A, b)` never forms the inverse explicitly, which is both faster and
+numerically more stable. Statistics is full of linear systems (you are about to meet the
+most famous one in Challenge 1.1), so this one-liner will follow you for the rest of your
+career.
+
+::: {.callout-tip title="Exercise 1.8: Three equations, three unknowns"}
+Consider the system
+$$
+\begin{aligned}
+2x + y - z &= 8 \\
+-3x - y + 2z &= -11 \\
+-2x + y + 2z &= -3.
+\end{aligned}
+$$
+
+a.  Build the coefficient matrix `A` and the right-hand side `b`.
+b.  Check that the system has a unique solution (which function tells you?).
+c.  Solve it, and verify your solution by computing `A %*% x_sol` (`A @ x_sol`) and
+    comparing with `b`.
+:::
+
+### An `eigen()` teaser
+
+One more linear-algebra tool, offered now as a trailer. In statistics, the **covariance
+matrix** of a random vector packages the variances (diagonal) and covariances
+(off-diagonal) of its components. Its eigendecomposition is remarkably informative:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+Sigma <- matrix(c(4, 2, 2, 3), nrow = 2)   # a 2x2 covariance matrix
+eigen(Sigma)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+Sigma = np.array([[4, 2], [2, 3]])   # a 2x2 covariance matrix
+evals, evecs = np.linalg.eig(Sigma)
+evals
+evecs
+```
+
+</div>
+:::
+
+**Note for Python users:** `np.linalg.eig` hands back a *pair* — eigenvalues, eigenvectors
+— rather than R's single object, and unlike R it makes no promise about their order (here
+it happens to match R's largest-first). For symmetric matrices — and covariance matrices
+always are — the specialised `np.linalg.eigh` is faster, more accurate, and sorts
+eigenvalues in *ascending* order, so the "top" eigenvalue comes last.
+
+The eigenvector with the largest eigenvalue points in the direction along which the data
+varies most, and the eigenvalues split the total variance across those directions — this
+single idea is principal component analysis, the workhorse of dimension reduction.
+Eigenvalues will also quietly reappear in @sec-week5, where they govern how fast our
+optimisation algorithms converge. For now: `eigen()` (and `np.linalg.eig`) exists, and
+Challenge 1.2 lets you poke at it.
+
+:::: {.callout-important title="Challenge 1.1: Least squares, a sneak preview"}
+A company records advertising spend $x$ (in £1000s) and sales $y$ (also £1000s) over eight
+campaigns:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+#| eval: false
+x <- c(1.0, 1.9, 3.1, 3.8, 5.2, 6.0, 7.1, 8.2)
+y <- c(2.4, 3.9, 6.3, 7.4, 10.4, 11.7, 14.1, 16.3)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+#| eval: false
+x = np.array([1.0, 1.9, 3.1, 3.8, 5.2, 6.0, 7.1, 8.2])
+y = np.array([2.4, 3.9, 6.3, 7.4, 10.4, 11.7, 14.1, 16.3])
+```
+
+</div>
+:::
+
+The best-fitting line $y = \beta_0 + \beta_1 x$ (in the least-squares sense) has
+coefficients
+$$
+\boldsymbol{\hat\beta} = (X^\top X)^{-1} X^\top \mathbf{y},
+$$
+where $X$ is the matrix whose first column is all 1s and whose second column is $x$.
+
+a.  Build $X$ with `cbind()` (a neat trick: `cbind(1, x)` recycles the 1). In Python —
+    no recycling there — build the column of ones explicitly:
+    `np.column_stack([np.ones(len(x)), x])`.
+b.  Compute $\boldsymbol{\hat\beta}$ with `t()`, `%*%` and `solve()` (Python: `.T`, `@`
+    and `np.linalg.inv` — or better, `np.linalg.solve`).
+c.  Plot the data with `plot(x, y)` and overlay your line with
+    `abline(a = beta[1], b = beta[2])`. (matplotlib has no `abline`: use
+    `plt.scatter(x, y)`, then draw the line yourself with
+    `plt.plot(x, beta[0] + beta[1] * x)`.) Admire.
+
+You have just fitted your first regression, with your bare hands, using only week-1
+material. In @sec-week5 we will fit models like this by *optimisation* — and see exactly
+where this magic formula comes from.
+::::
+
+::: {.callout-important title="Challenge 1.2: Dissecting a covariance matrix"}
+Take the $3 \times 3$ covariance matrix
+$$
+\Sigma = \begin{pmatrix}
+2.0 & 0.8 & 0.4 \\
+0.8 & 1.5 & 0.6 \\
+0.4 & 0.6 & 1.0
+\end{pmatrix}.
+$$
+
+`eigen(Sigma)` returns an object with two pieces, which you can extract as
+`eigen(Sigma)$values` and `eigen(Sigma)$vectors` (more on the `$` in @sec-week4). In
+Python the two pieces arrive directly as a pair:
+`evals, evecs = np.linalg.eig(Sigma)`.
+
+a.  Verify numerically that the eigenvalues sum to the *total variance*
+    $\operatorname{tr}(\Sigma)$, the sum of the diagonal (see `?diag`; Python: `np.diag`,
+    or `np.trace` for the whole job).
+b.  Store the eigenvector matrix as `V` and compute `t(V) %*% V` (`V.T @ V`), rounded to
+    10 decimal places. What matrix do you get, and what does that say about the
+    directions the eigenvectors describe?
+c.  What proportion of the total variance lies along the first eigenvector? In
+    principal-component speak, that is the "variance explained by PC1".
+:::
+
+## What you can do now
+
+-   Use R or Python as a calculator, keep results in variables, and organise it all in
+    commented scripts.
+-   Build vectors with `c()`, `seq()` and `rep()` (numpy: `np.array`,
+    `np.arange`/`np.linspace`, `np.tile`/`np.repeat`), slice them by position — minding
+    who counts from 1 and who from 0 — and act on all elements at once with vectorised
+    arithmetic; recycling (R) and broadcasting (numpy) warning bells installed.
+-   Round-trip your data to disk as csv files (`write.csv`/`read.csv`; pandas'
+    `to_csv`/`read_csv`), and know where your session put them.
+-   Do real linear algebra: `%*%` (`@`), `t()` (`.T`), `det()`, `solve()` for inverses and
+    systems (`np.linalg`'s `det`, `inv` and `solve`), and a first taste of `eigen()`
+    (`np.linalg.eig`).
+
+Next week, in @sec-week2, we teach the machine to make decisions: `TRUE` and `FALSE`
+(`True` and `False`) in earnest, `if` and `else`, loops — and with them our first proper
+algorithm, gradient descent, which will carry us all the way to @sec-week5.

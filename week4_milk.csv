@@ -1,0 +1,5 @@
+type,calories,protein,fibre,carbs,sugars,fat,sugar_frac
+Almond,60,1,1,8,7,2.5,0.875
+Soy,100,7,2,10,NA,4,NA
+Oat,120,3,NA,20,19,2.5,0.95
+Rice,130,1,NA,25,NA,2.5,NA
