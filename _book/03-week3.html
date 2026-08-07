@@ -248,15 +248,16 @@ window.Quarto = {
   </ul></li>
   <li><a href="#sec-week3-scope" id="toc-sec-week3-scope" class="nav-link" data-scroll-target="#sec-week3-scope"><span class="header-section-number">3.2</span> Scoping: where variables live</a></li>
   <li><a href="#the-...-argument" id="toc-the-...-argument" class="nav-link" data-scroll-target="#the-...-argument"><span class="header-section-number">3.3</span> The <code>...</code> argument</a></li>
-  <li><a href="#sec-week3-fp" id="toc-sec-week3-fp" class="nav-link" data-scroll-target="#sec-week3-fp"><span class="header-section-number">3.4</span> Functions are values</a>
+  <li><a href="#sec-week3-recursion" id="toc-sec-week3-recursion" class="nav-link" data-scroll-target="#sec-week3-recursion"><span class="header-section-number">3.4</span> A brief look at recursion</a></li>
+  <li><a href="#sec-week3-fp" id="toc-sec-week3-fp" class="nav-link" data-scroll-target="#sec-week3-fp"><span class="header-section-number">3.5</span> Functions are values</a>
   <ul class="collapse">
-  <li><a href="#lambdas" id="toc-lambdas" class="nav-link" data-scroll-target="#lambdas"><span class="header-section-number">3.4.1</span> Lambdas</a></li>
-  <li><a href="#sec-week3-factories" id="toc-sec-week3-factories" class="nav-link" data-scroll-target="#sec-week3-factories"><span class="header-section-number">3.4.2</span> Function factories and currying</a></li>
-  <li><a href="#sec-week3-map" id="toc-sec-week3-map" class="nav-link" data-scroll-target="#sec-week3-map"><span class="header-section-number">3.4.3</span> map: one function, every element</a></li>
-  <li><a href="#sec-week3-reduce" id="toc-sec-week3-reduce" class="nav-link" data-scroll-target="#sec-week3-reduce"><span class="header-section-number">3.4.4</span> Reduce: fold a collection to one value</a></li>
+  <li><a href="#lambdas" id="toc-lambdas" class="nav-link" data-scroll-target="#lambdas"><span class="header-section-number">3.5.1</span> Lambdas</a></li>
+  <li><a href="#sec-week3-factories" id="toc-sec-week3-factories" class="nav-link" data-scroll-target="#sec-week3-factories"><span class="header-section-number">3.5.2</span> Function factories and currying</a></li>
+  <li><a href="#sec-week3-map" id="toc-sec-week3-map" class="nav-link" data-scroll-target="#sec-week3-map"><span class="header-section-number">3.5.3</span> map: one function, every element</a></li>
+  <li><a href="#sec-week3-reduce" id="toc-sec-week3-reduce" class="nav-link" data-scroll-target="#sec-week3-reduce"><span class="header-section-number">3.5.4</span> Reduce: fold a collection to one value</a></li>
   </ul></li>
-  <li><a href="#sec-week3-gd" id="toc-sec-week3-gd" class="nav-link" data-scroll-target="#sec-week3-gd"><span class="header-section-number">3.5</span> Packaging gradient descent</a></li>
-  <li><a href="#looking-ahead" id="toc-looking-ahead" class="nav-link" data-scroll-target="#looking-ahead"><span class="header-section-number">3.6</span> Looking ahead</a></li>
+  <li><a href="#sec-week3-gd" id="toc-sec-week3-gd" class="nav-link" data-scroll-target="#sec-week3-gd"><span class="header-section-number">3.6</span> Packaging gradient descent</a></li>
+  <li><a href="#looking-ahead" id="toc-looking-ahead" class="nav-link" data-scroll-target="#looking-ahead"><span class="header-section-number">3.7</span> Looking ahead</a></li>
   </ul>
 </nav>
     </div>
@@ -282,10 +283,10 @@ window.Quarto = {
 </header>
 
 
-<p>Last week ended with us descending a hill by repeating <code>x &lt;- x - gamma * slope</code> (<code>x = x - gamma * slope</code> in Python) inside a <code>for</code> loop, with the derivative hard-coded inline (<a href="02-week2.html#sec-week2-gd" class="quarto-xref"><span>Section 2.9</span></a>). It worked, but every new function to minimise meant rewriting the loop. This week we fix that properly. First we learn to write our own functions; then we go one step further and treat functions themselves as data — passing them around, building them on the fly, mapping them over collections. By the end of the chapter our gradient descent will take <em>any</em> function you throw at it, which is exactly the tool <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a> is built on.</p>
+<p>Last week ended with us descending a hill by repeating <code>x &lt;- x - gamma * slope</code> (<code>x = x - gamma * slope</code> in Python) inside a <code>for</code> loop, with the derivative hard-coded inline (<a href="02-week2.html#sec-week2-gd" class="quarto-xref"><span>Section 2.8</span></a>). It worked, but every new function to minimise meant rewriting the loop. This week we fix that properly. First we learn to write our own functions, and collect the repetition tool that had to wait for them: <em>recursion</em>, a function calling itself. Then we go one step further and treat functions themselves as data: passing them around, building them on the fly, mapping them over collections. By the end of the chapter our gradient descent will take <em>any</em> function you throw at it, which is exactly the tool <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a> is built on.</p>
 <section id="sec-week3-functions" class="level2" data-number="3.1">
 <h2 data-number="3.1" class="anchored" data-anchor-id="sec-week3-functions"><span class="header-section-number">3.1</span> Writing your own functions</h2>
-<p>We have been using functions since minute one: <code>sqrt()</code>, <code>length()</code>, <code>mean()</code>, <code>seq()</code> — or, on the Python side, <code>np.sqrt()</code>, <code>len()</code>, <code>np.mean()</code>, <code>np.arange()</code>. Each takes an input, does its job, and hands back an output. The real power move is writing your own. The rule of thumb: if you find yourself copy-pasting the same code a third time, stop and write a function. In coding, laziness done right is a virtue.</p>
+<p>We have been using functions since minute one: <code>sqrt()</code>, <code>length()</code>, <code>mean()</code>, <code>seq()</code>; or, on the Python side, <code>np.sqrt()</code>, <code>len()</code>, <code>np.mean()</code>, <code>np.arange()</code>. Each takes an input, does its job, and hands back an output. The real power move is writing your own. The rule of thumb: if you find yourself copy-pasting the same code a third time, stop and write a function. In coding, laziness done right is a virtue.</p>
 <p>Let’s write a function that converts pounds to grams, using <span class="math inline">g = 453.5924 \cdot \text{lbs}</span>:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -311,9 +312,9 @@ window.Quarto = {
 <li><code>function(lbs)</code> creates a new function whose argument is called <code>lbs</code>;</li>
 <li>the body between <code>{ }</code> is the code that runs on every call;</li>
 <li><code>return(grams)</code> says what comes out;</li>
-<li>the whole thing is assigned to the name <code>lbs_to_grams</code> with <code>&lt;-</code>, exactly like any other variable. Keep that thought — it becomes important later in the chapter.</li>
+<li>the whole thing is assigned to the name <code>lbs_to_grams</code> with <code>&lt;-</code>, exactly like any other variable. Keep that thought: it becomes important later in the chapter.</li>
 </ul>
-<p><strong>Note for Python users:</strong> the anatomy differs in the details. <code>def lbs_to_grams(lbs):</code> both <em>names</em> the function and lists its arguments in one go — no separate assignment step; the body is marked by indentation rather than <code>{ }</code> (four spaces, consistently); and <code>return grams</code> needs no parentheses.</p>
+<p><strong>Note for Python:</strong> the anatomy differs in the details. <code>def lbs_to_grams(lbs):</code> both <em>names</em> the function and lists its arguments in one go, with no separate assignment step; the body is marked by indentation rather than <code>{ }</code> (four spaces, consistently); and <code>return grams</code> needs no parentheses.</p>
 <p>Calling it works as you would expect:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -367,7 +368,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p><strong>Note for Python users:</strong> hand it a numpy array, not a plain list — <code>453.5924 * [1, 2, 3]</code> is an error (and <code>3 * [1, 2]</code> would <em>repeat</em> the list, not multiply it).</p>
+<p><strong>Note for Python:</strong> hand it a numpy array, not a plain list: <code>453.5924 * [1, 2, 3]</code> is an error (and <code>3 * [1, 2]</code> would <em>repeat</em> the list, not multiply it).</p>
 <p>A few naming guidelines: lowercase, words separated by <code>_</code>, concise but meaningful, and avoid clobbering existing names like <code>mean</code> or <code>c</code> in R, or <code>len</code>, <code>sum</code> and <code>list</code> in Python (both languages will let you; your future self will not forgive you).</p>
 <section id="arguments-and-defaults" class="level3" data-number="3.1.1">
 <h3 data-number="3.1.1" class="anchored" data-anchor-id="arguments-and-defaults"><span class="header-section-number">3.1.1</span> Arguments and defaults</h3>
@@ -410,7 +411,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>Note that <code>lbs_to_ml</code> calls the function we wrote earlier — functions building on functions is the normal way programs grow.</p>
+<p>Note that <code>lbs_to_ml</code> calls the function we wrote earlier: functions building on functions is the normal way programs grow.</p>
 <p>If 90% of our conversions are for water, typing <code>1</code> every time gets old. We can make the argument optional by giving it a <strong>default value</strong>:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -458,8 +459,8 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>Arguments are matched by position first, and by name when you spell the name out. With many arguments, naming the non-obvious ones makes code much easier to read — compare <code>rnorm(10, 5, 2)</code> with <code>rnorm(10, mean = 5, sd = 2)</code>. The same positional/keyword rules hold in Python: compare <code>rng.normal(5, 2, 10)</code> with <code>rng.normal(loc=5, scale=2, size=10)</code>.</p>
-<p><strong>Note for Python users:</strong> default values are evaluated <strong>once</strong>, when the <code>def</code> statement runs — not afresh at each call, as in R. With immutable defaults like <code>1</code> you will never notice the difference. With a mutable default you will: in <code>def add_entry(x, log=[])</code>, every call shares the <em>same</em> list, which quietly accumulates entries across calls. The standard idiom is a <code>None</code> default plus <code>if log is None: log = []</code> inside the body.</p>
+<p>Arguments are matched by position first, and by name when you spell the name out. With many arguments, naming the non-obvious ones makes code much easier to read: compare <code>rnorm(10, 5, 2)</code> with <code>rnorm(10, mean = 5, sd = 2)</code>. The same positional/keyword rules hold in Python: compare <code>rng.normal(5, 2, 10)</code> with <code>rng.normal(loc=5, scale=2, size=10)</code>.</p>
+<p><strong>Note for Python:</strong> default values are evaluated <strong>once</strong>, when the <code>def</code> statement runs, not afresh at each call as in R. With immutable defaults like <code>1</code> you will never notice the difference. With a mutable default you will: in <code>def add_entry(x, log=[])</code>, every call shares the <em>same</em> list, which quietly accumulates entries across calls. The standard idiom is a <code>None</code> default plus <code>if log is None: log = []</code> inside the body.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Exercise 3.1: Cooking for Remy">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -500,14 +501,14 @@ Exercise 3.2: Standardise, with options
 <li>divides by <code>sd(x)</code> (Python: <code>np.std(x, ddof=1)</code>) if <code>scale</code> is <code>TRUE</code>;</li>
 <li>returns the transformed vector.</li>
 </ul>
-<p>Test all four combinations of <code>center</code> and <code>scale</code> on <code>x &lt;- c(2, 4, 6, 8, 100)</code> (Python: <code>x = np.array([2, 4, 6, 8, 100])</code>). Then check the full standardisation with <code>mean(standardise(x))</code> and <code>sd(standardise(x))</code>. In the R run the mean will print as something like <code>1e-17</code> rather than exactly <code>0</code> (numpy users may see an exact <code>0.0</code> — a lucky cancellation, not a guarantee) — recall the floating-point discussion in <a href="02-week2.html" class="quarto-xref"><span>Chapter 2</span></a>, and confirm with <code>all.equal(mean(standardise(x)), 0)</code> (Python: <code>np.isclose(...)</code>).</p>
+<p>Test all four combinations of <code>center</code> and <code>scale</code> on <code>x &lt;- c(2, 4, 6, 8, 100)</code> (Python: <code>x = np.array([2, 4, 6, 8, 100])</code>). Then check the full standardisation with <code>mean(standardise(x))</code> and <code>sd(standardise(x))</code>. In the R run the mean will print as something like <code>1e-17</code> rather than exactly <code>0</code> (the numpy run may print an exact <code>0.0</code>: a lucky cancellation, not a guarantee). Recall the floating-point discussion in <a href="02-week2.html" class="quarto-xref"><span>Chapter 2</span></a>, and confirm with <code>all.equal(mean(standardise(x)), 0)</code> (Python: <code>np.isclose(...)</code>).</p>
 </div>
 </div>
 </section>
 <section id="return-values" class="level3" data-number="3.1.2">
 <h3 data-number="3.1.2" class="anchored" data-anchor-id="return-values"><span class="header-section-number">3.1.2</span> Return values</h3>
 <p>Three things worth knowing about what comes out of a function.</p>
-<p><strong>Implicit return.</strong> If R reaches the end of the body, the value of the <em>last expression</em> is returned automatically — no <code>return()</code> needed:</p>
+<p><strong>Implicit return.</strong> If R reaches the end of the body, the value of the <em>last expression</em> is returned automatically, no <code>return()</code> needed:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -535,7 +536,7 @@ Exercise 3.2: Standardise, with options
 </div>
 </div>
 <p>This is idiomatic R; most functions in the wild are written this way, and we will mostly drop <code>return()</code> from here on.</p>
-<p><strong>Note for Python users:</strong> there is no implicit return. A function that reaches the end of its body without hitting <code>return</code> hands back <code>None</code> — silently. Keep writing <code>return</code>; the R habit of leaving the last expression bare does not travel.</p>
+<p><strong>Note for Python:</strong> there is no implicit return. A function that reaches the end of its body without hitting <code>return</code> hands back <code>None</code>, silently. Keep writing <code>return</code>; the R habit of leaving the last expression bare does not travel.</p>
 <p><strong>Early return.</strong> <code>return()</code> exits the function <em>immediately</em>, which is handy for bailing out of bad inputs before they cause trouble:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -614,7 +615,7 @@ Exercise 3.2: Standardise, with options
 </div>
 </div>
 <p>You have met this behaviour already: <code>library()</code> and most plotting functions return invisibly. That is all you need to know about it for now.</p>
-<p><strong>Note for Python users:</strong> <code>invisible()</code> has no counterpart. At the console Python prints the value of every bare expression <em>unless it is <code>None</code></em> — so the nearest thing to an invisible return is returning <code>None</code>, which is exactly what a function without a <code>return</code> does, but then there is no value to keep. Nothing to do here except know the difference.</p>
+<p><strong>Note for Python:</strong> <code>invisible()</code> has no counterpart. At the console Python prints the value of every bare expression <em>unless it is <code>None</code></em>, so the nearest thing to an invisible return is returning <code>None</code>, which is exactly what a function without a <code>return</code> does, but then there is no value to keep. Nothing to do here except know the difference.</p>
 </section>
 </section>
 <section id="sec-week3-scope" class="level2" data-number="3.2">
@@ -658,7 +659,7 @@ Exercise 3.2: Standardise, with options
 </div>
 </div>
 </div>
-<p>The reverse direction, however, <em>does</em> work: if R cannot find a name inside the function, it looks in the environment where the function was <em>defined</em> — for a function typed at the top level of a script, that is the <strong>global environment</strong> (where your script-level variables live). That sounds convenient. It is also a classic source of silent bugs. Watch:</p>
+<p>The reverse direction, however, <em>does</em> work: if R cannot find a name inside the function, it looks in the environment where the function was <em>defined</em>: for a function typed at the top level of a script, that is the <strong>global environment</strong> (where your script-level variables live). That sounds convenient. It is also a classic source of silent bugs. Watch:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -703,9 +704,9 @@ Exercise 3.2: Standardise, with options
 </div>
 </div>
 </div>
-<p>No error, no warning: R quietly grabbed the global <code>lbs</code> and returned <span class="math inline">453.5924 \times 3</span> forever. The input is ignored completely. The moral is short and worth memorising: <strong>everything a function needs should arrive through its arguments</strong>. A function that only reads its arguments and only communicates through its return value is called <em>pure</em>, and pure functions are dramatically easier to test, reuse and debug — this idea is the backbone of the second half of this chapter.</p>
-<p><strong>Note for Python users:</strong> same lookup, same trap. Python’s rule is called <strong>LEGB</strong> — Local, Enclosing, Global, Built-ins, searched in that order — which for our purposes is R’s lexical scoping by another name. One genuine difference: <em>reading</em> a global from inside a function just works (as the bug shows), but <em>assigning</em> to one requires the <code>global</code> keyword — a plain <code>lbs = ...</code> inside a function always creates a local variable.</p>
-<p><strong>Note for Python users:</strong> one more difference lives here, and it matters. R behaves <em>as if</em> every object passed to a function were copied: modify an argument inside a function and the caller’s object is untouched (<em>copy-on-modify</em>). Python passes references instead: <strong>rebinding</strong> a name (<code>x = x + 1</code>) is local and safe, but <strong>mutating</strong> a mutable object in place (<code>x.append(3)</code>, or <code>x[0] = 99</code> on a list or numpy array) changes the caller’s object too. A function that mutates its arguments is not pure — in Python, purity takes discipline that R’s semantics give you for free.</p>
+<p>No error, no warning: R quietly grabbed the global <code>lbs</code> and returned <span class="math inline">453.5924 \times 3</span> forever. The input is ignored completely. The moral is short and worth memorising: <strong>everything a function needs should arrive through its arguments</strong>. A function that only reads its arguments and only communicates through its return value is called <em>pure</em>, and pure functions are dramatically easier to test, reuse and debug; this idea is the backbone of the second half of this chapter.</p>
+<p><strong>Note for Python:</strong> same lookup, same trap. Python’s rule is called <strong>LEGB</strong> (Local, Enclosing, Global, Built-ins, searched in that order), which for our purposes is R’s lexical scoping by another name. One genuine difference: <em>reading</em> a global from inside a function just works (as the bug shows), but <em>assigning</em> to one requires the <code>global</code> keyword: a plain <code>lbs = ...</code> inside a function always creates a local variable.</p>
+<p><strong>Note for Python:</strong> one more difference lives here, and it matters. R behaves <em>as if</em> every object passed to a function were copied: modify an argument inside a function and the caller’s object is untouched (<em>copy-on-modify</em>). Python passes references instead: <strong>rebinding</strong> a name (<code>x = x + 1</code>) is local and safe, but <strong>mutating</strong> a mutable object in place (<code>x.append(3)</code>, or <code>x[0] = 99</code> on a list or numpy array) changes the caller’s object too. A function that mutates its arguments is not pure; in Python, purity takes discipline that R’s semantics give you for free.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -828,30 +829,136 @@ Exercise 3.3: Where does x live?
 </div>
 </div>
 </div>
-<p>We did not have to declare <code>na.rm</code> ourselves: whatever extras arrive get forwarded wholesale. Use it sparingly — it is wonderful for forwarding options, and terrible for hiding what a function actually depends on.</p>
-<p><strong>Note for Python users:</strong> the Python spelling is <code>*args</code> / <code>**kwargs</code>: one star scoops extra <em>positional</em> arguments into a tuple, two stars scoop extra <em>keyword</em> arguments into a dict, and <code>np.mean(x, **kwargs)</code> unpacks them again on the way out. (numpy has no <code>na.rm</code>; the <code>where</code> mask above is the closest kwarg-shaped idiom, and <code>np.nanmean</code>/<code>np.nanstd</code> exist for exactly this job.)</p>
+<p>We did not have to declare <code>na.rm</code> ourselves: whatever extras arrive get forwarded wholesale. Use it sparingly: it is wonderful for forwarding options, and terrible for hiding what a function actually depends on.</p>
+<p><strong>Note for Python:</strong> the Python spelling is <code>*args</code> / <code>**kwargs</code>: one star scoops extra <em>positional</em> arguments into a tuple, two stars scoop extra <em>keyword</em> arguments into a dict, and <code>np.mean(x, **kwargs)</code> unpacks them again on the way out. (numpy has no <code>na.rm</code>; the <code>where</code> mask above is the closest kwarg-shaped idiom, and <code>np.nanmean</code>/<code>np.nanstd</code> exist for exactly this job.)</p>
 </section>
-<section id="sec-week3-fp" class="level2" data-number="3.4">
-<h2 data-number="3.4" class="anchored" data-anchor-id="sec-week3-fp"><span class="header-section-number">3.4</span> Functions are values</h2>
-<p>Time for the second act. R is, at heart, a <strong>functional programming</strong> language: functions are <em>first-class</em> values. You have already seen the evidence — we create functions with <code>function()</code> and assign them with <code>&lt;-</code>, like any number or vector. It follows that we can also store them, pass them to other functions as arguments, and even return them from functions. The same holds in Python: <code>def</code> and <code>lambda</code> both produce ordinary objects that can be assigned, stored and passed around.</p>
-<p>Storing them takes a container more permissive than the atomic vector, so meet the <strong>list</strong>: built with <code>list()</code>, it holds elements of <em>any</em> type — numbers, strings, vectors of different lengths, other lists, and yes, functions. Name the elements when you build it, then extract one with <code>$name</code> or with double brackets <code>[[ ]]</code> (by position or by name). Data frames, the stars of <a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>, are secretly lists of columns, so the <code>$</code> will look familiar there.</p>
-<p><strong>Note for Python users:</strong> Python splits the job of R’s list between two containers: the <strong>list</strong> <code>[...]</code> (ordered, extracted by position) and the <strong>dict</strong> <code>{"name": value}</code> (extracted by name). Both hold elements of any type, functions included. Where R writes <code>funs$root</code> or <code>funs[["root"]]</code>, Python writes <code>funs["root"]</code> — and pandas data frames (<a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>) are dict-like collections of columns in just the way R data frames are lists of columns.</p>
+<section id="sec-week3-recursion" class="level2" data-number="3.4">
+<h2 data-number="3.4" class="anchored" data-anchor-id="sec-week3-recursion"><span class="header-section-number">3.4</span> A brief look at recursion</h2>
+<p>Loops are not the only way to repeat. A <strong>recursive</strong> definition solves a problem in terms of smaller instances of itself, plus a <em>base case</em> to stop the descent. That is exactly how we first wrote Fibonacci mathematically in <a href="02-week2.html#sec-week2-for" class="quarto-xref"><span>Section 2.5</span></a>: <span class="math inline">r_i = r_{i-1} + r_{i-2}</span>, with <span class="math inline">r_1 = r_2 = 1</span> as the base. Back then we had to translate the recurrence into a loop. Now that we can write functions, we can translate it <em>directly</em>, because a function is allowed to call itself:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>square <span class="ot">&lt;-</span> <span class="cf">function</span>(x) x<span class="sc">^</span><span class="dv">2</span>            <span class="co"># one-expression body: no braces needed</span></span>
-<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb81-3"><a href="#cb81-3" aria-hidden="true" tabindex="-1"></a>funs <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">sq =</span> square, <span class="at">root =</span> sqrt)   <span class="co"># functions in a list, why not</span></span>
-<span id="cb81-4"><a href="#cb81-4" aria-hidden="true" tabindex="-1"></a>funs<span class="sc">$</span><span class="fu">sq</span>(<span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>fib_rec <span class="ot">&lt;-</span> <span class="cf">function</span>(n) {</span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (n <span class="sc">&lt;=</span> <span class="dv">2</span>) <span class="dv">1</span> <span class="cf">else</span> <span class="fu">fib_rec</span>(n <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">+</span> <span class="fu">fib_rec</span>(n <span class="sc">-</span> <span class="dv">2</span>)</span>
+<span id="cb81-3"><a href="#cb81-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb81-4"><a href="#cb81-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb81-5"><a href="#cb81-5" aria-hidden="true" tabindex="-1"></a><span class="fu">fib_rec</span>(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 55</code></pre>
+</div>
+</div>
+</div>
+<div>
+<p><strong>Python</strong></p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fib_rec(n):</span>
+<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">1</span> <span class="cf">if</span> n <span class="op">&lt;=</span> <span class="dv">2</span> <span class="cf">else</span> fib_rec(n <span class="op">-</span> <span class="dv">1</span>) <span class="op">+</span> fib_rec(n <span class="op">-</span> <span class="dv">2</span>)</span>
+<span id="cb83-3"><a href="#cb83-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb83-4"><a href="#cb83-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb83-5"><a href="#cb83-5" aria-hidden="true" tabindex="-1"></a>fib_rec(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>55</code></pre>
+</div>
+</div>
+</div>
+</div>
+<p>The definition <em>is</em> the recurrence: <code>fib_rec</code> calls itself on smaller inputs until it hits the base case. (In R, <code>if</code> is an expression that returns a value, which is why the body fits on a single line; Python’s counterpart is the <em>conditional expression</em> <code>value_if_true if condition else value_if_false</code>, where the value comes first.)</p>
+<p>Elegant, and here catastrophically inefficient. Each call spawns <em>two</em> more calls, so the total number of calls grows exponentially in <code>n</code>, and the same values get recomputed over and over. Watch the time explode as <code>n</code> creeps up (R’s <code>elapsed</code> is the wall-clock time in seconds; the Python column hands the code to <code>timeit.timeit(..., number=1)</code> as a string, which runs it once and returns seconds directly, with <code>globals=globals()</code> letting the timed code see our function):</p>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
+<div>
+<p><strong>R</strong></p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(<span class="fu">fib_rec</span>(<span class="dv">20</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   user  system elapsed 
+  0.001   0.000   0.002 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(<span class="fu">fib_rec</span>(<span class="dv">30</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   user  system elapsed 
+  0.268   0.010   0.278 </code></pre>
+</div>
+</div>
+</div>
+<div>
+<p><strong>Python</strong></p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb89"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> timeit</span>
+<span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-3"><a href="#cb89-3" aria-hidden="true" tabindex="-1"></a>timeit.timeit(<span class="st">"fib_rec(20)"</span>, <span class="bu">globals</span><span class="op">=</span><span class="bu">globals</span>(), number<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.00036941600001227926</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb91"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a>timeit.timeit(<span class="st">"fib_rec(30)"</span>, <span class="bu">globals</span><span class="op">=</span><span class="bu">globals</span>(), number<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.046766315000240866</code></pre>
+</div>
+</div>
+</div>
+</div>
+<p>Ten more terms, roughly a hundred times slower, while the humble preallocated loop of <a href="02-week2.html" class="quarto-xref"><span>Chapter 2</span></a> filled 10,000 slots in milliseconds. Recursion also has a hard depth limit: every nested call sits on a stack waiting for its sub-calls, and R gives up beyond a few thousand levels. Python is stricter still, with a default cap of 1,000 frames; inspect or change it with <code>sys.getrecursionlimit()</code> / <code>sys.setrecursionlimit()</code>, though wanting to raise it is usually a hint that a loop would serve better. Forget the base case and you hit the limit immediately:</p>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
+<div>
+<p><strong>R</strong></p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb93"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a>broken <span class="ot">&lt;-</span> <span class="cf">function</span>(n) <span class="fu">broken</span>(n <span class="sc">-</span> <span class="dv">1</span>)   <span class="co"># no base case!</span></span>
+<span id="cb93-2"><a href="#cb93-2" aria-hidden="true" tabindex="-1"></a><span class="fu">broken</span>(<span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div>
+<p><strong>Python</strong></p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> broken(n):</span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> broken(n <span class="op">-</span> <span class="dv">1</span>)   <span class="co"># no base case!</span></span>
+<span id="cb94-3"><a href="#cb94-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-4"><a href="#cb94-4" aria-hidden="true" tabindex="-1"></a>broken(<span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>RecursionError: maximum recursion depth exceeded</code></pre>
+</div>
+</div>
+</div>
+</div>
+<p>Verdict: recursion is a beautiful way to <em>think</em>, and for divide-and-conquer algorithms it can be genuinely efficient, but for simple sequences, in either language, the loop wins.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Exercise 3.4: Recursive factorial">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Exercise 3.4: Recursive factorial
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="a">
+<li>Write a recursive function <code>fact_rec</code> for <span class="math inline">n! = n \times (n-1)!</span> with base case <span class="math inline">0! = 1</span>, mimicking <code>fib_rec</code> above.</li>
+<li>Check <code>fact_rec(10)</code> against R’s built-in <code>factorial(10)</code> (Python: <code>math.factorial(10)</code>).</li>
+<li>Try <code>fact_rec(10000)</code>. What happens, and why? Would a loop version have the same problem?</li>
+</ol>
+</div>
+</div>
+</section>
+<section id="sec-week3-fp" class="level2" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="sec-week3-fp"><span class="header-section-number">3.5</span> Functions are values</h2>
+<p>Time for the second act. R is, at heart, a <strong>functional programming</strong> language: functions are <em>first-class</em> values. You have already seen the evidence: we create functions with <code>function()</code> and assign them with <code>&lt;-</code>, like any number or vector. It follows that we can also store them, pass them to other functions as arguments, and even return them from functions. The same holds in Python: <code>def</code> and <code>lambda</code> both produce ordinary objects that can be assigned, stored and passed around.</p>
+<p>Storing them takes a container more permissive than the atomic vector, so meet the <strong>list</strong>: built with <code>list()</code>, it holds elements of <em>any</em> type (numbers, strings, vectors of different lengths, other lists, and yes, functions). Name the elements when you build it, then extract one with <code>$name</code> or with double brackets <code>[[ ]]</code> (by position or by name). Data frames, the stars of <a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>, are secretly lists of columns, so the <code>$</code> will look familiar there.</p>
+<p><strong>Note for Python:</strong> Python splits the job of R’s list between two containers: the <strong>list</strong> <code>[...]</code> (ordered, extracted by position) and the <strong>dict</strong> <code>{"name": value}</code> (extracted by name). Both hold elements of any type, functions included. Where R writes <code>funs$root</code> or <code>funs[["root"]]</code>, Python writes <code>funs["root"]</code>; and pandas data frames (<a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>) are dict-like collections of columns in just the way R data frames are lists of columns.</p>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
+<div>
+<p><strong>R</strong></p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a>square <span class="ot">&lt;-</span> <span class="cf">function</span>(x) x<span class="sc">^</span><span class="dv">2</span>            <span class="co"># one-expression body: no braces needed</span></span>
+<span id="cb96-2"><a href="#cb96-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb96-3"><a href="#cb96-3" aria-hidden="true" tabindex="-1"></a>funs <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">sq =</span> square, <span class="at">root =</span> sqrt)   <span class="co"># functions in a list, why not</span></span>
+<span id="cb96-4"><a href="#cb96-4" aria-hidden="true" tabindex="-1"></a>funs<span class="sc">$</span><span class="fu">sq</span>(<span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 16</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a>funs<span class="sc">$</span><span class="fu">root</span>(<span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a>funs<span class="sc">$</span><span class="fu">root</span>(<span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 2</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a>funs[[<span class="st">"root"</span>]](<span class="dv">9</span>)   <span class="co"># double brackets: extract by name or position</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb100"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a>funs[[<span class="st">"root"</span>]](<span class="dv">9</span>)   <span class="co"># double brackets: extract by name or position</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 3</code></pre>
 </div>
@@ -860,40 +967,40 @@ Exercise 3.3: Where does x live?
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> square(x):                       <span class="co"># one-expression body: still needs def...</span></span>
-<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x<span class="op">**</span><span class="dv">2</span>                      <span class="co"># ...or a lambda, coming right up</span></span>
-<span id="cb87-3"><a href="#cb87-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb87-4"><a href="#cb87-4" aria-hidden="true" tabindex="-1"></a>funs <span class="op">=</span> {<span class="st">"sq"</span>: square, <span class="st">"root"</span>: np.sqrt}   <span class="co"># functions in a dict, why not</span></span>
-<span id="cb87-5"><a href="#cb87-5" aria-hidden="true" tabindex="-1"></a>funs[<span class="st">"sq"</span>](<span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb102"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> square(x):                       <span class="co"># one-expression body: still needs def...</span></span>
+<span id="cb102-2"><a href="#cb102-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x<span class="op">**</span><span class="dv">2</span>                      <span class="co"># ...or a lambda, coming right up</span></span>
+<span id="cb102-3"><a href="#cb102-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb102-4"><a href="#cb102-4" aria-hidden="true" tabindex="-1"></a>funs <span class="op">=</span> {<span class="st">"sq"</span>: square, <span class="st">"root"</span>: np.sqrt}   <span class="co"># functions in a dict, why not</span></span>
+<span id="cb102-5"><a href="#cb102-5" aria-hidden="true" tabindex="-1"></a>funs[<span class="st">"sq"</span>](<span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>16</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb89"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a>funs[<span class="st">"root"</span>](<span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb104"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a>funs[<span class="st">"root"</span>](<span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>np.float64(2.0)</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb91"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a>funs[<span class="st">"root"</span>](<span class="dv">9</span>)   <span class="co"># dicts extract by name only -- no positional [[ ]]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a>funs[<span class="st">"root"</span>](<span class="dv">9</span>)   <span class="co"># dicts extract by name only -- no positional [[ ]]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>np.float64(3.0)</code></pre>
 </div>
 </div>
 </div>
 </div>
-<section id="lambdas" class="level3" data-number="3.4.1">
-<h3 data-number="3.4.1" class="anchored" data-anchor-id="lambdas"><span class="header-section-number">3.4.1</span> Lambdas</h3>
+<section id="lambdas" class="level3" data-number="3.5.1">
+<h3 data-number="3.5.1" class="anchored" data-anchor-id="lambdas"><span class="header-section-number">3.5.1</span> Lambdas</h3>
 <p>For short, throwaway functions, R (since version 4.1) offers the <strong>lambda</strong> shorthand <code>\( )</code>, which is exactly equivalent to <code>function( )</code>:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb93"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a>square <span class="ot">&lt;-</span> \(x) x<span class="sc">^</span><span class="dv">2</span>        <span class="co"># same as: function(x) x^2</span></span>
-<span id="cb93-2"><a href="#cb93-2" aria-hidden="true" tabindex="-1"></a>add    <span class="ot">&lt;-</span> \(x, y) x <span class="sc">+</span> y</span>
-<span id="cb93-3"><a href="#cb93-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb93-4"><a href="#cb93-4" aria-hidden="true" tabindex="-1"></a><span class="fu">square</span>(<span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb108"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a>square <span class="ot">&lt;-</span> \(x) x<span class="sc">^</span><span class="dv">2</span>        <span class="co"># same as: function(x) x^2</span></span>
+<span id="cb108-2"><a href="#cb108-2" aria-hidden="true" tabindex="-1"></a>add    <span class="ot">&lt;-</span> \(x, y) x <span class="sc">+</span> y</span>
+<span id="cb108-3"><a href="#cb108-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb108-4"><a href="#cb108-4" aria-hidden="true" tabindex="-1"></a><span class="fu">square</span>(<span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 16</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb95"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a><span class="fu">add</span>(<span class="dv">1</span>, <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a><span class="fu">add</span>(<span class="dv">1</span>, <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 3</code></pre>
 </div>
@@ -902,14 +1009,14 @@ Exercise 3.3: Where does x live?
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb97"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a>square <span class="op">=</span> <span class="kw">lambda</span> x: x<span class="op">**</span><span class="dv">2</span>        <span class="co"># same as: def square(x): return x**2</span></span>
-<span id="cb97-2"><a href="#cb97-2" aria-hidden="true" tabindex="-1"></a>add    <span class="op">=</span> <span class="kw">lambda</span> x, y: x <span class="op">+</span> y</span>
-<span id="cb97-3"><a href="#cb97-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb97-4"><a href="#cb97-4" aria-hidden="true" tabindex="-1"></a>square(<span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb112"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a>square <span class="op">=</span> <span class="kw">lambda</span> x: x<span class="op">**</span><span class="dv">2</span>        <span class="co"># same as: def square(x): return x**2</span></span>
+<span id="cb112-2"><a href="#cb112-2" aria-hidden="true" tabindex="-1"></a>add    <span class="op">=</span> <span class="kw">lambda</span> x, y: x <span class="op">+</span> y</span>
+<span id="cb112-3"><a href="#cb112-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb112-4"><a href="#cb112-4" aria-hidden="true" tabindex="-1"></a>square(<span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>16</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a>add(<span class="dv">1</span>, <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb114"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a>add(<span class="dv">1</span>, <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>3</code></pre>
 </div>
@@ -917,27 +1024,27 @@ Exercise 3.3: Where does x live?
 </div>
 </div>
 <p>We will use <code>\(x)</code> for one-liners and anonymous functions, and keep the long form <code>function(x)</code> for anything with a multi-line body. They are the same thing; the backslash just saves seven keystrokes.</p>
-<p><strong>Note for Python users:</strong> a <code>lambda</code> body must be a <strong>single expression</strong> — no statements, no assignments, no multi-line logic; the expression’s value is returned automatically. R’s <code>\(x)</code> carries no such restriction (it is literally <code>function(x)</code> respelled). The moment a Python function needs more than one expression, switch to <code>def</code>. Style guides also frown on <em>assigning</em> a lambda to a name as we just did — <code>def</code> is the official way — but for throwaway one-liners in these notes we allow ourselves the shorthand.</p>
+<p><strong>Note for Python:</strong> a <code>lambda</code> body must be a <strong>single expression</strong>: no statements, no assignments, no multi-line logic; the expression’s value is returned automatically. R’s <code>\(x)</code> carries no such restriction (it is literally <code>function(x)</code> respelled). The moment a Python function needs more than one expression, switch to <code>def</code>. Style guides also frown on <em>assigning</em> a lambda to a name as we just did (<code>def</code> is the official way), but for throwaway one-liners in these notes we allow ourselves the shorthand.</p>
 </section>
-<section id="sec-week3-factories" class="level3" data-number="3.4.2">
-<h3 data-number="3.4.2" class="anchored" data-anchor-id="sec-week3-factories"><span class="header-section-number">3.4.2</span> Function factories and currying</h3>
+<section id="sec-week3-factories" class="level3" data-number="3.5.2">
+<h3 data-number="3.5.2" class="anchored" data-anchor-id="sec-week3-factories"><span class="header-section-number">3.5.2</span> Function factories and currying</h3>
 <p>Here is where first-class functions start paying rent: a function can <em>return a function</em>. Such a function is called a <strong>function factory</strong>:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb101"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a>make_power <span class="ot">&lt;-</span> <span class="cf">function</span>(exponent) {</span>
-<span id="cb101-2"><a href="#cb101-2" aria-hidden="true" tabindex="-1"></a>  \(x) x<span class="sc">^</span>exponent       <span class="co"># the returned function remembers `exponent`</span></span>
-<span id="cb101-3"><a href="#cb101-3" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb101-4"><a href="#cb101-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb101-5"><a href="#cb101-5" aria-hidden="true" tabindex="-1"></a>cube         <span class="ot">&lt;-</span> <span class="fu">make_power</span>(<span class="dv">3</span>)</span>
-<span id="cb101-6"><a href="#cb101-6" aria-hidden="true" tabindex="-1"></a>to_the_tenth <span class="ot">&lt;-</span> <span class="fu">make_power</span>(<span class="dv">10</span>)</span>
-<span id="cb101-7"><a href="#cb101-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb101-8"><a href="#cb101-8" aria-hidden="true" tabindex="-1"></a><span class="fu">cube</span>(<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a>make_power <span class="ot">&lt;-</span> <span class="cf">function</span>(exponent) {</span>
+<span id="cb116-2"><a href="#cb116-2" aria-hidden="true" tabindex="-1"></a>  \(x) x<span class="sc">^</span>exponent       <span class="co"># the returned function remembers `exponent`</span></span>
+<span id="cb116-3"><a href="#cb116-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb116-4"><a href="#cb116-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb116-5"><a href="#cb116-5" aria-hidden="true" tabindex="-1"></a>cube         <span class="ot">&lt;-</span> <span class="fu">make_power</span>(<span class="dv">3</span>)</span>
+<span id="cb116-6"><a href="#cb116-6" aria-hidden="true" tabindex="-1"></a>to_the_tenth <span class="ot">&lt;-</span> <span class="fu">make_power</span>(<span class="dv">10</span>)</span>
+<span id="cb116-7"><a href="#cb116-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb116-8"><a href="#cb116-8" aria-hidden="true" tabindex="-1"></a><span class="fu">cube</span>(<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 8</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb103"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a><span class="fu">to_the_tenth</span>(<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a><span class="fu">to_the_tenth</span>(<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1024</code></pre>
 </div>
@@ -946,26 +1053,26 @@ Exercise 3.3: Where does x live?
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb105"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> make_power(exponent):</span>
-<span id="cb105-2"><a href="#cb105-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">lambda</span> x: x<span class="op">**</span>exponent   <span class="co"># the returned function remembers `exponent`</span></span>
-<span id="cb105-3"><a href="#cb105-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb105-4"><a href="#cb105-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb105-5"><a href="#cb105-5" aria-hidden="true" tabindex="-1"></a>cube         <span class="op">=</span> make_power(<span class="dv">3</span>)</span>
-<span id="cb105-6"><a href="#cb105-6" aria-hidden="true" tabindex="-1"></a>to_the_tenth <span class="op">=</span> make_power(<span class="dv">10</span>)</span>
-<span id="cb105-7"><a href="#cb105-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb105-8"><a href="#cb105-8" aria-hidden="true" tabindex="-1"></a>cube(<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb120"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> make_power(exponent):</span>
+<span id="cb120-2"><a href="#cb120-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">lambda</span> x: x<span class="op">**</span>exponent   <span class="co"># the returned function remembers `exponent`</span></span>
+<span id="cb120-3"><a href="#cb120-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb120-4"><a href="#cb120-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb120-5"><a href="#cb120-5" aria-hidden="true" tabindex="-1"></a>cube         <span class="op">=</span> make_power(<span class="dv">3</span>)</span>
+<span id="cb120-6"><a href="#cb120-6" aria-hidden="true" tabindex="-1"></a>to_the_tenth <span class="op">=</span> make_power(<span class="dv">10</span>)</span>
+<span id="cb120-7"><a href="#cb120-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb120-8"><a href="#cb120-8" aria-hidden="true" tabindex="-1"></a>cube(<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>8</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb107"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a>to_the_tenth(<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb122"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb122-1"><a href="#cb122-1" aria-hidden="true" tabindex="-1"></a>to_the_tenth(<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>1024</code></pre>
 </div>
 </div>
 </div>
 </div>
-<p>Note the small miracle: <code>cube</code> still knows that <code>exponent</code> is 3, long after the call to <code>make_power</code> finished. The returned function carries its birth environment with it (the technical name is a <em>closure</em>) — and this works identically in both languages.</p>
-<p>Turning a function of several arguments into a chain of single-argument functions like this is called <strong>currying</strong> (after the logician Haskell Curry — the food connection is, sadly, coincidental). It shines when you fix some arguments once and vary the others a lot. A situation you will meet constantly in numerical work: evaluating a function on grids of different resolutions. Take this slightly unhinged function,</p>
+<p>Note the small miracle: <code>cube</code> still knows that <code>exponent</code> is 3, long after the call to <code>make_power</code> finished. The returned function carries its birth environment with it (the technical name is a <em>closure</em>), and this works identically in both languages.</p>
+<p>Turning a function of several arguments into a chain of single-argument functions like this is called <strong>currying</strong> (after the logician Haskell Curry; the food connection is, sadly, coincidental). It shines when you fix some arguments once and vary the others a lot. A situation you will meet constantly in numerical work: evaluating a function on grids of different resolutions. Take this slightly unhinged function,</p>
 <p><span class="math display">
 f(x) = x^2 + x \sin(x - 1.5\,x^2),
 </span></p>
@@ -973,15 +1080,15 @@ f(x) = x^2 + x \sin(x - 1.5\,x^2),
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb109"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> \(x) x<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> x <span class="sc">*</span> <span class="fu">sin</span>(x <span class="sc">-</span> <span class="fl">1.5</span> <span class="sc">*</span> x<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb109-2"><a href="#cb109-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb109-3"><a href="#cb109-3" aria-hidden="true" tabindex="-1"></a><span class="co"># a quick look -- we'll do plotting properly in week 4</span></span>
-<span id="cb109-4"><a href="#cb109-4" aria-hidden="true" tabindex="-1"></a>xs <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">5</span>, <span class="at">length.out =</span> <span class="dv">400</span>)</span>
-<span id="cb109-5"><a href="#cb109-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(xs, <span class="fu">f</span>(xs), <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">xlab =</span> <span class="st">"x"</span>, <span class="at">ylab =</span> <span class="st">"f(x)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb124"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb124-1"><a href="#cb124-1" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> \(x) x<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> x <span class="sc">*</span> <span class="fu">sin</span>(x <span class="sc">-</span> <span class="fl">1.5</span> <span class="sc">*</span> x<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb124-2"><a href="#cb124-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb124-3"><a href="#cb124-3" aria-hidden="true" tabindex="-1"></a><span class="co"># a quick look -- we'll do plotting properly in week 4</span></span>
+<span id="cb124-4"><a href="#cb124-4" aria-hidden="true" tabindex="-1"></a>xs <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">5</span>, <span class="at">length.out =</span> <span class="dv">400</span>)</span>
+<span id="cb124-5"><a href="#cb124-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(xs, <span class="fu">f</span>(xs), <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">xlab =</span> <span class="st">"x"</span>, <span class="at">ylab =</span> <span class="st">"f(x)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="03-week3_files/figure-html/unnamed-chunk-35-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></p>
+<p><img src="03-week3_files/figure-html/unnamed-chunk-41-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></p>
 </figure>
 </div>
 </div>
@@ -990,20 +1097,20 @@ f(x) = x^2 + x \sin(x - 1.5\,x^2),
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb110-2"><a href="#cb110-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-3"><a href="#cb110-3" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="kw">lambda</span> x: x<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> x <span class="op">*</span> np.sin(x <span class="op">-</span> <span class="fl">1.5</span> <span class="op">*</span> x<span class="op">**</span><span class="dv">2</span>)</span>
-<span id="cb110-4"><a href="#cb110-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-5"><a href="#cb110-5" aria-hidden="true" tabindex="-1"></a><span class="co"># a quick look -- we'll do plotting properly in week 4</span></span>
-<span id="cb110-6"><a href="#cb110-6" aria-hidden="true" tabindex="-1"></a>xs <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">5</span>, <span class="dv">400</span>)</span>
-<span id="cb110-7"><a href="#cb110-7" aria-hidden="true" tabindex="-1"></a>plt.plot(xs, f(xs))</span>
-<span id="cb110-8"><a href="#cb110-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"x"</span>)</span>
-<span id="cb110-9"><a href="#cb110-9" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"f(x)"</span>)</span>
-<span id="cb110-10"><a href="#cb110-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb125"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb125-1"><a href="#cb125-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb125-2"><a href="#cb125-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb125-3"><a href="#cb125-3" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="kw">lambda</span> x: x<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> x <span class="op">*</span> np.sin(x <span class="op">-</span> <span class="fl">1.5</span> <span class="op">*</span> x<span class="op">**</span><span class="dv">2</span>)</span>
+<span id="cb125-4"><a href="#cb125-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb125-5"><a href="#cb125-5" aria-hidden="true" tabindex="-1"></a><span class="co"># a quick look -- we'll do plotting properly in week 4</span></span>
+<span id="cb125-6"><a href="#cb125-6" aria-hidden="true" tabindex="-1"></a>xs <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">5</span>, <span class="dv">400</span>)</span>
+<span id="cb125-7"><a href="#cb125-7" aria-hidden="true" tabindex="-1"></a>plt.plot(xs, f(xs))</span>
+<span id="cb125-8"><a href="#cb125-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"x"</span>)</span>
+<span id="cb125-9"><a href="#cb125-9" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"f(x)"</span>)</span>
+<span id="cb125-10"><a href="#cb125-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="03-week3_files/figure-html/unnamed-chunk-36-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></p>
+<p><img src="03-week3_files/figure-html/unnamed-chunk-42-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></p>
 </figure>
 </div>
 </div>
@@ -1015,18 +1122,18 @@ f(x) = x^2 + x \sin(x - 1.5\,x^2),
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb111"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a href="#cb111-1" aria-hidden="true" tabindex="-1"></a>grid_factory <span class="ot">&lt;-</span> <span class="cf">function</span>(len) {</span>
-<span id="cb111-2"><a href="#cb111-2" aria-hidden="true" tabindex="-1"></a>  \(up) <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> up, <span class="at">length.out =</span> len)</span>
-<span id="cb111-3"><a href="#cb111-3" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb111-4"><a href="#cb111-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb111-5"><a href="#cb111-5" aria-hidden="true" tabindex="-1"></a>coarse <span class="ot">&lt;-</span> <span class="fu">grid_factory</span>(<span class="dv">10</span>)     <span class="co"># 10-point grids</span></span>
-<span id="cb111-6"><a href="#cb111-6" aria-hidden="true" tabindex="-1"></a>fine   <span class="ot">&lt;-</span> <span class="fu">grid_factory</span>(<span class="dv">1000</span>)   <span class="co"># 1000-point grids</span></span>
-<span id="cb111-7"><a href="#cb111-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb111-8"><a href="#cb111-8" aria-hidden="true" tabindex="-1"></a><span class="fu">max</span>(<span class="fu">f</span>(<span class="fu">coarse</span>(<span class="dv">4</span>)))   <span class="co"># coarse grid: misses the wiggles</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb126"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a>grid_factory <span class="ot">&lt;-</span> <span class="cf">function</span>(len) {</span>
+<span id="cb126-2"><a href="#cb126-2" aria-hidden="true" tabindex="-1"></a>  \(up) <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> up, <span class="at">length.out =</span> len)</span>
+<span id="cb126-3"><a href="#cb126-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb126-4"><a href="#cb126-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb126-5"><a href="#cb126-5" aria-hidden="true" tabindex="-1"></a>coarse <span class="ot">&lt;-</span> <span class="fu">grid_factory</span>(<span class="dv">10</span>)     <span class="co"># 10-point grids</span></span>
+<span id="cb126-6"><a href="#cb126-6" aria-hidden="true" tabindex="-1"></a>fine   <span class="ot">&lt;-</span> <span class="fu">grid_factory</span>(<span class="dv">1000</span>)   <span class="co"># 1000-point grids</span></span>
+<span id="cb126-7"><a href="#cb126-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb126-8"><a href="#cb126-8" aria-hidden="true" tabindex="-1"></a><span class="fu">max</span>(<span class="fu">f</span>(<span class="fu">coarse</span>(<span class="dv">4</span>)))   <span class="co"># coarse grid: misses the wiggles</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 12.53</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb113"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb113-1"><a href="#cb113-1" aria-hidden="true" tabindex="-1"></a><span class="fu">max</span>(<span class="fu">f</span>(<span class="fu">fine</span>(<span class="dv">4</span>)))     <span class="co"># fine grid: much closer to the true maximum</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb128"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb128-1"><a href="#cb128-1" aria-hidden="true" tabindex="-1"></a><span class="fu">max</span>(<span class="fu">f</span>(<span class="fu">fine</span>(<span class="dv">4</span>)))     <span class="co"># fine grid: much closer to the true maximum</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 17.84983</code></pre>
 </div>
@@ -1035,18 +1142,18 @@ f(x) = x^2 + x \sin(x - 1.5\,x^2),
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb115"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> grid_factory(length):     <span class="co"># `len` is a Python built-in: pick another name</span></span>
-<span id="cb115-2"><a href="#cb115-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">lambda</span> up: np.linspace(<span class="dv">0</span>, up, length)</span>
-<span id="cb115-3"><a href="#cb115-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-4"><a href="#cb115-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-5"><a href="#cb115-5" aria-hidden="true" tabindex="-1"></a>coarse <span class="op">=</span> grid_factory(<span class="dv">10</span>)     <span class="co"># 10-point grids</span></span>
-<span id="cb115-6"><a href="#cb115-6" aria-hidden="true" tabindex="-1"></a>fine   <span class="op">=</span> grid_factory(<span class="dv">1000</span>)   <span class="co"># 1000-point grids</span></span>
-<span id="cb115-7"><a href="#cb115-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-8"><a href="#cb115-8" aria-hidden="true" tabindex="-1"></a><span class="bu">max</span>(f(coarse(<span class="dv">4</span>)))   <span class="co"># coarse grid: misses the wiggles</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb130"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb130-1"><a href="#cb130-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> grid_factory(length):     <span class="co"># `len` is a Python built-in: pick another name</span></span>
+<span id="cb130-2"><a href="#cb130-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">lambda</span> up: np.linspace(<span class="dv">0</span>, up, length)</span>
+<span id="cb130-3"><a href="#cb130-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb130-4"><a href="#cb130-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb130-5"><a href="#cb130-5" aria-hidden="true" tabindex="-1"></a>coarse <span class="op">=</span> grid_factory(<span class="dv">10</span>)     <span class="co"># 10-point grids</span></span>
+<span id="cb130-6"><a href="#cb130-6" aria-hidden="true" tabindex="-1"></a>fine   <span class="op">=</span> grid_factory(<span class="dv">1000</span>)   <span class="co"># 1000-point grids</span></span>
+<span id="cb130-7"><a href="#cb130-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb130-8"><a href="#cb130-8" aria-hidden="true" tabindex="-1"></a><span class="bu">max</span>(f(coarse(<span class="dv">4</span>)))   <span class="co"># coarse grid: misses the wiggles</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>np.float64(12.52999905034901)</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb117"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb117-1"><a href="#cb117-1" aria-hidden="true" tabindex="-1"></a><span class="bu">max</span>(f(fine(<span class="dv">4</span>)))     <span class="co"># fine grid: much closer to the true maximum</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb132"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb132-1"><a href="#cb132-1" aria-hidden="true" tabindex="-1"></a><span class="bu">max</span>(f(fine(<span class="dv">4</span>)))     <span class="co"># fine grid: much closer to the true maximum</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>np.float64(17.84983180085103)</code></pre>
 </div>
@@ -1058,18 +1165,18 @@ f(x) = x^2 + x \sin(x - 1.5\,x^2),
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb119"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb119-1"><a href="#cb119-1" aria-hidden="true" tabindex="-1"></a><span class="co"># evaluate a function on a grid up to `up`, return the max</span></span>
-<span id="cb119-2"><a href="#cb119-2" aria-hidden="true" tabindex="-1"></a>max_over_grid <span class="ot">&lt;-</span> <span class="cf">function</span>(f, grid, up) {</span>
-<span id="cb119-3"><a href="#cb119-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">max</span>(<span class="fu">f</span>(<span class="fu">grid</span>(up)))</span>
-<span id="cb119-4"><a href="#cb119-4" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb119-5"><a href="#cb119-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb119-6"><a href="#cb119-6" aria-hidden="true" tabindex="-1"></a>f2 <span class="ot">&lt;-</span> \(x) x<span class="sc">^</span><span class="dv">3</span> <span class="sc">-</span> x <span class="sc">*</span> <span class="fu">cos</span>(x <span class="sc">-</span> <span class="fl">1.5</span> <span class="sc">*</span> x<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb119-7"><a href="#cb119-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb119-8"><a href="#cb119-8" aria-hidden="true" tabindex="-1"></a><span class="fu">max_over_grid</span>(f,  fine, <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb134"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb134-1"><a href="#cb134-1" aria-hidden="true" tabindex="-1"></a><span class="co"># evaluate a function on a grid up to `up`, return the max</span></span>
+<span id="cb134-2"><a href="#cb134-2" aria-hidden="true" tabindex="-1"></a>max_over_grid <span class="ot">&lt;-</span> <span class="cf">function</span>(f, grid, up) {</span>
+<span id="cb134-3"><a href="#cb134-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">max</span>(<span class="fu">f</span>(<span class="fu">grid</span>(up)))</span>
+<span id="cb134-4"><a href="#cb134-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb134-5"><a href="#cb134-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb134-6"><a href="#cb134-6" aria-hidden="true" tabindex="-1"></a>f2 <span class="ot">&lt;-</span> \(x) x<span class="sc">^</span><span class="dv">3</span> <span class="sc">-</span> x <span class="sc">*</span> <span class="fu">cos</span>(x <span class="sc">-</span> <span class="fl">1.5</span> <span class="sc">*</span> x<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb134-7"><a href="#cb134-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb134-8"><a href="#cb134-8" aria-hidden="true" tabindex="-1"></a><span class="fu">max_over_grid</span>(f,  fine, <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 17.84983</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb121"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb121-1"><a href="#cb121-1" aria-hidden="true" tabindex="-1"></a><span class="fu">max_over_grid</span>(f2, fine, <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb136"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb136-1"><a href="#cb136-1" aria-hidden="true" tabindex="-1"></a><span class="fu">max_over_grid</span>(f2, fine, <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 62.36767</code></pre>
 </div>
@@ -1078,32 +1185,32 @@ f(x) = x^2 + x \sin(x - 1.5\,x^2),
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb123"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb123-1"><a href="#cb123-1" aria-hidden="true" tabindex="-1"></a><span class="co"># evaluate a function on a grid up to `up`, return the max</span></span>
-<span id="cb123-2"><a href="#cb123-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> max_over_grid(f, grid, up):</span>
-<span id="cb123-3"><a href="#cb123-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">max</span>(f(grid(up)))</span>
-<span id="cb123-4"><a href="#cb123-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb123-5"><a href="#cb123-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb123-6"><a href="#cb123-6" aria-hidden="true" tabindex="-1"></a>f2 <span class="op">=</span> <span class="kw">lambda</span> x: x<span class="op">**</span><span class="dv">3</span> <span class="op">-</span> x <span class="op">*</span> np.cos(x <span class="op">-</span> <span class="fl">1.5</span> <span class="op">*</span> x<span class="op">**</span><span class="dv">2</span>)</span>
-<span id="cb123-7"><a href="#cb123-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb123-8"><a href="#cb123-8" aria-hidden="true" tabindex="-1"></a>max_over_grid(f,  fine, <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb138"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb138-1"><a href="#cb138-1" aria-hidden="true" tabindex="-1"></a><span class="co"># evaluate a function on a grid up to `up`, return the max</span></span>
+<span id="cb138-2"><a href="#cb138-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> max_over_grid(f, grid, up):</span>
+<span id="cb138-3"><a href="#cb138-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">max</span>(f(grid(up)))</span>
+<span id="cb138-4"><a href="#cb138-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb138-5"><a href="#cb138-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb138-6"><a href="#cb138-6" aria-hidden="true" tabindex="-1"></a>f2 <span class="op">=</span> <span class="kw">lambda</span> x: x<span class="op">**</span><span class="dv">3</span> <span class="op">-</span> x <span class="op">*</span> np.cos(x <span class="op">-</span> <span class="fl">1.5</span> <span class="op">*</span> x<span class="op">**</span><span class="dv">2</span>)</span>
+<span id="cb138-7"><a href="#cb138-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb138-8"><a href="#cb138-8" aria-hidden="true" tabindex="-1"></a>max_over_grid(f,  fine, <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>np.float64(17.84983180085103)</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb125"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb125-1"><a href="#cb125-1" aria-hidden="true" tabindex="-1"></a>max_over_grid(f2, fine, <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb140"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb140-1"><a href="#cb140-1" aria-hidden="true" tabindex="-1"></a>max_over_grid(f2, fine, <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>np.float64(62.36767175274643)</code></pre>
 </div>
 </div>
 </div>
 </div>
-<p>One generic <code>max_over_grid</code>, any function, any grid resolution. This pattern — machinery that accepts the mathematical object as an argument — is exactly how we will package gradient descent at the end of the chapter.</p>
-<div class="callout callout-style-default callout-tip callout-titled" title="Exercise 3.4: A density factory">
+<p>One generic <code>max_over_grid</code>, any function, any grid resolution. This pattern (machinery that accepts the mathematical object as an argument) is exactly how we will package gradient descent at the end of the chapter.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Exercise 3.5: A density factory">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Exercise 3.4: A density factory
+Exercise 3.5: A density factory
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1120,14 +1227,14 @@ Exercise 3.4: A density factory
 </div>
 </div>
 </section>
-<section id="sec-week3-map" class="level3" data-number="3.4.3">
-<h3 data-number="3.4.3" class="anchored" data-anchor-id="sec-week3-map"><span class="header-section-number">3.4.3</span> map: one function, every element</h3>
-<p>Vectorised arithmetic (<a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>) covers a lot of ground, but it works on atomic vectors. The moment your data lives in a list — samples of different sizes, say — <code>mean(samples)</code> is meaningless and a <code>for</code> loop feels like heavy machinery for such a small job. The functional answer is <code>map</code>: apply a function to every element of a collection, collect the results. It lives in the <code>purrr</code> package (part of the tidyverse, which we meet properly in <a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>); Python has its counterparts built in:</p>
+<section id="sec-week3-map" class="level3" data-number="3.5.3">
+<h3 data-number="3.5.3" class="anchored" data-anchor-id="sec-week3-map"><span class="header-section-number">3.5.3</span> map: one function, every element</h3>
+<p>Vectorised arithmetic (<a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>) covers a lot of ground, but it works on atomic vectors. The moment your data lives in a list (samples of different sizes, say), <code>mean(samples)</code> is meaningless and a <code>for</code> loop feels like heavy machinery for such a small job. The functional answer is <code>map</code>: apply a function to every element of a collection, collect the results. It lives in the <code>purrr</code> package (part of the tidyverse, which we meet properly in <a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>); Python has its counterparts built in:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb127"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb127-1"><a href="#cb127-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb142"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb142-1"><a href="#cb142-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>
 Attaching package: 'purrr'</code></pre>
@@ -1137,14 +1244,14 @@ Attaching package: 'purrr'</code></pre>
 
     %||%</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb130"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb130-1"><a href="#cb130-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">7432</span>)   <span class="co"># randomness ahead: fix the seed so results are reproducible</span></span>
-<span id="cb130-2"><a href="#cb130-2" aria-hidden="true" tabindex="-1"></a>samples <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb130-3"><a href="#cb130-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">small  =</span> <span class="fu">rnorm</span>(<span class="dv">5</span>),</span>
-<span id="cb130-4"><a href="#cb130-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">medium =</span> <span class="fu">rnorm</span>(<span class="dv">50</span>),</span>
-<span id="cb130-5"><a href="#cb130-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">large  =</span> <span class="fu">rnorm</span>(<span class="dv">5000</span>)</span>
-<span id="cb130-6"><a href="#cb130-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb130-7"><a href="#cb130-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb130-8"><a href="#cb130-8" aria-hidden="true" tabindex="-1"></a><span class="fu">map</span>(samples, mean)       <span class="co"># returns a list</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb145"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb145-1"><a href="#cb145-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">7432</span>)   <span class="co"># randomness ahead: fix the seed so results are reproducible</span></span>
+<span id="cb145-2"><a href="#cb145-2" aria-hidden="true" tabindex="-1"></a>samples <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb145-3"><a href="#cb145-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">small  =</span> <span class="fu">rnorm</span>(<span class="dv">5</span>),</span>
+<span id="cb145-4"><a href="#cb145-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">medium =</span> <span class="fu">rnorm</span>(<span class="dv">50</span>),</span>
+<span id="cb145-5"><a href="#cb145-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">large  =</span> <span class="fu">rnorm</span>(<span class="dv">5000</span>)</span>
+<span id="cb145-6"><a href="#cb145-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb145-7"><a href="#cb145-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb145-8"><a href="#cb145-8" aria-hidden="true" tabindex="-1"></a><span class="fu">map</span>(samples, mean)       <span class="co"># returns a list</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>$small
 [1] 0.2437877
@@ -1155,12 +1262,12 @@ $medium
 $large
 [1] -0.01679829</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb132"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb132-1"><a href="#cb132-1" aria-hidden="true" tabindex="-1"></a><span class="fu">map_dbl</span>(samples, mean)   <span class="co"># returns a named numeric vector of doubles</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb147"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb147-1"><a href="#cb147-1" aria-hidden="true" tabindex="-1"></a><span class="fu">map_dbl</span>(samples, mean)   <span class="co"># returns a named numeric vector of doubles</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>      small      medium       large 
  0.24378768 -0.22320689 -0.01679829 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb134"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb134-1"><a href="#cb134-1" aria-hidden="true" tabindex="-1"></a><span class="fu">map_dbl</span>(samples, sd)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb149"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb149-1"><a href="#cb149-1" aria-hidden="true" tabindex="-1"></a><span class="fu">map_dbl</span>(samples, sd)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    small    medium     large 
 0.6906119 0.8322211 1.0034644 </code></pre>
@@ -1170,40 +1277,40 @@ $large
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb136"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb136-1"><a href="#cb136-1" aria-hidden="true" tabindex="-1"></a><span class="co"># no library needed: map() and comprehensions are built in</span></span>
-<span id="cb136-2"><a href="#cb136-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb136-3"><a href="#cb136-3" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">7432</span>)   <span class="co"># randomness ahead: fix the seed so results are reproducible</span></span>
-<span id="cb136-4"><a href="#cb136-4" aria-hidden="true" tabindex="-1"></a>samples <span class="op">=</span> {</span>
-<span id="cb136-5"><a href="#cb136-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"small"</span>:  rng.normal(size<span class="op">=</span><span class="dv">5</span>),</span>
-<span id="cb136-6"><a href="#cb136-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"medium"</span>: rng.normal(size<span class="op">=</span><span class="dv">50</span>),</span>
-<span id="cb136-7"><a href="#cb136-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"large"</span>:  rng.normal(size<span class="op">=</span><span class="dv">5000</span>),</span>
-<span id="cb136-8"><a href="#cb136-8" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb136-9"><a href="#cb136-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb136-10"><a href="#cb136-10" aria-hidden="true" tabindex="-1"></a><span class="bu">list</span>(<span class="bu">map</span>(np.mean, samples.values()))                 <span class="co"># map(): a plain list, names lost</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb151"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb151-1"><a href="#cb151-1" aria-hidden="true" tabindex="-1"></a><span class="co"># no library needed: map() and comprehensions are built in</span></span>
+<span id="cb151-2"><a href="#cb151-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb151-3"><a href="#cb151-3" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">7432</span>)   <span class="co"># randomness ahead: fix the seed so results are reproducible</span></span>
+<span id="cb151-4"><a href="#cb151-4" aria-hidden="true" tabindex="-1"></a>samples <span class="op">=</span> {</span>
+<span id="cb151-5"><a href="#cb151-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"small"</span>:  rng.normal(size<span class="op">=</span><span class="dv">5</span>),</span>
+<span id="cb151-6"><a href="#cb151-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"medium"</span>: rng.normal(size<span class="op">=</span><span class="dv">50</span>),</span>
+<span id="cb151-7"><a href="#cb151-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"large"</span>:  rng.normal(size<span class="op">=</span><span class="dv">5000</span>),</span>
+<span id="cb151-8"><a href="#cb151-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb151-9"><a href="#cb151-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb151-10"><a href="#cb151-10" aria-hidden="true" tabindex="-1"></a><span class="bu">list</span>(<span class="bu">map</span>(np.mean, samples.values()))                 <span class="co"># map(): a plain list, names lost</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[np.float64(-0.15104809319671958), np.float64(-0.008465847720283817), np.float64(-0.014895157721422986)]</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb138"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb138-1"><a href="#cb138-1" aria-hidden="true" tabindex="-1"></a>{name: np.mean(x) <span class="cf">for</span> name, x <span class="kw">in</span> samples.items()}    <span class="co"># dict comprehension: names kept</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb153"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb153-1"><a href="#cb153-1" aria-hidden="true" tabindex="-1"></a>{name: np.mean(x) <span class="cf">for</span> name, x <span class="kw">in</span> samples.items()}    <span class="co"># dict comprehension: names kept</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'small': np.float64(-0.15104809319671958), 'medium': np.float64(-0.008465847720283817), 'large': np.float64(-0.014895157721422986)}</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb140"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb140-1"><a href="#cb140-1" aria-hidden="true" tabindex="-1"></a>{name: np.std(x, ddof<span class="op">=</span><span class="dv">1</span>) <span class="cf">for</span> name, x <span class="kw">in</span> samples.items()}   <span class="co"># ddof=1 matches R's sd</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb155"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb155-1"><a href="#cb155-1" aria-hidden="true" tabindex="-1"></a>{name: np.std(x, ddof<span class="op">=</span><span class="dv">1</span>) <span class="cf">for</span> name, x <span class="kw">in</span> samples.items()}   <span class="co"># ddof=1 matches R's sd</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'small': np.float64(0.811246783136126), 'medium': np.float64(0.9253342476731854), 'large': np.float64(1.007283637168239)}</code></pre>
 </div>
 </div>
 </div>
 </div>
-<p><code>map()</code> always returns a list, because <em>a priori</em> it cannot know what your function outputs. When you know the common type, the suffixed versions <code>map_dbl</code>, <code>map_int</code>, <code>map_chr</code>, <code>map_lgl</code> return an atomic vector of that type — and fail loudly if any result does not fit, which is exactly the kind of failure you want. (One current exception: <code>map_chr</code> handed a number coerces it with a deprecation warning rather than an error — purrr would rather you called <code>as.character()</code> yourself.)</p>
-<p><strong>Note for Python users:</strong> <code>map(f, xs)</code> is built in and <em>lazy</em> — it returns an iterator that computes nothing until asked, hence the <code>list(...)</code> wrapper to see the results at once. The more idiomatic tool is the <strong>comprehension</strong>: <code>[f(x) for x in xs]</code> for lists, <code>{k: f(v) for k, v in d.items()}</code> for dicts (our named lists). There are no type-suffixed variants and no type checking — a comprehension happily builds a list of mixed types, so the discipline <code>map_dbl</code> enforces is on you.</p>
-<p>A word on the randomness: <code>set.seed(7432)</code> and <code>np.random.default_rng(7432)</code> each fix their own language’s stream, so re-running reproduces the same numbers <em>within</em> a language — but the two generators are unrelated, so the R and Python columns print different samples. Nothing is wrong.</p>
+<p><code>map()</code> always returns a list, because <em>a priori</em> it cannot know what your function outputs. When you know the common type, the suffixed versions <code>map_dbl</code>, <code>map_int</code>, <code>map_chr</code>, <code>map_lgl</code> return an atomic vector of that type, and fail loudly if any result does not fit, which is exactly the kind of failure you want. (One current exception: <code>map_chr</code> handed a number coerces it with a deprecation warning rather than an error; purrr would rather you called <code>as.character()</code> yourself.)</p>
+<p><strong>Note for Python:</strong> <code>map(f, xs)</code> is built in and <em>lazy</em>: it returns an iterator that computes nothing until asked, hence the <code>list(...)</code> wrapper to see the results at once. The more idiomatic tool is the <strong>comprehension</strong>: <code>[f(x) for x in xs]</code> for lists, <code>{k: f(v) for k, v in d.items()}</code> for dicts (our named lists). There are no type-suffixed variants and no type checking: a comprehension happily builds a list of mixed types, so the discipline <code>map_dbl</code> enforces is on you.</p>
+<p>A word on the randomness: <code>set.seed(7432)</code> and <code>np.random.default_rng(7432)</code> each fix their own language’s stream, so re-running reproduces the same numbers <em>within</em> a language, but the two generators are unrelated, so the R and Python columns print different samples. Nothing is wrong.</p>
 <p>Lambdas slot in perfectly as the function argument:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb142"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb142-1"><a href="#cb142-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sample-mean of a N(k, 1) sample, for several k</span></span>
-<span id="cb142-2"><a href="#cb142-2" aria-hidden="true" tabindex="-1"></a><span class="fu">map_dbl</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, \(k) <span class="fu">mean</span>(<span class="fu">rnorm</span>(<span class="dv">1000</span>, <span class="at">mean =</span> k)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb157"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb157-1"><a href="#cb157-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sample-mean of a N(k, 1) sample, for several k</span></span>
+<span id="cb157-2"><a href="#cb157-2" aria-hidden="true" tabindex="-1"></a><span class="fu">map_dbl</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, \(k) <span class="fu">mean</span>(<span class="fu">rnorm</span>(<span class="dv">1000</span>, <span class="at">mean =</span> k)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.9730188 1.9949919 3.0825153 3.9797734 5.0297364</code></pre>
 </div>
@@ -1212,8 +1319,8 @@ $large
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb144"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb144-1"><a href="#cb144-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sample-mean of a N(k, 1) sample, for several k</span></span>
-<span id="cb144-2"><a href="#cb144-2" aria-hidden="true" tabindex="-1"></a>[np.mean(rng.normal(loc<span class="op">=</span>k, size<span class="op">=</span><span class="dv">1000</span>)) <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">6</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb159"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb159-1"><a href="#cb159-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sample-mean of a N(k, 1) sample, for several k</span></span>
+<span id="cb159-2"><a href="#cb159-2" aria-hidden="true" tabindex="-1"></a>[np.mean(rng.normal(loc<span class="op">=</span>k, size<span class="op">=</span><span class="dv">1000</span>)) <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">6</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[np.float64(0.9917050759103179), np.float64(2.041836403752563), np.float64(2.9857534534437784), np.float64(3.959476119595229), np.float64(5.0515028275578695)]</code></pre>
 </div>
@@ -1225,9 +1332,9 @@ $large
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb146"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb146-1"><a href="#cb146-1" aria-hidden="true" tabindex="-1"></a><span class="co"># trimmed means: a different trimming fraction for each sample</span></span>
-<span id="cb146-2"><a href="#cb146-2" aria-hidden="true" tabindex="-1"></a>trims <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.1</span>, <span class="fl">0.2</span>)</span>
-<span id="cb146-3"><a href="#cb146-3" aria-hidden="true" tabindex="-1"></a><span class="fu">map2_dbl</span>(samples, trims, \(x, t) <span class="fu">mean</span>(x, <span class="at">trim =</span> t))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb161"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb161-1"><a href="#cb161-1" aria-hidden="true" tabindex="-1"></a><span class="co"># trimmed means: a different trimming fraction for each sample</span></span>
+<span id="cb161-2"><a href="#cb161-2" aria-hidden="true" tabindex="-1"></a>trims <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.1</span>, <span class="fl">0.2</span>)</span>
+<span id="cb161-3"><a href="#cb161-3" aria-hidden="true" tabindex="-1"></a><span class="fu">map2_dbl</span>(samples, trims, \(x, t) <span class="fu">mean</span>(x, <span class="at">trim =</span> t))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     small     medium      large 
  0.2437877 -0.2610742 -0.0181686 </code></pre>
@@ -1237,11 +1344,11 @@ $large
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb148"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb148-1"><a href="#cb148-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> trim_mean</span>
-<span id="cb148-2"><a href="#cb148-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb148-3"><a href="#cb148-3" aria-hidden="true" tabindex="-1"></a><span class="co"># trimmed means: a different trimming fraction for each sample</span></span>
-<span id="cb148-4"><a href="#cb148-4" aria-hidden="true" tabindex="-1"></a>trims <span class="op">=</span> [<span class="dv">0</span>, <span class="fl">0.1</span>, <span class="fl">0.2</span>]</span>
-<span id="cb148-5"><a href="#cb148-5" aria-hidden="true" tabindex="-1"></a>[trim_mean(x, t) <span class="cf">for</span> x, t <span class="kw">in</span> <span class="bu">zip</span>(samples.values(), trims)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb163"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb163-1"><a href="#cb163-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> trim_mean</span>
+<span id="cb163-2"><a href="#cb163-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb163-3"><a href="#cb163-3" aria-hidden="true" tabindex="-1"></a><span class="co"># trimmed means: a different trimming fraction for each sample</span></span>
+<span id="cb163-4"><a href="#cb163-4" aria-hidden="true" tabindex="-1"></a>trims <span class="op">=</span> [<span class="dv">0</span>, <span class="fl">0.1</span>, <span class="fl">0.2</span>]</span>
+<span id="cb163-5"><a href="#cb163-5" aria-hidden="true" tabindex="-1"></a>[trim_mean(x, t) <span class="cf">for</span> x, t <span class="kw">in</span> <span class="bu">zip</span>(samples.values(), trims)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[np.float64(-0.15104809319671958), np.float64(-0.0811993214607887), np.float64(-0.018583434160877932)]</code></pre>
 </div>
@@ -1249,13 +1356,13 @@ $large
 </div>
 </div>
 <p>There is also <code>pmap</code> for three-or-more inputs, same idea. One line of caution: the collections passed to <code>map2</code> should have the same length.</p>
-<p><strong>Note for Python users:</strong> <code>zip</code> pairs the collections up (and <code>map()</code> itself takes several iterables: <code>map(f, xs, ys)</code>); both stop silently at the <em>shortest</em> input rather than complaining, so check your lengths yourself.</p>
+<p><strong>Note for Python:</strong> <code>zip</code> pairs the collections up (and <code>map()</code> itself takes several iterables: <code>map(f, xs, ys)</code>); both stop silently at the <em>shortest</em> input rather than complaining, so check your lengths yourself.</p>
 <p><strong>Base R has this too.</strong> The <code>apply</code> family predates purrr and you will see it everywhere: <code>lapply(x, f)</code> is essentially <code>map</code>, <code>sapply(x, f)</code> is <code>map</code> that then <em>simplifies</em> to a vector when it can (convenient interactively, mildly hair-raising in scripts, since the output type depends on the data), <code>vapply</code> is the type-safe version, and <code>apply(M, margin, f)</code> sweeps a function over the rows (<code>margin = 1</code>) or columns (<code>margin = 2</code>) of a matrix. We use purrr in these notes for its consistent naming and type-stable returns, but the two families are interchangeable for everything we do:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb150"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb150-1"><a href="#cb150-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(samples, mean)   <span class="co"># base R equivalent of map_dbl(samples, mean)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb165"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb165-1"><a href="#cb165-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(samples, mean)   <span class="co"># base R equivalent of map_dbl(samples, mean)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>      small      medium       large 
  0.24378768 -0.22320689 -0.01679829 </code></pre>
@@ -1265,21 +1372,21 @@ $large
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb152"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb152-1"><a href="#cb152-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python has no purrr-vs-base split: comprehensions are the one idiom</span></span>
-<span id="cb152-2"><a href="#cb152-2" aria-hidden="true" tabindex="-1"></a>{name: np.mean(x) <span class="cf">for</span> name, x <span class="kw">in</span> samples.items()}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb167"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb167-1"><a href="#cb167-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python has no purrr-vs-base split: comprehensions are the one idiom</span></span>
+<span id="cb167-2"><a href="#cb167-2" aria-hidden="true" tabindex="-1"></a>{name: np.mean(x) <span class="cf">for</span> name, x <span class="kw">in</span> samples.items()}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'small': np.float64(-0.15104809319671958), 'medium': np.float64(-0.008465847720283817), 'large': np.float64(-0.014895157721422986)}</code></pre>
 </div>
 </div>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Exercise 3.5: Mapping the lab marks">
+<div class="callout callout-style-default callout-tip callout-titled" title="Exercise 3.6: Mapping the lab marks">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Exercise 3.5: Mapping the lab marks
+Exercise 3.6: Mapping the lab marks
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1288,21 +1395,21 @@ Exercise 3.5: Mapping the lab marks
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb154"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb154-1"><a href="#cb154-1" aria-hidden="true" tabindex="-1"></a>marks <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb154-2"><a href="#cb154-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">lab1 =</span> <span class="fu">c</span>(<span class="dv">72</span>, <span class="dv">58</span>, <span class="dv">91</span>, <span class="dv">43</span>, <span class="dv">65</span>),</span>
-<span id="cb154-3"><a href="#cb154-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">lab2 =</span> <span class="fu">c</span>(<span class="dv">80</span>, <span class="dv">61</span>, <span class="dv">75</span>, <span class="dv">49</span>, <span class="dv">70</span>, <span class="dv">66</span>),</span>
-<span id="cb154-4"><a href="#cb154-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">lab3 =</span> <span class="fu">c</span>(<span class="dv">55</span>, <span class="dv">95</span>, <span class="dv">78</span>, <span class="dv">62</span>)</span>
-<span id="cb154-5"><a href="#cb154-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb169"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb169-1"><a href="#cb169-1" aria-hidden="true" tabindex="-1"></a>marks <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb169-2"><a href="#cb169-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">lab1 =</span> <span class="fu">c</span>(<span class="dv">72</span>, <span class="dv">58</span>, <span class="dv">91</span>, <span class="dv">43</span>, <span class="dv">65</span>),</span>
+<span id="cb169-3"><a href="#cb169-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">lab2 =</span> <span class="fu">c</span>(<span class="dv">80</span>, <span class="dv">61</span>, <span class="dv">75</span>, <span class="dv">49</span>, <span class="dv">70</span>, <span class="dv">66</span>),</span>
+<span id="cb169-4"><a href="#cb169-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">lab3 =</span> <span class="fu">c</span>(<span class="dv">55</span>, <span class="dv">95</span>, <span class="dv">78</span>, <span class="dv">62</span>)</span>
+<span id="cb169-5"><a href="#cb169-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb155"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb155-1"><a href="#cb155-1" aria-hidden="true" tabindex="-1"></a>marks <span class="op">=</span> {</span>
-<span id="cb155-2"><a href="#cb155-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"lab1"</span>: [<span class="dv">72</span>, <span class="dv">58</span>, <span class="dv">91</span>, <span class="dv">43</span>, <span class="dv">65</span>],</span>
-<span id="cb155-3"><a href="#cb155-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"lab2"</span>: [<span class="dv">80</span>, <span class="dv">61</span>, <span class="dv">75</span>, <span class="dv">49</span>, <span class="dv">70</span>, <span class="dv">66</span>],</span>
-<span id="cb155-4"><a href="#cb155-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"lab3"</span>: [<span class="dv">55</span>, <span class="dv">95</span>, <span class="dv">78</span>, <span class="dv">62</span>],</span>
-<span id="cb155-5"><a href="#cb155-5" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb170"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb170-1"><a href="#cb170-1" aria-hidden="true" tabindex="-1"></a>marks <span class="op">=</span> {</span>
+<span id="cb170-2"><a href="#cb170-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"lab1"</span>: [<span class="dv">72</span>, <span class="dv">58</span>, <span class="dv">91</span>, <span class="dv">43</span>, <span class="dv">65</span>],</span>
+<span id="cb170-3"><a href="#cb170-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"lab2"</span>: [<span class="dv">80</span>, <span class="dv">61</span>, <span class="dv">75</span>, <span class="dv">49</span>, <span class="dv">70</span>, <span class="dv">66</span>],</span>
+<span id="cb170-4"><a href="#cb170-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"lab3"</span>: [<span class="dv">55</span>, <span class="dv">95</span>, <span class="dv">78</span>, <span class="dv">62</span>],</span>
+<span id="cb170-5"><a href="#cb170-5" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
@@ -1310,18 +1417,18 @@ Exercise 3.5: Mapping the lab marks
 <li>Use <code>map_dbl</code> (Python: a dict comprehension) to get each group’s average mark.</li>
 <li>Use <code>map_int</code> (or <code>map_dbl</code>) with <code>length</code> (Python: <code>len</code>) to get each group’s size.</li>
 <li>Use <code>map_dbl</code> with a lambda to compute each group’s mark <em>range</em> (max minus min).</li>
-<li>Use <code>map</code> with <code>sort</code> (Python: <code>sorted</code>) — why would <code>map_dbl</code> be the wrong tool here (what <em>shape</em> does each result have)?</li>
+<li>Use <code>map</code> with <code>sort</code> (Python: <code>sorted</code>). Why would <code>map_dbl</code> be the wrong tool here (what <em>shape</em> does each result have)?</li>
 <li>Which group did best on average? Answer in code with <code>which.max</code> (Python: <code>max(..., key=...)</code>).</li>
 </ol>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Exercise 3.6: Currying the trimmed mean">
+<div class="callout callout-style-default callout-tip callout-titled" title="Exercise 3.7: Currying the trimmed mean">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Exercise 3.6: Currying the trimmed mean
+Exercise 3.7: Currying the trimmed mean
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1330,23 +1437,23 @@ Exercise 3.6: Currying the trimmed mean
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb156"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb156-1"><a href="#cb156-1" aria-hidden="true" tabindex="-1"></a>reaction_times <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb156-2"><a href="#cb156-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">subj1 =</span> <span class="fu">c</span>(<span class="fl">0.31</span>, <span class="fl">0.28</span>, <span class="fl">0.35</span>, <span class="fl">0.30</span>, <span class="fl">4.20</span>),</span>
-<span id="cb156-3"><a href="#cb156-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">subj2 =</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.29</span>, <span class="fl">0.26</span>, <span class="fl">3.80</span>, <span class="fl">0.27</span>),</span>
-<span id="cb156-4"><a href="#cb156-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">subj3 =</span> <span class="fu">c</span>(<span class="fl">0.33</span>, <span class="fl">0.34</span>, <span class="fl">0.31</span>, <span class="fl">0.32</span>, <span class="fl">0.30</span>),</span>
-<span id="cb156-5"><a href="#cb156-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">subj4 =</span> <span class="fu">c</span>(<span class="fl">0.29</span>, <span class="fl">5.10</span>, <span class="fl">0.28</span>, <span class="fl">0.30</span>, <span class="fl">0.26</span>)</span>
-<span id="cb156-6"><a href="#cb156-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb171"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb171-1"><a href="#cb171-1" aria-hidden="true" tabindex="-1"></a>reaction_times <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb171-2"><a href="#cb171-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">subj1 =</span> <span class="fu">c</span>(<span class="fl">0.31</span>, <span class="fl">0.28</span>, <span class="fl">0.35</span>, <span class="fl">0.30</span>, <span class="fl">4.20</span>),</span>
+<span id="cb171-3"><a href="#cb171-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">subj2 =</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.29</span>, <span class="fl">0.26</span>, <span class="fl">3.80</span>, <span class="fl">0.27</span>),</span>
+<span id="cb171-4"><a href="#cb171-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">subj3 =</span> <span class="fu">c</span>(<span class="fl">0.33</span>, <span class="fl">0.34</span>, <span class="fl">0.31</span>, <span class="fl">0.32</span>, <span class="fl">0.30</span>),</span>
+<span id="cb171-5"><a href="#cb171-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">subj4 =</span> <span class="fu">c</span>(<span class="fl">0.29</span>, <span class="fl">5.10</span>, <span class="fl">0.28</span>, <span class="fl">0.30</span>, <span class="fl">0.26</span>)</span>
+<span id="cb171-6"><a href="#cb171-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb157"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb157-1"><a href="#cb157-1" aria-hidden="true" tabindex="-1"></a>reaction_times <span class="op">=</span> {</span>
-<span id="cb157-2"><a href="#cb157-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"subj1"</span>: [<span class="fl">0.31</span>, <span class="fl">0.28</span>, <span class="fl">0.35</span>, <span class="fl">0.30</span>, <span class="fl">4.20</span>],</span>
-<span id="cb157-3"><a href="#cb157-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"subj2"</span>: [<span class="fl">0.25</span>, <span class="fl">0.29</span>, <span class="fl">0.26</span>, <span class="fl">3.80</span>, <span class="fl">0.27</span>],</span>
-<span id="cb157-4"><a href="#cb157-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"subj3"</span>: [<span class="fl">0.33</span>, <span class="fl">0.34</span>, <span class="fl">0.31</span>, <span class="fl">0.32</span>, <span class="fl">0.30</span>],</span>
-<span id="cb157-5"><a href="#cb157-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"subj4"</span>: [<span class="fl">0.29</span>, <span class="fl">5.10</span>, <span class="fl">0.28</span>, <span class="fl">0.30</span>, <span class="fl">0.26</span>],</span>
-<span id="cb157-6"><a href="#cb157-6" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb172"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb172-1"><a href="#cb172-1" aria-hidden="true" tabindex="-1"></a>reaction_times <span class="op">=</span> {</span>
+<span id="cb172-2"><a href="#cb172-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"subj1"</span>: [<span class="fl">0.31</span>, <span class="fl">0.28</span>, <span class="fl">0.35</span>, <span class="fl">0.30</span>, <span class="fl">4.20</span>],</span>
+<span id="cb172-3"><a href="#cb172-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"subj2"</span>: [<span class="fl">0.25</span>, <span class="fl">0.29</span>, <span class="fl">0.26</span>, <span class="fl">3.80</span>, <span class="fl">0.27</span>],</span>
+<span id="cb172-4"><a href="#cb172-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"subj3"</span>: [<span class="fl">0.33</span>, <span class="fl">0.34</span>, <span class="fl">0.31</span>, <span class="fl">0.32</span>, <span class="fl">0.30</span>],</span>
+<span id="cb172-5"><a href="#cb172-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"subj4"</span>: [<span class="fl">0.29</span>, <span class="fl">5.10</span>, <span class="fl">0.28</span>, <span class="fl">0.30</span>, <span class="fl">0.26</span>],</span>
+<span id="cb172-6"><a href="#cb172-6" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
@@ -1358,29 +1465,29 @@ Exercise 3.6: Currying the trimmed mean
 </div>
 </div>
 </section>
-<section id="sec-week3-reduce" class="level3" data-number="3.4.4">
-<h3 data-number="3.4.4" class="anchored" data-anchor-id="sec-week3-reduce"><span class="header-section-number">3.4.4</span> Reduce: fold a collection to one value</h3>
+<section id="sec-week3-reduce" class="level3" data-number="3.5.4">
+<h3 data-number="3.5.4" class="anchored" data-anchor-id="sec-week3-reduce"><span class="header-section-number">3.5.4</span> Reduce: fold a collection to one value</h3>
 <p>Where <code>map</code> applies a function elementwise, <code>Reduce</code> (base R; purrr spells it <code>reduce</code>, Python keeps it in <code>functools.reduce</code>) <em>folds</em> a whole collection down to a single value with a two-argument function: combine the first two elements, combine the result with the third, and so on.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb158"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb158-1"><a href="#cb158-1" aria-hidden="true" tabindex="-1"></a>attended <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb158-2"><a href="#cb158-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">week1 =</span> <span class="fu">c</span>(<span class="st">"Ada"</span>, <span class="st">"Bea"</span>, <span class="st">"Carl"</span>, <span class="st">"Dan"</span>, <span class="st">"Eve"</span>),</span>
-<span id="cb158-3"><a href="#cb158-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">week2 =</span> <span class="fu">c</span>(<span class="st">"Ada"</span>, <span class="st">"Carl"</span>, <span class="st">"Dan"</span>, <span class="st">"Eve"</span>),</span>
-<span id="cb158-4"><a href="#cb158-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">week3 =</span> <span class="fu">c</span>(<span class="st">"Ada"</span>, <span class="st">"Carl"</span>, <span class="st">"Eve"</span>, <span class="st">"Fay"</span>)</span>
-<span id="cb158-5"><a href="#cb158-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb158-6"><a href="#cb158-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb158-7"><a href="#cb158-7" aria-hidden="true" tabindex="-1"></a><span class="co"># who has attended every single week? intersect two at a time:</span></span>
-<span id="cb158-8"><a href="#cb158-8" aria-hidden="true" tabindex="-1"></a><span class="fu">Reduce</span>(intersect, attended)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb173"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb173-1"><a href="#cb173-1" aria-hidden="true" tabindex="-1"></a>attended <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb173-2"><a href="#cb173-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">week1 =</span> <span class="fu">c</span>(<span class="st">"Ada"</span>, <span class="st">"Bea"</span>, <span class="st">"Carl"</span>, <span class="st">"Dan"</span>, <span class="st">"Eve"</span>),</span>
+<span id="cb173-3"><a href="#cb173-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">week2 =</span> <span class="fu">c</span>(<span class="st">"Ada"</span>, <span class="st">"Carl"</span>, <span class="st">"Dan"</span>, <span class="st">"Eve"</span>),</span>
+<span id="cb173-4"><a href="#cb173-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">week3 =</span> <span class="fu">c</span>(<span class="st">"Ada"</span>, <span class="st">"Carl"</span>, <span class="st">"Eve"</span>, <span class="st">"Fay"</span>)</span>
+<span id="cb173-5"><a href="#cb173-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb173-6"><a href="#cb173-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb173-7"><a href="#cb173-7" aria-hidden="true" tabindex="-1"></a><span class="co"># who has attended every single week? intersect two at a time:</span></span>
+<span id="cb173-8"><a href="#cb173-8" aria-hidden="true" tabindex="-1"></a><span class="fu">Reduce</span>(intersect, attended)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "Ada"  "Carl" "Eve" </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb160"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb160-1"><a href="#cb160-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Reduce</span>(<span class="st">`</span><span class="at">+</span><span class="st">`</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)                      <span class="co"># ((((1 + 2) + 3) + 4) + 5): the sum</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb175"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb175-1"><a href="#cb175-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Reduce</span>(<span class="st">`</span><span class="at">+</span><span class="st">`</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)                      <span class="co"># ((((1 + 2) + 3) + 4) + 5): the sum</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 15</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb162"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb162-1"><a href="#cb162-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Reduce</span>(<span class="st">`</span><span class="at">+</span><span class="st">`</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="at">accumulate =</span> <span class="cn">TRUE</span>)   <span class="co"># keep the partial results: cumsum</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb177"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb177-1"><a href="#cb177-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Reduce</span>(<span class="st">`</span><span class="at">+</span><span class="st">`</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="at">accumulate =</span> <span class="cn">TRUE</span>)   <span class="co"># keep the partial results: cumsum</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]  1  3  6 10 15</code></pre>
 </div>
@@ -1389,56 +1496,56 @@ Exercise 3.6: Currying the trimmed mean
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb164"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb164-1"><a href="#cb164-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> functools <span class="im">import</span> <span class="bu">reduce</span></span>
-<span id="cb164-2"><a href="#cb164-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> operator <span class="im">import</span> add</span>
-<span id="cb164-3"><a href="#cb164-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> itertools <span class="im">import</span> accumulate</span>
-<span id="cb164-4"><a href="#cb164-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb164-5"><a href="#cb164-5" aria-hidden="true" tabindex="-1"></a>attended <span class="op">=</span> {</span>
-<span id="cb164-6"><a href="#cb164-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"week1"</span>: [<span class="st">"Ada"</span>, <span class="st">"Bea"</span>, <span class="st">"Carl"</span>, <span class="st">"Dan"</span>, <span class="st">"Eve"</span>],</span>
-<span id="cb164-7"><a href="#cb164-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"week2"</span>: [<span class="st">"Ada"</span>, <span class="st">"Carl"</span>, <span class="st">"Dan"</span>, <span class="st">"Eve"</span>],</span>
-<span id="cb164-8"><a href="#cb164-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"week3"</span>: [<span class="st">"Ada"</span>, <span class="st">"Carl"</span>, <span class="st">"Eve"</span>, <span class="st">"Fay"</span>],</span>
-<span id="cb164-9"><a href="#cb164-9" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb164-10"><a href="#cb164-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb164-11"><a href="#cb164-11" aria-hidden="true" tabindex="-1"></a><span class="co"># who has attended every single week? intersect two at a time:</span></span>
-<span id="cb164-12"><a href="#cb164-12" aria-hidden="true" tabindex="-1"></a><span class="bu">reduce</span>(<span class="kw">lambda</span> a, b: [name <span class="cf">for</span> name <span class="kw">in</span> a <span class="cf">if</span> name <span class="kw">in</span> b], attended.values())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb179"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb179-1"><a href="#cb179-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> functools <span class="im">import</span> <span class="bu">reduce</span></span>
+<span id="cb179-2"><a href="#cb179-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> operator <span class="im">import</span> add</span>
+<span id="cb179-3"><a href="#cb179-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> itertools <span class="im">import</span> accumulate</span>
+<span id="cb179-4"><a href="#cb179-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb179-5"><a href="#cb179-5" aria-hidden="true" tabindex="-1"></a>attended <span class="op">=</span> {</span>
+<span id="cb179-6"><a href="#cb179-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"week1"</span>: [<span class="st">"Ada"</span>, <span class="st">"Bea"</span>, <span class="st">"Carl"</span>, <span class="st">"Dan"</span>, <span class="st">"Eve"</span>],</span>
+<span id="cb179-7"><a href="#cb179-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"week2"</span>: [<span class="st">"Ada"</span>, <span class="st">"Carl"</span>, <span class="st">"Dan"</span>, <span class="st">"Eve"</span>],</span>
+<span id="cb179-8"><a href="#cb179-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"week3"</span>: [<span class="st">"Ada"</span>, <span class="st">"Carl"</span>, <span class="st">"Eve"</span>, <span class="st">"Fay"</span>],</span>
+<span id="cb179-9"><a href="#cb179-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb179-10"><a href="#cb179-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb179-11"><a href="#cb179-11" aria-hidden="true" tabindex="-1"></a><span class="co"># who has attended every single week? intersect two at a time:</span></span>
+<span id="cb179-12"><a href="#cb179-12" aria-hidden="true" tabindex="-1"></a><span class="bu">reduce</span>(<span class="kw">lambda</span> a, b: [name <span class="cf">for</span> name <span class="kw">in</span> a <span class="cf">if</span> name <span class="kw">in</span> b], attended.values())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>['Ada', 'Carl', 'Eve']</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb166"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb166-1"><a href="#cb166-1" aria-hidden="true" tabindex="-1"></a><span class="bu">reduce</span>(add, <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">6</span>))          <span class="co"># ((((1 + 2) + 3) + 4) + 5): the sum</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb181"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb181-1"><a href="#cb181-1" aria-hidden="true" tabindex="-1"></a><span class="bu">reduce</span>(add, <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">6</span>))          <span class="co"># ((((1 + 2) + 3) + 4) + 5): the sum</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>15</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb168"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb168-1"><a href="#cb168-1" aria-hidden="true" tabindex="-1"></a><span class="bu">list</span>(accumulate(<span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">6</span>)))     <span class="co"># keep the partial results: cumsum</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb183"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb183-1"><a href="#cb183-1" aria-hidden="true" tabindex="-1"></a><span class="bu">list</span>(accumulate(<span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">6</span>)))     <span class="co"># keep the partial results: cumsum</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1, 3, 6, 10, 15]</code></pre>
 </div>
 </div>
 </div>
 </div>
-<p>The backticks around <code>`+`</code> let us pass an operator where a function is expected — operators <em>are</em> functions in R. That is the whole idea; <code>Reduce</code> is niche but irreplaceable when it fits.</p>
-<p><strong>Note for Python users:</strong> the pieces live in three standard-library modules: <code>functools.reduce</code> is the fold, the <code>operator</code> module wraps the operators as functions (<code>operator.add</code> is Python’s <code>`+`</code>), and running folds come from <code>itertools.accumulate</code> rather than an <code>accumulate =</code> flag. There is no built-in <code>intersect</code> for lists, hence the lambda.</p>
-<div class="callout callout-style-default callout-tip callout-titled" title="Exercise 3.7: Reduce, reuse, recycle">
+<p>The backticks around <code>`+`</code> let us pass an operator where a function is expected: operators <em>are</em> functions in R. That is the whole idea; <code>Reduce</code> is niche but irreplaceable when it fits.</p>
+<p><strong>Note for Python:</strong> the pieces live in three standard-library modules: <code>functools.reduce</code> is the fold, the <code>operator</code> module wraps the operators as functions (<code>operator.add</code> is Python’s <code>`+`</code>), and running folds come from <code>itertools.accumulate</code> rather than an <code>accumulate =</code> flag. There is no built-in <code>intersect</code> for lists, hence the lambda.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Exercise 3.8: Reduce, reuse, recycle">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Exercise 3.7: Reduce, reuse, recycle
+Exercise 3.8: Reduce, reuse, recycle
 </div>
 </div>
 <div class="callout-body-container callout-body">
 <ol type="a">
 <li>Compute <span class="math inline">10!</span> with a single <code>Reduce</code> call (no loops, no <code>factorial</code>). (Python: <code>functools.reduce</code> with <code>operator.mul</code>.)</li>
 <li>Given <code>x &lt;- c(3, 1, 4, 1, 5, 9, 2, 6)</code>, compute the <em>running maximum</em> with <code>Reduce</code> and <code>accumulate = TRUE</code> (Python: <code>itertools.accumulate</code> with <code>max</code>), and check it against the built-in <code>cummax(x)</code> (Python: <code>np.maximum.accumulate(x)</code>).</li>
-<li>With the <code>attended</code> list from above, use <code>Reduce</code> and <code>union</code> to list everyone who attended <em>at least once</em>, and check it against <code>unique(unlist(attended))</code> (Python: write the union step yourself, and check with <code>np.unique</code> on the concatenated lists — noting that <code>np.unique</code> also sorts).</li>
+<li>With the <code>attended</code> list from above, use <code>Reduce</code> and <code>union</code> to list everyone who attended <em>at least once</em>, and check it against <code>unique(unlist(attended))</code> (Python: write the union step yourself, and check with <code>np.unique</code> on the concatenated lists, noting that <code>np.unique</code> also sorts).</li>
 </ol>
 </div>
 </div>
 </section>
 </section>
-<section id="sec-week3-gd" class="level2" data-number="3.5">
-<h2 data-number="3.5" class="anchored" data-anchor-id="sec-week3-gd"><span class="header-section-number">3.5</span> Packaging gradient descent</h2>
-<p>Time to cash in. In <a href="02-week2.html#sec-week2-gd" class="quarto-xref"><span>Section 2.9</span></a> we minimised a function by iterating</p>
+<section id="sec-week3-gd" class="level2" data-number="3.6">
+<h2 data-number="3.6" class="anchored" data-anchor-id="sec-week3-gd"><span class="header-section-number">3.6</span> Packaging gradient descent</h2>
+<p>Time to cash in. In <a href="02-week2.html#sec-week2-gd" class="quarto-xref"><span>Section 2.8</span></a> we minimised a function by iterating</p>
 <p><span class="math display">
 x_{n+1} = x_n - \gamma \, f'(x_n),
 </span></p>
@@ -1447,36 +1554,36 @@ x_{n+1} = x_n - \gamma \, f'(x_n),
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb170"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb170-1"><a href="#cb170-1" aria-hidden="true" tabindex="-1"></a>grad_descent <span class="ot">&lt;-</span> <span class="cf">function</span>(f, grad, x0, gamma, n) {</span>
-<span id="cb170-2"><a href="#cb170-2" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> x0</span>
-<span id="cb170-3"><a href="#cb170-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n) {</span>
-<span id="cb170-4"><a href="#cb170-4" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> x <span class="sc">-</span> gamma <span class="sc">*</span> <span class="fu">grad</span>(x)   <span class="co"># the week 2 update, verbatim</span></span>
-<span id="cb170-5"><a href="#cb170-5" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb170-6"><a href="#cb170-6" aria-hidden="true" tabindex="-1"></a>  x</span>
-<span id="cb170-7"><a href="#cb170-7" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb185"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb185-1"><a href="#cb185-1" aria-hidden="true" tabindex="-1"></a>grad_descent <span class="ot">&lt;-</span> <span class="cf">function</span>(f, grad, x0, gamma, n) {</span>
+<span id="cb185-2"><a href="#cb185-2" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> x0</span>
+<span id="cb185-3"><a href="#cb185-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n) {</span>
+<span id="cb185-4"><a href="#cb185-4" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> x <span class="sc">-</span> gamma <span class="sc">*</span> <span class="fu">grad</span>(x)   <span class="co"># the week 2 update, verbatim</span></span>
+<span id="cb185-5"><a href="#cb185-5" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb185-6"><a href="#cb185-6" aria-hidden="true" tabindex="-1"></a>  x</span>
+<span id="cb185-7"><a href="#cb185-7" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb171"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb171-1"><a href="#cb171-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> grad_descent(f, grad, x0, gamma, n):</span>
-<span id="cb171-2"><a href="#cb171-2" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> x0</span>
-<span id="cb171-3"><a href="#cb171-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n):</span>
-<span id="cb171-4"><a href="#cb171-4" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> x <span class="op">-</span> gamma <span class="op">*</span> grad(x)   <span class="co"># the week 2 update, verbatim</span></span>
-<span id="cb171-5"><a href="#cb171-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb186"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb186-1"><a href="#cb186-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> grad_descent(f, grad, x0, gamma, n):</span>
+<span id="cb186-2"><a href="#cb186-2" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> x0</span>
+<span id="cb186-3"><a href="#cb186-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n):</span>
+<span id="cb186-4"><a href="#cb186-4" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> x <span class="op">-</span> gamma <span class="op">*</span> grad(x)   <span class="co"># the week 2 update, verbatim</span></span>
+<span id="cb186-5"><a href="#cb186-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
-<p>That is the whole algorithm: pure (no globals touched), reusable, half a dozen lines. You may notice <code>grad_descent</code> never actually calls <code>f</code> — the update only needs the gradient. We keep <code>f</code> in the signature anyway: the objective is how we <em>check</em> the answer (see the plot below), and in <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a> this exact interface will carry monitoring, stochastic variants and fancier updates without changing shape. Consider the signature <code>grad_descent(f, grad, x0, gamma, n)</code> — identical in both languages, deliberately — a contract between this week and week 5.</p>
+<p>That is the whole algorithm: pure (no globals touched), reusable, half a dozen lines. You may notice <code>grad_descent</code> never actually calls <code>f</code>: the update only needs the gradient. We keep <code>f</code> in the signature anyway: the objective is how we <em>check</em> the answer (see the plot below), and in <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a> this exact interface will carry monitoring, stochastic variants and fancier updates without changing shape. Consider the signature <code>grad_descent(f, grad, x0, gamma, n)</code>, identical in both languages by design, a contract between this week and week 5.</p>
 <p>Minimising <span class="math inline">f(x) = (x-2)^2</span>, whose gradient is <span class="math inline">f'(x) = 2(x-2)</span>, is now a matter of two lambdas:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb172"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb172-1"><a href="#cb172-1" aria-hidden="true" tabindex="-1"></a>f      <span class="ot">&lt;-</span> \(x) (x <span class="sc">-</span> <span class="dv">2</span>)<span class="sc">^</span><span class="dv">2</span></span>
-<span id="cb172-2"><a href="#cb172-2" aria-hidden="true" tabindex="-1"></a>grad_f <span class="ot">&lt;-</span> \(x) <span class="dv">2</span> <span class="sc">*</span> (x <span class="sc">-</span> <span class="dv">2</span>)</span>
-<span id="cb172-3"><a href="#cb172-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb172-4"><a href="#cb172-4" aria-hidden="true" tabindex="-1"></a><span class="fu">grad_descent</span>(f, grad_f, <span class="at">x0 =</span> <span class="dv">10</span>, <span class="at">gamma =</span> <span class="fl">0.1</span>, <span class="at">n =</span> <span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb187"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb187-1"><a href="#cb187-1" aria-hidden="true" tabindex="-1"></a>f      <span class="ot">&lt;-</span> \(x) (x <span class="sc">-</span> <span class="dv">2</span>)<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb187-2"><a href="#cb187-2" aria-hidden="true" tabindex="-1"></a>grad_f <span class="ot">&lt;-</span> \(x) <span class="dv">2</span> <span class="sc">*</span> (x <span class="sc">-</span> <span class="dv">2</span>)</span>
+<span id="cb187-3"><a href="#cb187-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb187-4"><a href="#cb187-4" aria-hidden="true" tabindex="-1"></a><span class="fu">grad_descent</span>(f, grad_f, <span class="at">x0 =</span> <span class="dv">10</span>, <span class="at">gamma =</span> <span class="fl">0.1</span>, <span class="at">n =</span> <span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 2</code></pre>
 </div>
@@ -1485,10 +1592,10 @@ x_{n+1} = x_n - \gamma \, f'(x_n),
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb174"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb174-1"><a href="#cb174-1" aria-hidden="true" tabindex="-1"></a>f      <span class="op">=</span> <span class="kw">lambda</span> x: (x <span class="op">-</span> <span class="dv">2</span>)<span class="op">**</span><span class="dv">2</span></span>
-<span id="cb174-2"><a href="#cb174-2" aria-hidden="true" tabindex="-1"></a>grad_f <span class="op">=</span> <span class="kw">lambda</span> x: <span class="dv">2</span> <span class="op">*</span> (x <span class="op">-</span> <span class="dv">2</span>)</span>
-<span id="cb174-3"><a href="#cb174-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb174-4"><a href="#cb174-4" aria-hidden="true" tabindex="-1"></a>grad_descent(f, grad_f, x0<span class="op">=</span><span class="dv">10</span>, gamma<span class="op">=</span><span class="fl">0.1</span>, n<span class="op">=</span><span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb189"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb189-1"><a href="#cb189-1" aria-hidden="true" tabindex="-1"></a>f      <span class="op">=</span> <span class="kw">lambda</span> x: (x <span class="op">-</span> <span class="dv">2</span>)<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb189-2"><a href="#cb189-2" aria-hidden="true" tabindex="-1"></a>grad_f <span class="op">=</span> <span class="kw">lambda</span> x: <span class="dv">2</span> <span class="op">*</span> (x <span class="op">-</span> <span class="dv">2</span>)</span>
+<span id="cb189-3"><a href="#cb189-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb189-4"><a href="#cb189-4" aria-hidden="true" tabindex="-1"></a>grad_descent(f, grad_f, x0<span class="op">=</span><span class="dv">10</span>, gamma<span class="op">=</span><span class="fl">0.1</span>, n<span class="op">=</span><span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>2.000000001629629</code></pre>
 </div>
@@ -1500,14 +1607,14 @@ x_{n+1} = x_n - \gamma \, f'(x_n),
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb176"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb176-1"><a href="#cb176-1" aria-hidden="true" tabindex="-1"></a>g      <span class="ot">&lt;-</span> \(x) x<span class="sc">^</span><span class="dv">4</span> <span class="sc">/</span> <span class="dv">4</span> <span class="sc">-</span> x<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="dv">2</span></span>
-<span id="cb176-2"><a href="#cb176-2" aria-hidden="true" tabindex="-1"></a>grad_g <span class="ot">&lt;-</span> \(x) x<span class="sc">^</span><span class="dv">3</span> <span class="sc">-</span> x</span>
-<span id="cb176-3"><a href="#cb176-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb176-4"><a href="#cb176-4" aria-hidden="true" tabindex="-1"></a><span class="fu">grad_descent</span>(g, grad_g, <span class="at">x0 =</span>  <span class="dv">2</span>, <span class="at">gamma =</span> <span class="fl">0.1</span>, <span class="at">n =</span> <span class="dv">200</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb191"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb191-1"><a href="#cb191-1" aria-hidden="true" tabindex="-1"></a>g      <span class="ot">&lt;-</span> \(x) x<span class="sc">^</span><span class="dv">4</span> <span class="sc">/</span> <span class="dv">4</span> <span class="sc">-</span> x<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="dv">2</span></span>
+<span id="cb191-2"><a href="#cb191-2" aria-hidden="true" tabindex="-1"></a>grad_g <span class="ot">&lt;-</span> \(x) x<span class="sc">^</span><span class="dv">3</span> <span class="sc">-</span> x</span>
+<span id="cb191-3"><a href="#cb191-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb191-4"><a href="#cb191-4" aria-hidden="true" tabindex="-1"></a><span class="fu">grad_descent</span>(g, grad_g, <span class="at">x0 =</span>  <span class="dv">2</span>, <span class="at">gamma =</span> <span class="fl">0.1</span>, <span class="at">n =</span> <span class="dv">200</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb178"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb178-1"><a href="#cb178-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grad_descent</span>(g, grad_g, <span class="at">x0 =</span> <span class="sc">-</span><span class="dv">2</span>, <span class="at">gamma =</span> <span class="fl">0.1</span>, <span class="at">n =</span> <span class="dv">200</span>)   <span class="co"># other basin</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb193"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb193-1"><a href="#cb193-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grad_descent</span>(g, grad_g, <span class="at">x0 =</span> <span class="sc">-</span><span class="dv">2</span>, <span class="at">gamma =</span> <span class="fl">0.1</span>, <span class="at">n =</span> <span class="dv">200</span>)   <span class="co"># other basin</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] -1</code></pre>
 </div>
@@ -1516,34 +1623,34 @@ x_{n+1} = x_n - \gamma \, f'(x_n),
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb180"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb180-1"><a href="#cb180-1" aria-hidden="true" tabindex="-1"></a>g      <span class="op">=</span> <span class="kw">lambda</span> x: x<span class="op">**</span><span class="dv">4</span> <span class="op">/</span> <span class="dv">4</span> <span class="op">-</span> x<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> <span class="dv">2</span></span>
-<span id="cb180-2"><a href="#cb180-2" aria-hidden="true" tabindex="-1"></a>grad_g <span class="op">=</span> <span class="kw">lambda</span> x: x<span class="op">**</span><span class="dv">3</span> <span class="op">-</span> x</span>
-<span id="cb180-3"><a href="#cb180-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb180-4"><a href="#cb180-4" aria-hidden="true" tabindex="-1"></a>grad_descent(g, grad_g, x0<span class="op">=</span><span class="dv">2</span>, gamma<span class="op">=</span><span class="fl">0.1</span>, n<span class="op">=</span><span class="dv">200</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb195"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb195-1"><a href="#cb195-1" aria-hidden="true" tabindex="-1"></a>g      <span class="op">=</span> <span class="kw">lambda</span> x: x<span class="op">**</span><span class="dv">4</span> <span class="op">/</span> <span class="dv">4</span> <span class="op">-</span> x<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb195-2"><a href="#cb195-2" aria-hidden="true" tabindex="-1"></a>grad_g <span class="op">=</span> <span class="kw">lambda</span> x: x<span class="op">**</span><span class="dv">3</span> <span class="op">-</span> x</span>
+<span id="cb195-3"><a href="#cb195-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb195-4"><a href="#cb195-4" aria-hidden="true" tabindex="-1"></a>grad_descent(g, grad_g, x0<span class="op">=</span><span class="dv">2</span>, gamma<span class="op">=</span><span class="fl">0.1</span>, n<span class="op">=</span><span class="dv">200</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>1.0000000000000004</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb182"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb182-1"><a href="#cb182-1" aria-hidden="true" tabindex="-1"></a>grad_descent(g, grad_g, x0<span class="op">=-</span><span class="dv">2</span>, gamma<span class="op">=</span><span class="fl">0.1</span>, n<span class="op">=</span><span class="dv">200</span>)   <span class="co"># other basin</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb197"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb197-1"><a href="#cb197-1" aria-hidden="true" tabindex="-1"></a>grad_descent(g, grad_g, x0<span class="op">=-</span><span class="dv">2</span>, gamma<span class="op">=</span><span class="fl">0.1</span>, n<span class="op">=</span><span class="dv">200</span>)   <span class="co"># other basin</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>-1.0000000000000004</code></pre>
 </div>
 </div>
 </div>
 </div>
-<p>Gradient descent rolls downhill from wherever you drop it, so it finds the <em>local</em> minimum of its starting basin — a theme we return to at length in <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a>. A quick base-plot sanity check that the answer really sits at the bottom:</p>
+<p>Gradient descent rolls downhill from wherever you drop it, so it finds the <em>local</em> minimum of its starting basin, a theme we return to at length in <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a>. A quick base-plot sanity check that the answer really sits at the bottom:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb184"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb184-1"><a href="#cb184-1" aria-hidden="true" tabindex="-1"></a>xhat <span class="ot">&lt;-</span> <span class="fu">grad_descent</span>(g, grad_g, <span class="at">x0 =</span> <span class="dv">2</span>, <span class="at">gamma =</span> <span class="fl">0.1</span>, <span class="at">n =</span> <span class="dv">200</span>)</span>
-<span id="cb184-2"><a href="#cb184-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb184-3"><a href="#cb184-3" aria-hidden="true" tabindex="-1"></a>xs <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="at">length.out =</span> <span class="dv">400</span>)</span>
-<span id="cb184-4"><a href="#cb184-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(xs, <span class="fu">g</span>(xs), <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">xlab =</span> <span class="st">"x"</span>, <span class="at">ylab =</span> <span class="st">"g(x)"</span>)</span>
-<span id="cb184-5"><a href="#cb184-5" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(xhat, <span class="fu">g</span>(xhat), <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">pch =</span> <span class="dv">19</span>)   <span class="co"># our minimiser</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb199"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb199-1"><a href="#cb199-1" aria-hidden="true" tabindex="-1"></a>xhat <span class="ot">&lt;-</span> <span class="fu">grad_descent</span>(g, grad_g, <span class="at">x0 =</span> <span class="dv">2</span>, <span class="at">gamma =</span> <span class="fl">0.1</span>, <span class="at">n =</span> <span class="dv">200</span>)</span>
+<span id="cb199-2"><a href="#cb199-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb199-3"><a href="#cb199-3" aria-hidden="true" tabindex="-1"></a>xs <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="at">length.out =</span> <span class="dv">400</span>)</span>
+<span id="cb199-4"><a href="#cb199-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(xs, <span class="fu">g</span>(xs), <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">xlab =</span> <span class="st">"x"</span>, <span class="at">ylab =</span> <span class="st">"g(x)"</span>)</span>
+<span id="cb199-5"><a href="#cb199-5" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(xhat, <span class="fu">g</span>(xhat), <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">pch =</span> <span class="dv">19</span>)   <span class="co"># our minimiser</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="03-week3_files/figure-html/unnamed-chunk-61-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></p>
+<p><img src="03-week3_files/figure-html/unnamed-chunk-67-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></p>
 </figure>
 </div>
 </div>
@@ -1552,30 +1659,30 @@ x_{n+1} = x_n - \gamma \, f'(x_n),
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb185"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb185-1"><a href="#cb185-1" aria-hidden="true" tabindex="-1"></a>xhat <span class="op">=</span> grad_descent(g, grad_g, x0<span class="op">=</span><span class="dv">2</span>, gamma<span class="op">=</span><span class="fl">0.1</span>, n<span class="op">=</span><span class="dv">200</span>)</span>
-<span id="cb185-2"><a href="#cb185-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb185-3"><a href="#cb185-3" aria-hidden="true" tabindex="-1"></a>xs <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">400</span>)</span>
-<span id="cb185-4"><a href="#cb185-4" aria-hidden="true" tabindex="-1"></a>plt.plot(xs, g(xs))</span>
-<span id="cb185-5"><a href="#cb185-5" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"x"</span>)</span>
-<span id="cb185-6"><a href="#cb185-6" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"g(x)"</span>)</span>
-<span id="cb185-7"><a href="#cb185-7" aria-hidden="true" tabindex="-1"></a>plt.plot(xhat, g(xhat), <span class="st">"ro"</span>)   <span class="co"># our minimiser</span></span>
-<span id="cb185-8"><a href="#cb185-8" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb200"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb200-1"><a href="#cb200-1" aria-hidden="true" tabindex="-1"></a>xhat <span class="op">=</span> grad_descent(g, grad_g, x0<span class="op">=</span><span class="dv">2</span>, gamma<span class="op">=</span><span class="fl">0.1</span>, n<span class="op">=</span><span class="dv">200</span>)</span>
+<span id="cb200-2"><a href="#cb200-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb200-3"><a href="#cb200-3" aria-hidden="true" tabindex="-1"></a>xs <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">400</span>)</span>
+<span id="cb200-4"><a href="#cb200-4" aria-hidden="true" tabindex="-1"></a>plt.plot(xs, g(xs))</span>
+<span id="cb200-5"><a href="#cb200-5" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"x"</span>)</span>
+<span id="cb200-6"><a href="#cb200-6" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"g(x)"</span>)</span>
+<span id="cb200-7"><a href="#cb200-7" aria-hidden="true" tabindex="-1"></a>plt.plot(xhat, g(xhat), <span class="st">"ro"</span>)   <span class="co"># our minimiser</span></span>
+<span id="cb200-8"><a href="#cb200-8" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="03-week3_files/figure-html/unnamed-chunk-62-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></p>
+<p><img src="03-week3_files/figure-html/unnamed-chunk-68-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></p>
 </figure>
 </div>
 </div>
 </div>
 </div>
 </div>
-<p>One last cautionary demonstration — the step size <span class="math inline">\gamma</span> is not a detail:</p>
+<p>One last cautionary demonstration: the step size <span class="math inline">\gamma</span> is not a detail:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb186"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb186-1"><a href="#cb186-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grad_descent</span>(f, grad_f, <span class="at">x0 =</span> <span class="dv">10</span>, <span class="at">gamma =</span> <span class="fl">1.05</span>, <span class="at">n =</span> <span class="dv">50</span>)   <span class="co"># too greedy: diverges</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb201"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb201-1"><a href="#cb201-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grad_descent</span>(f, grad_f, <span class="at">x0 =</span> <span class="dv">10</span>, <span class="at">gamma =</span> <span class="fl">1.05</span>, <span class="at">n =</span> <span class="dv">50</span>)   <span class="co"># too greedy: diverges</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 941.1268</code></pre>
 </div>
@@ -1584,21 +1691,21 @@ x_{n+1} = x_n - \gamma \, f'(x_n),
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb188"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb188-1"><a href="#cb188-1" aria-hidden="true" tabindex="-1"></a>grad_descent(f, grad_f, x0<span class="op">=</span><span class="dv">10</span>, gamma<span class="op">=</span><span class="fl">1.05</span>, n<span class="op">=</span><span class="dv">50</span>)   <span class="co"># too greedy: diverges</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb203"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb203-1"><a href="#cb203-1" aria-hidden="true" tabindex="-1"></a>grad_descent(f, grad_f, x0<span class="op">=</span><span class="dv">10</span>, gamma<span class="op">=</span><span class="fl">1.05</span>, n<span class="op">=</span><span class="dv">50</span>)   <span class="co"># too greedy: diverges</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>941.1268230375671</code></pre>
 </div>
 </div>
 </div>
 </div>
-<p>Each step overshoots the minimum by more than it gained, and the iterates explode (no randomness here, so for once the two columns agree to the last digit). Why this happens, how to choose <span class="math inline">\gamma</span>, and what to do when the problem is multivariate and the data are big — that is precisely the programme of <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a>, where <code>grad_descent</code> and its descendants do statistics for real.</p>
-<div class="callout callout-style-default callout-tip callout-titled" title="Exercise 3.8: A new client for grad_descent">
+<p>Each step overshoots the minimum by more than it gained, and the iterates explode (no randomness here, so for once the two columns agree to the last digit). Why this happens, how to choose <span class="math inline">\gamma</span>, and what to do when the problem is multivariate and the data are big: that is precisely the programme of <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a>, where <code>grad_descent</code> and its descendants do statistics for real.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Exercise 3.9: A new client for grad_descent">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Exercise 3.8: A new client for grad_descent
+Exercise 3.9: A new client for grad_descent
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1628,7 +1735,7 @@ Challenge 3.1: Stop when you’re done
 <li>records every iterate along the way (including <code>x0</code>);</li>
 <li>returns a <strong>list</strong> (Python: a dict) with three elements: <code>minimiser</code> (the final <span class="math inline">x</span>), <code>path</code> (the vector of all iterates), and <code>iterations</code> (how many updates were performed).</li>
 </ol>
-<p>Run it on <span class="math inline">f(x) = (x-2)^2</span> with <code>x0 = 10</code>, <code>gamma = 0.1</code>, <code>max_n = 1000</code>. How many iterations did it actually need? Finish with a base plot of <code>f(path)</code> against iteration number — add <code>log = "y"</code> to the plot call (Python: <code>plt.yscale("log")</code>) and admire the straight line (linear convergence, literally).</p>
+<p>Run it on <span class="math inline">f(x) = (x-2)^2</span> with <code>x0 = 10</code>, <code>gamma = 0.1</code>, <code>max_n = 1000</code>. How many iterations did it actually need? Finish with a base plot of <code>f(path)</code> against iteration number; add <code>log = "y"</code> to the plot call (Python: <code>plt.yscale("log")</code>) and admire the straight line (linear convergence, literally).</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-important callout-titled" title="Challenge 3.2: Generic FizzBuzz">
@@ -1647,13 +1754,13 @@ Challenge 3.2: Generic FizzBuzz
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb190"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb190-1"><a href="#cb190-1" aria-hidden="true" tabindex="-1"></a><span class="fu">generic_fizzbuzz</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">15</span>, <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">5</span>), <span class="fu">c</span>(<span class="st">"Fizz"</span>, <span class="st">"Buzz"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb205"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb205-1"><a href="#cb205-1" aria-hidden="true" tabindex="-1"></a><span class="fu">generic_fizzbuzz</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">15</span>, <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">5</span>), <span class="fu">c</span>(<span class="st">"Fizz"</span>, <span class="st">"Buzz"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb191"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb191-1"><a href="#cb191-1" aria-hidden="true" tabindex="-1"></a>generic_fizzbuzz(<span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">16</span>), [<span class="dv">3</span>, <span class="dv">5</span>], [<span class="st">"Fizz"</span>, <span class="st">"Buzz"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb206"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb206-1"><a href="#cb206-1" aria-hidden="true" tabindex="-1"></a>generic_fizzbuzz(<span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">16</span>), [<span class="dv">3</span>, <span class="dv">5</span>], [<span class="st">"Fizz"</span>, <span class="st">"Buzz"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
@@ -1662,23 +1769,23 @@ Challenge 3.2: Generic FizzBuzz
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb192"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb192-1"><a href="#cb192-1" aria-hidden="true" tabindex="-1"></a><span class="fu">generic_fizzbuzz</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>, <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>), <span class="fu">c</span>(<span class="st">"Skibbidi"</span>, <span class="st">"Fizz"</span>, <span class="st">"Buzz"</span>, <span class="st">"Yo"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb207"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb207-1"><a href="#cb207-1" aria-hidden="true" tabindex="-1"></a><span class="fu">generic_fizzbuzz</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>, <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>), <span class="fu">c</span>(<span class="st">"Skibbidi"</span>, <span class="st">"Fizz"</span>, <span class="st">"Buzz"</span>, <span class="st">"Yo"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb193"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb193-1"><a href="#cb193-1" aria-hidden="true" tabindex="-1"></a>generic_fizzbuzz(<span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">21</span>), [<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>], [<span class="st">"Skibbidi"</span>, <span class="st">"Fizz"</span>, <span class="st">"Buzz"</span>, <span class="st">"Yo"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb208"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb208-1"><a href="#cb208-1" aria-hidden="true" tabindex="-1"></a>generic_fizzbuzz(<span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">21</span>), [<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>], [<span class="st">"Skibbidi"</span>, <span class="st">"Fizz"</span>, <span class="st">"Buzz"</span>, <span class="st">"Yo"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
-<p>Hint: <code>map_chr</code> over <code>x</code>, and inside the lambda, logical indexing of <code>phrases</code> plus <code>paste0(..., collapse = "")</code> gets you there in very few lines. Python route: a list comprehension over <code>x</code>, and inside, <code>"".join</code> over <code>zip(phrases, divisors)</code> plays the role of the logical indexing plus <code>paste0</code> — and an empty string is falsy, which handles the fallback.</p>
+<p>Hint: <code>map_chr</code> over <code>x</code>, and inside the lambda, logical indexing of <code>phrases</code> plus <code>paste0(..., collapse = "")</code> gets you there in very few lines. Python route: a list comprehension over <code>x</code>, and inside, <code>"".join</code> over <code>zip(phrases, divisors)</code> plays the role of the logical indexing plus <code>paste0</code>; and an empty string is falsy, which handles the fallback.</p>
 </div>
 </div>
 </section>
-<section id="looking-ahead" class="level2" data-number="3.6">
-<h2 data-number="3.6" class="anchored" data-anchor-id="looking-ahead"><span class="header-section-number">3.6</span> Looking ahead</h2>
-<p>We now hold both halves of the toolkit this module runs on: writing clean, pure functions, and wiring them together functionally — factories to build them, <code>map</code> to spread them over data, and higher-order functions like <code>grad_descent</code> that take the mathematics as an argument. In <a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a> we meet the data structures and plotting tools that real datasets deserve, and in <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a> everything converges (pun fully intended) on optimisation for statistics.</p>
+<section id="looking-ahead" class="level2" data-number="3.7">
+<h2 data-number="3.7" class="anchored" data-anchor-id="looking-ahead"><span class="header-section-number">3.7</span> Looking ahead</h2>
+<p>We now hold both halves of the toolkit this module runs on: writing clean, pure functions, and wiring them together functionally: factories to build them, <code>map</code> to spread them over data, and higher-order functions like <code>grad_descent</code> that take the mathematics as an argument. In <a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a> we meet the data structures and plotting tools that real datasets deserve, and in <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a> everything converges (pun fully intended) on optimisation for statistics.</p>
 
 
 </section>

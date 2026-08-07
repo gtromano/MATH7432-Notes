@@ -283,9 +283,9 @@ window.Quarto = {
 </header>
 
 
-<p>This chapter is <strong>optional self-study material</strong>: there is no timetabled slot for it, no lab, and nothing here is examinable. It exists because at some point — probably while reading someone else’s package code — you will run into <code>setClass</code>, <code>@</code>, and <code>setMethod</code> in R, or <code>class</code>, <code>self</code> and <code>__init__</code> in Python, and you deserve to know what is going on. It is also, quietly, one of the most elegant corners of R.</p>
+<p>This chapter is <strong>optional self-study material</strong>: there is no timetabled slot for it, no lab, and nothing here is examinable. It exists because at some point (probably while reading someone else’s package code) you will run into <code>setClass</code>, <code>@</code>, and <code>setMethod</code> in R, or <code>class</code>, <code>self</code> and <code>__init__</code> in Python, and you deserve to know what is going on. It is also, quietly, one of the most elegant corners of R.</p>
 <p>Throughout the module we treated <em>functions</em> as the star of the show (<a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a>). Here we flip the perspective: instead of making functions smarter, we make the <strong>data</strong> smarter, by attaching a <em>class</em> to it and letting the language pick the right behaviour automatically.</p>
-<p>One warning about the shape of this chapter. Everywhere else in these notes the two languages run side by side, line for line. Object-oriented programming is where they genuinely part ways — R attaches behaviour to <em>generic functions</em> outside the object, Python attaches it to <em>methods</em> inside the class — so a two-column view would be a lie. Instead the chapter comes in two parts: <a href="#sec-bonus-r" class="quarto-xref"><span>Section 6.2</span></a> builds everything in R (S3, S4 and multiple dispatch), and <a href="#sec-bonus-python" class="quarto-xref"><span>Section 6.3</span></a> rebuilds the same machinery in Python. Read the part for your own language first; then skim the other — the contrast is the real lesson.</p>
+<p>One warning about the shape of this chapter. Everywhere else in these notes the two languages run side by side, line for line. Object-oriented programming is where they genuinely part ways: R attaches behaviour to <em>generic functions</em> outside the object, Python attaches it to <em>methods</em> inside the class, so a two-column view would be a lie. Instead the chapter comes in two parts: <a href="#sec-bonus-r" class="quarto-xref"><span>Section 6.2</span></a> builds everything in R (S3, S4 and multiple dispatch), and <a href="#sec-bonus-python" class="quarto-xref"><span>Section 6.3</span></a> rebuilds the same machinery in Python. Both parts are for everyone: read the R part first, then the Python part; the contrast is the real lesson.</p>
 <section id="sec-bonus-motivation" class="level2" data-number="6.1">
 <h2 data-number="6.1" class="anchored" data-anchor-id="sec-bonus-motivation"><span class="header-section-number">6.1</span> One name, many behaviours</h2>
 <p>You have been using this machinery all term without noticing. Consider <code>summary()</code>:</p>
@@ -332,7 +332,7 @@ F-statistic: 91.38 on 1 and 30 DF,  p-value: 1.294e-10</code></pre>
 <pre><code>[1] "lm"</code></pre>
 </div>
 </div>
-<p><code>summary()</code> is a <strong>generic function</strong>: it does almost no work itself. It inspects the class of its argument and <em>dispatches</em> to a specialised <strong>method</strong> — <code>summary.default()</code> for the numeric vector, <code>summary.lm()</code> for the regression. There are many such methods lying around:</p>
+<p><code>summary()</code> is a <strong>generic function</strong>: it does almost no work itself. It inspects the class of its argument and <em>dispatches</em> to a specialised <strong>method</strong>: <code>summary.default()</code> for the numeric vector, <code>summary.lm()</code> for the regression. There are many such methods lying around:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">methods</span>(<span class="st">"summary"</span>), <span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -346,19 +346,19 @@ F-statistic: 91.38 on 1 and 30 DF,  p-value: 1.294e-10</code></pre>
 <pre><code>[1] 46</code></pre>
 </div>
 </div>
-<p><code>print()</code> and <code>plot()</code> work exactly the same way — that is why typing <code>fit</code> at the console shows a tidy coefficient display rather than the giant list that <code>fit</code> actually is. Contrast this with <code>optim()</code> from <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a>, which returns a plain unclassed list and wishes you luck.</p>
-<p><strong>Note for Python users:</strong> the same phenomenon exists in your language — <code>len()</code> happily measures strings, lists and arrays, and <code>+</code> adds numbers but concatenates strings — but the mechanism is different: each type carries its own <code>__len__</code> or <code>__add__</code> method <em>inside</em> it. <a href="#sec-bonus-python" class="quarto-xref"><span>Section 6.3</span></a> makes this precise.</p>
-<p>This design is called <strong>object-oriented programming</strong> (OOP). R has several OOP systems; the R part of this chapter meets the two that matter — S3 and S4 — and finishes with S4’s party trick: dispatching on <em>two</em> arguments at once. Python has exactly one system, and we will use it to rebuild the very same example.</p>
+<p><code>print()</code> and <code>plot()</code> work exactly the same way: that is why typing <code>fit</code> at the console shows a tidy coefficient display rather than the giant list that <code>fit</code> actually is. Contrast this with <code>optim()</code> from <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a>, which returns a plain unclassed list and wishes you luck.</p>
+<p><strong>Note for Python:</strong> the same phenomenon exists there: <code>len()</code> happily measures strings, lists and arrays, and <code>+</code> adds numbers but concatenates strings. The mechanism, though, is different: each type carries its own <code>__len__</code> or <code>__add__</code> method <em>inside</em> it. <a href="#sec-bonus-python" class="quarto-xref"><span>Section 6.3</span></a> makes this precise.</p>
+<p>This design is called <strong>object-oriented programming</strong> (OOP). R has several OOP systems; the R part of this chapter meets the two that matter (S3 and S4) and finishes with S4’s party trick: dispatching on <em>two</em> arguments at once. Python has exactly one system, and we will use it to rebuild the very same example.</p>
 </section>
 <section id="sec-bonus-r" class="level2" data-number="6.2">
 <h2 data-number="6.2" class="anchored" data-anchor-id="sec-bonus-r"><span class="header-section-number">6.2</span> Classes in R</h2>
-<p>Everything in this part is base R. The one sentence to hold on to, especially if Python is your language: in R, methods belong to <strong>generic functions</strong>, not to objects — you will write <code>summary(flips)</code>, never <code>flips.summary()</code>.</p>
+<p>Everything in this part is base R. The one sentence to hold on to, especially with the Python part ahead: in R, methods belong to <strong>generic functions</strong>, not to objects. You will write <code>summary(flips)</code>, never <code>flips.summary()</code>.</p>
 <section id="sec-bonus-s3" class="level3" data-number="6.2.1">
 <h3 data-number="6.2.1" class="anchored" data-anchor-id="sec-bonus-s3"><span class="header-section-number">6.2.1</span> S3: classes on a shoestring</h3>
 <p>S3 is R’s oldest and simplest object system, and it powers most of what you have used so far (<code>lm</code>, <code>data.frame</code>, <code>factor</code>…). The entire mechanism is two ingredients: a class <em>attribute</em> on the object, and a naming convention (<code>generic.class</code>) for the methods.</p>
 <section id="the-class-attribute" class="level4" data-number="6.2.1.1">
 <h4 data-number="6.2.1.1" class="anchored" data-anchor-id="the-class-attribute"><span class="header-section-number">6.2.1.1</span> The class attribute</h4>
-<p>Any object can be given a class — it is just a label:</p>
+<p>Any object can be given a class (it is just a label):</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">7432</span>)   <span class="co"># so we all flip the same coins</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -373,7 +373,7 @@ F-statistic: 91.38 on 1 and 30 DF,  p-value: 1.294e-10</code></pre>
 <pre><code>[1] "coin_flips"</code></pre>
 </div>
 </div>
-<p>In practice we wrap this in a <strong>constructor function</strong> — just an ordinary function in the sense of <a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a> — so that all <code>coin_flips</code> objects are built the same way:</p>
+<p>In practice we wrap this in a <strong>constructor function</strong> (just an ordinary function in the sense of <a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a>) so that all <code>coin_flips</code> objects are built the same way:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>coin_flips <span class="ot">&lt;-</span> <span class="cf">function</span>(n, <span class="at">prob =</span> <span class="fl">0.5</span>, <span class="at">coin =</span> <span class="st">"fair"</span>) {</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  outcomes <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">"H"</span>, <span class="st">"T"</span>), n, <span class="at">replace =</span> <span class="cn">TRUE</span>, <span class="at">prob =</span> <span class="fu">c</span>(prob, <span class="dv">1</span> <span class="sc">-</span> prob))</span>
@@ -384,7 +384,7 @@ F-statistic: 91.38 on 1 and 30 DF,  p-value: 1.294e-10</code></pre>
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>flips <span class="ot">&lt;-</span> <span class="fu">coin_flips</span>(<span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>If we print <code>flips</code> right now we get the raw list — R has no better idea. Let’s fix that.</p>
+<p>If we print <code>flips</code> right now we get the raw list: R has no better idea. Let’s fix that.</p>
 </section>
 <section id="writing-methods-for-existing-generics" class="level4" data-number="6.2.1.2">
 <h4 data-number="6.2.1.2" class="anchored" data-anchor-id="writing-methods-for-existing-generics"><span class="header-section-number">6.2.1.2</span> Writing methods for existing generics</h4>
@@ -468,7 +468,7 @@ Approx. 95% CI for P(H): [0.281, 0.719]</code></pre>
 <pre><code>[1] "glm" "lm" </code></pre>
 </div>
 </div>
-<p>A <code>glm</code> <em>is a</em> <code>lm</code> with extras: any generic without a <code>glm</code> method falls through to the <code>lm</code> one. We can do the same — a biased coin is still a coin:</p>
+<p>A <code>glm</code> <em>is a</em> <code>lm</code> with extras: any generic without a <code>glm</code> method falls through to the <code>lm</code> one. We can do the same, because a biased coin is still a coin:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>biased_flips <span class="ot">&lt;-</span> <span class="cf">function</span>(n, prob) {</span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">coin_flips</span>(n, <span class="at">prob =</span> prob, <span class="at">coin =</span> <span class="st">"dodgy"</span>)</span>
@@ -521,7 +521,7 @@ Exercise B.1: Print like a statistician
 </div>
 <ol type="a">
 <li>Write a <code>print.conf_int</code> method so that typing <code>ci</code> displays something like <code>95% CI: 5.30 [4.10, 6.50]</code> (use <code>sprintf()</code> for the formatting, and follow the invisible-return convention).</li>
-<li>Check that <code>print(unclass(ci))</code> still shows the raw list — the data never changed, only the label R uses to choose a method.</li>
+<li>Check that <code>print(unclass(ci))</code> still shows the raw list: the data never changed, only the label R uses to choose a method.</li>
 <li>Add a <code>se.conf_int</code> method for the <code>se()</code> generic above: assuming the interval is <span class="math inline">\text{estimate} \pm 1.96 \times \text{se}</span>, recover the standard error as (upper − lower) / (2 × 1.96).</li>
 </ol>
 </div>
@@ -567,7 +567,7 @@ Slot "sd":
 [1] 1</code></pre>
 </div>
 </div>
-<p>Unlike S3, the contract is enforced — a slot must exist and have the declared type:</p>
+<p>Unlike S3, the contract is enforced. A slot must exist and have the declared type:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">new</span>(<span class="st">"Normal"</span>, <span class="at">mean =</span> <span class="st">"large"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-error">
@@ -612,7 +612,7 @@ Slot "sd":
 </section>
 <section id="generics-and-methods-take-two" class="level4" data-number="6.2.2.3">
 <h4 data-number="6.2.2.3" class="anchored" data-anchor-id="generics-and-methods-take-two"><span class="header-section-number">6.2.2.3</span> Generics and methods, take two</h4>
-<p>In S4, generics are declared with <code>setGeneric()</code> and methods registered with <code>setMethod()</code> — no naming conventions, everything explicit. Let’s make a generic that evaluates a distribution’s density at some points:</p>
+<p>In S4, generics are declared with <code>setGeneric()</code> and methods registered with <code>setMethod()</code>: no naming conventions, everything explicit. Let’s make a generic that evaluates a distribution’s density at some points:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">setGeneric</span>(<span class="st">"dens"</span>, <span class="cf">function</span>(d, x) <span class="fu">standardGeneric</span>(<span class="st">"dens"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -629,7 +629,7 @@ Slot "sd":
 </section>
 <section id="show" class="level4" data-number="6.2.2.4">
 <h4 data-number="6.2.2.4" class="anchored" data-anchor-id="show"><span class="header-section-number">6.2.2.4</span> show</h4>
-<p>The S4 analogue of the <code>print</code> method is <code>show()</code> — it controls what typing the object’s name displays:</p>
+<p>The S4 analogue of the <code>print</code> method is <code>show()</code>, which controls what typing the object’s name displays:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">setMethod</span>(<span class="st">"show"</span>, <span class="st">"Normal"</span>, <span class="cf">function</span>(object) {</span>
 <span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"Normal(mean = "</span>, object<span class="sc">@</span>mean, <span class="st">", sd = "</span>, object<span class="sc">@</span>sd, <span class="st">")</span><span class="sc">\n</span><span class="st">"</span>, <span class="at">sep =</span> <span class="st">""</span>)</span>
@@ -664,7 +664,7 @@ Slot "sd":
 <pre><code>[1] TRUE</code></pre>
 </div>
 </div>
-<p>Try <code>new("NamedNormal", name = "oops", sd = -1)</code> — the parent’s validity function fires too. This is exactly how large systems like the <code>Matrix</code> package build families of matrix classes (sparse, triangular, symmetric…) that all share the linear algebra you met in <a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>.</p>
+<p>Try <code>new("NamedNormal", name = "oops", sd = -1)</code>: the parent’s validity function fires too. This is exactly how large systems like the <code>Matrix</code> package build families of matrix classes (sparse, triangular, symmetric…) that all share the linear algebra you met in <a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Exercise B.2: A Uniform with standards">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -688,7 +688,7 @@ Exercise B.2: A Uniform with standards
 <section id="sec-bonus-multiple" class="level3" data-number="6.2.3">
 <h3 data-number="6.2.3" class="anchored" data-anchor-id="sec-bonus-multiple"><span class="header-section-number">6.2.3</span> The highlight: multiple dispatch</h3>
 <p>Here is where S4 earns its keep. <code>UseMethod</code> in S3 looks at the class of the <strong>first argument only</strong>. That is fine for <code>summary(fit)</code>, but plenty of statistical operations depend on the classes of <em>two</em> things at once.</p>
-<p>The cleanest example is conjugate Bayesian updating. The posterior <span class="math inline">p(\theta \mid \mathbf{x}) \propto p(\mathbf{x} \mid \theta)\, p(\theta)</span> has a closed form only for matching <em>pairs</em>: a Beta prior with binomial data gives a Beta posterior, a Gamma prior with Poisson data gives a Gamma posterior, and so on. The right computation depends on <strong>both</strong> the prior’s class <strong>and</strong> the data’s class — a job for S4, which dispatches on the full signature.</p>
+<p>The cleanest example is conjugate Bayesian updating. The posterior <span class="math inline">p(\theta \mid \mathbf{x}) \propto p(\mathbf{x} \mid \theta)\, p(\theta)</span> has a closed form only for matching <em>pairs</em>: a Beta prior with binomial data gives a Beta posterior, a Gamma prior with Poisson data gives a Gamma posterior, and so on. The right computation depends on <strong>both</strong> the prior’s class <strong>and</strong> the data’s class: a job for S4, which dispatches on the full signature.</p>
 <section id="a-tiny-conjugate-engine" class="level4" data-number="6.2.3.1">
 <h4 data-number="6.2.3.1" class="anchored" data-anchor-id="a-tiny-conjugate-engine"><span class="header-section-number">6.2.3.1</span> A tiny conjugate engine</h4>
 <p>First, the cast. We already have <code>Normal</code>; let’s add two more priors and some data classes, each data class carrying its model assumption in its name:</p>
@@ -746,7 +746,7 @@ Exercise B.2: A Uniform with standards
 <pre><code>Beta(8, 14)</code></pre>
 </div>
 </div>
-<p>The posterior is itself a <code>Beta</code>, so it can serve as the prior for the next batch of data — sequential updating comes for free, and matches pooling everything at once:</p>
+<p>The posterior is itself a <code>Beta</code>, so it can serve as the prior for the next batch of data. Sequential updating comes for free, and matches pooling everything at once:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>d2 <span class="ot">&lt;-</span> <span class="fu">new</span>(<span class="st">"BinomData"</span>, <span class="at">successes =</span> <span class="dv">5</span>, <span class="at">trials =</span> <span class="dv">10</span>)</span>
 <span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a><span class="fu">posterior</span>(<span class="fu">posterior</span>(prior, d1), d2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -758,7 +758,7 @@ Exercise B.2: A Uniform with standards
 <pre><code>Beta(13, 19)</code></pre>
 </div>
 </div>
-<p>The Normal-Normal pair reuses the <code>Normal</code> class from earlier — pretty <code>show</code>, validity check and all:</p>
+<p>The Normal-Normal pair reuses the <code>Normal</code> class from earlier (pretty <code>show</code>, validity check and all):</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">7432</span>)</span>
 <span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>obs <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">25</span>, <span class="at">mean =</span> <span class="dv">3</span>, <span class="at">sd =</span> <span class="dv">2</span>)</span>
@@ -772,7 +772,7 @@ Exercise B.2: A Uniform with standards
 </section>
 <section id="the-dispatch-table" class="level4" data-number="6.2.3.2">
 <h4 data-number="6.2.3.2" class="anchored" data-anchor-id="the-dispatch-table"><span class="header-section-number">6.2.3.2</span> The dispatch table</h4>
-<p>Conceptually, S4 keeps a <strong>table</strong> of methods indexed by the signature — here, (prior class, data class) — and each call looks up the most specific matching entry:</p>
+<p>Conceptually, S4 keeps a <strong>table</strong> of methods indexed by the signature, here (prior class, data class), and each call looks up the most specific matching entry:</p>
 <table class="table">
 <thead>
 <tr class="header">
@@ -786,19 +786,19 @@ Exercise B.2: A Uniform with standards
 <tr class="odd">
 <td><code>Beta</code></td>
 <td>Beta update</td>
-<td>—</td>
-<td>—</td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td><code>Gamma</code></td>
-<td>—</td>
+<td></td>
 <td>Gamma update</td>
-<td>—</td>
+<td></td>
 </tr>
 <tr class="odd">
 <td><code>Normal</code></td>
-<td>—</td>
-<td>—</td>
+<td></td>
+<td></td>
 <td>Normal update</td>
 </tr>
 </tbody>
@@ -816,7 +816,7 @@ prior="Normal", data="NormData"</code></pre>
 </section>
 <section id="an-any-fallback" class="level4" data-number="6.2.3.3">
 <h4 data-number="6.2.3.3" class="anchored" data-anchor-id="an-any-fallback"><span class="header-section-number">6.2.3.3</span> An ANY fallback</h4>
-<p>What about the empty cells? <code>ANY</code> is the wildcard class, matched only when nothing more specific fits — the S4 counterpart of <code>se.default</code>. We use it to fail <em>informatively</em>:</p>
+<p>What about the empty cells? <code>ANY</code> is the wildcard class, matched only when nothing more specific fits: the S4 counterpart of <code>se.default</code>. We use it to fail <em>informatively</em>:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="fu">setMethod</span>(<span class="st">"posterior"</span>, <span class="fu">signature</span>(<span class="st">"ANY"</span>, <span class="st">"ANY"</span>), <span class="cf">function</span>(prior, data) {</span>
 <span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stop</span>(<span class="st">"no conjugate update for a "</span>, <span class="fu">class</span>(prior), <span class="st">" prior with "</span>,</span>
@@ -859,7 +859,7 @@ prior="Normal", data="NormData"</code></pre>
 </div>
 </div>
 </div>
-<p>Twenty coin flips took us from “no idea” to a tidy bump around <span class="math inline">0.35</span> — and the machinery that computed it never once asked us <em>which</em> update formula to use.</p>
+<p>Twenty coin flips took us from “no idea” to a tidy bump around <span class="math inline">0.35</span>, and the machinery that computed it never once asked us <em>which</em> update formula to use.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Exercise B.3: One more row in the table">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -874,10 +874,10 @@ Exercise B.3: One more row in the table
 <ol type="a">
 <li>Define an S4 class <code>ExpData</code> with a single numeric slot <code>x</code>.</li>
 <li>Register a <code>posterior</code> method for the signature <code>("Gamma", "ExpData")</code>.</li>
-<li>Simulate <code>set.seed(1); x &lt;- rexp(50, rate = 2)</code>, update a <code>Gamma(1, 1)</code> prior with it, and check the posterior mean <span class="math inline">\alpha/\beta</span> lands near the true rate 2.</li>
-<li>Verify that updating with the first 25 observations and then the remaining 25 gives the same posterior as using all 50 at once (compare the slots with <code>all.equal()</code> — the floating-point lesson from <a href="02-week2.html" class="quarto-xref"><span>Chapter 2</span></a> applies to Bayesians too).</li>
+<li>Simulate <code>set.seed(1); x &lt;- rexp(50, rate = 2)</code> (Python: <code>rng = np.random.default_rng(1); x = rng.exponential(scale=1/2, size=50)</code>, because numpy parameterises the exponential by the <em>scale</em> <span class="math inline">1/\lambda</span>, not the rate), update a <code>Gamma(1, 1)</code> prior with it, and check the posterior mean <span class="math inline">\alpha/\beta</span> lands within a couple of posterior standard deviations (<span class="math inline">\sqrt{\alpha}/\beta</span>) of the true rate 2. The R and numpy streams share only the seed number, so the two languages will land on different values; both should pass the check.</li>
+<li>Verify that updating with the first 25 observations and then the remaining 25 gives the same posterior as using all 50 at once (compare the slots with <code>all.equal()</code>; the floating-point lesson from <a href="02-week2.html" class="quarto-xref"><span>Chapter 2</span></a> applies to Bayesians too).</li>
 </ol>
-<p>(Python track: the same row fits the dict registry of <a href="#sec-bonus-python" class="quarto-xref"><span>Section 6.3</span></a> — add it there and re-check c.&nbsp;and d.; the solutions notebook works it in both languages.)</p>
+<p>(In Python, the same row fits the dict registry of <a href="#sec-bonus-python" class="quarto-xref"><span>Section 6.3</span></a>: add it there and re-check c.&nbsp;and d.; the solutions notebook works it in both languages.)</p>
 </div>
 </div>
 </section>
@@ -886,21 +886,21 @@ Exercise B.3: One more row in the table
 <h3 data-number="6.2.4" class="anchored" data-anchor-id="sec-bonus-landscape"><span class="header-section-number">6.2.4</span> The landscape, honestly</h3>
 <p>R famously has <em>several</em> OOP systems. A field guide:</p>
 <ul>
-<li><strong>S3</strong> — informal, everywhere. All of base R’s modelling functions, and most of CRAN. If you write a package, you will almost certainly write S3 methods. Learn it properly.</li>
-<li><strong>S4</strong> — formal: declared slots, validity, multiple dispatch. Heavier ceremony, used where correctness matters at scale. As a statistician you will meet it mainly through the <strong>Matrix</strong> package (the sparse-matrix workhorse underneath <code>lme4</code>), the <strong>Bioconductor</strong> ecosystem (genomics — thousands of S4 classes), and the <strong>distr</strong> family of distribution packages, which does at production quality what our toy did here.</li>
-<li><strong>R5 / Reference Classes</strong> — mutable objects whose methods live <em>inside</em> the object, Python-style; in practice superseded by the CRAN package <strong>R6</strong>, which does the same job leaner.</li>
-<li><strong>S7</strong> — a successor to S3 and S4 being developed by the R Consortium, designed to unify the two; worth knowing the name, not yet worth reorganising your life around.</li>
+<li><strong>S3</strong>: informal, everywhere. All of base R’s modelling functions, and most of CRAN. If you write a package, you will almost certainly write S3 methods. Learn it properly.</li>
+<li><strong>S4</strong>: formal, with declared slots, validity and multiple dispatch. Heavier ceremony, used where correctness matters at scale. As a statistician you will meet it mainly through the <strong>Matrix</strong> package (the sparse-matrix workhorse underneath <code>lme4</code>), the <strong>Bioconductor</strong> ecosystem (genomics: thousands of S4 classes), and the <strong>distr</strong> family of distribution packages, which does at production quality what our toy did here.</li>
+<li><strong>R5 / Reference Classes</strong>: mutable objects whose methods live <em>inside</em> the object, Python-style; in practice superseded by the CRAN package <strong>R6</strong>, which does the same job leaner.</li>
+<li><strong>S7</strong>: a successor to S3 and S4 being developed by the R Consortium, designed to unify the two; worth knowing the name, not yet worth reorganising your life around.</li>
 </ul>
 <p>When in doubt: use S3 for everyday work, reach for S4 when you need validity guarantees or genuinely need dispatch on more than one argument, and recognise the other two on sight.</p>
-<p>For the definitive treatment, read the object-oriented programming chapters of Hadley Wickham’s <em>Advanced R</em> (2nd edition, free online at <a href="https://adv-r.hadley.nz">adv-r.hadley.nz</a>): chapter 13 for S3, chapter 15 for S4, and chapter 16 for an honest comparison of the systems — a longer version of the advice above.</p>
+<p>For the definitive treatment, read the object-oriented programming chapters of Hadley Wickham’s <em>Advanced R</em> (2nd edition, free online at <a href="https://adv-r.hadley.nz">adv-r.hadley.nz</a>): chapter 13 for S3, chapter 15 for S4, and chapter 16 for an honest comparison of the systems (a longer version of the advice above).</p>
 </section>
 </section>
 <section id="sec-bonus-python" class="level2" data-number="6.3">
 <h2 data-number="6.3" class="anchored" data-anchor-id="sec-bonus-python"><span class="header-section-number">6.3</span> Classes in Python</h2>
-<p>If R’s story is “several object systems, choose wisely”, Python’s is the opposite: there is exactly <strong>one</strong>, it has been there from the start, and everything uses it — every number, string, array and function in Python is an object of some class. The deep difference from R is <em>where behaviour lives</em>. In R it lives in generic functions outside the object (<code>summary(flips)</code>); in Python it lives in methods inside the class, and you call them <em>through</em> the object (<code>flips.summary()</code>). The rest of this part unpacks that one sentence, and then rebuilds the conjugate-Bayes engine with it.</p>
+<p>If R’s story is “several object systems, choose wisely”, Python’s is the opposite: there is exactly <strong>one</strong>, it has been there from the start, and everything uses it. Every number, string, array and function in Python is an object of some class. The deep difference from R is <em>where behaviour lives</em>. In R it lives in generic functions outside the object (<code>summary(flips)</code>); in Python it lives in methods inside the class, and you call them <em>through</em> the object (<code>flips.summary()</code>). The rest of this part unpacks that one sentence, and then rebuilds the conjugate-Bayes engine with it.</p>
 <section id="class-__init__-and-self" class="level3" data-number="6.3.1">
 <h3 data-number="6.3.1" class="anchored" data-anchor-id="class-__init__-and-self"><span class="header-section-number">6.3.1</span> <code>class</code>, <code>__init__</code> and <code>self</code></h3>
-<p>A class is declared with <code>class</code>, and its constructor is a special method called <code>__init__</code> (two underscores each side — Python calls these <em>dunder</em> methods). Its first argument <code>self</code> is the object under construction; attaching data to <code>self</code> does in one step what the R part did with <code>list(...)</code> plus a class attribute:</p>
+<p>A class is declared with <code>class</code>, and its constructor is a special method called <code>__init__</code> (two underscores each side; Python calls these <em>dunder</em> methods). Its first argument <code>self</code> is the object under construction; attaching data to <code>self</code> does in one step what the R part did with <code>list(...)</code> plus a class attribute:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb82"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb82-2"><a href="#cb82-2" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">7432</span>)   <span class="co"># the Python companion of set.seed(7432)</span></span>
@@ -921,11 +921,11 @@ Exercise B.3: One more row in the table
 <pre><code>&lt;class '__main__.CoinFlips'&gt;</code></pre>
 </div>
 </div>
-<p><strong>Note for R users:</strong> the class itself is the constructor — <code>CoinFlips(20)</code> does the job of both the <code>coin_flips(20)</code> helper <em>and</em> <code>structure(..., class = ...)</code>. Attributes use a dot where R’s lists used <code>$</code> (and S4 used <code>@</code>), and there is no separate “attach the label” step: an object’s class is whichever class built it, forever queryable with <code>type()</code>. One more thing you can see above: the flips will <strong>not</strong> match the R part’s — <code>set.seed(7432)</code> and <code>default_rng(7432)</code> are different generators that merely share a number — so expect a different H/T string; the statistics is the same.</p>
+<p><strong>Note for R:</strong> the class itself is the constructor: <code>CoinFlips(20)</code> does the job of both the <code>coin_flips(20)</code> helper <em>and</em> <code>structure(..., class = ...)</code>. Attributes use a dot where R’s lists used <code>$</code> (and S4 used <code>@</code>), and there is no separate “attach the label” step: an object’s class is whichever class built it, forever queryable with <code>type()</code>. One more thing you can see above: the flips will <strong>not</strong> match the R part’s, because <code>set.seed(7432)</code> and <code>default_rng(7432)</code> are different generators that merely share a number. Expect a different H/T string; the statistics is the same.</p>
 </section>
 <section id="methods-and-__repr__" class="level3" data-number="6.3.2">
 <h3 data-number="6.3.2" class="anchored" data-anchor-id="methods-and-__repr__"><span class="header-section-number">6.3.2</span> Methods and <code>__repr__</code></h3>
-<p>Right now <code>flips</code> echoes as something like <code>&lt;__main__.CoinFlips object at 0x...&gt;</code> — Python’s version of R printing the raw list. Methods fix that. A method is just a function defined inside the class body, taking <code>self</code> first; the special method <code>__repr__</code> is the one the console uses to display an object, playing the role of <code>print.coin_flips</code> in S3 and of <code>show</code> in S4. Unlike R, where we bolted methods on one at a time from the outside, a Python class is normally written in one block — so here is <code>CoinFlips</code> again, in full:</p>
+<p>Right now <code>flips</code> echoes as something like <code>&lt;__main__.CoinFlips object at 0x...&gt;</code>: Python’s version of R printing the raw list. Methods fix that. A method is just a function defined inside the class body, taking <code>self</code> first; the special method <code>__repr__</code> is the one the console uses to display an object, playing the role of <code>print.coin_flips</code> in S3 and of <code>show</code> in S4. Unlike R, where we bolted methods on one at a time from the outside, a Python class is normally written in one block, so here is <code>CoinFlips</code> again, in full:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb86"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> CoinFlips:</span>
 <span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, n, prob<span class="op">=</span><span class="fl">0.5</span>, coin<span class="op">=</span><span class="st">"fair"</span>):</span>
@@ -961,11 +961,11 @@ Approx. 95% CI for P(H): [0.441, 0.859]</code></pre>
 </div>
 </div>
 <p>Compare the shapes. R says <code>summary(flips)</code>: one generic, many methods, dispatch by class. Python says <code>flips.summary()</code>: the object walks in already knowing its methods, and the thing before the dot decides. It is the same dispatch decision, made at the opposite address.</p>
-<p><strong>Note for R users:</strong> no <code>invisible()</code> dance either — <code>summary</code> here has no <code>return</code>, so it returns <code>None</code>, and <code>None</code> never echoes at the console. The printing <em>is</em> the job, and that is the whole story.</p>
+<p><strong>Note for R:</strong> no <code>invisible()</code> dance either: <code>summary</code> here has no <code>return</code>, so it returns <code>None</code>, and <code>None</code> never echoes at the console. The printing <em>is</em> the job, and that is the whole story.</p>
 </section>
 <section id="inheritance-and-super" class="level3" data-number="6.3.3">
 <h3 data-number="6.3.3" class="anchored" data-anchor-id="inheritance-and-super"><span class="header-section-number">6.3.3</span> Inheritance and super()</h3>
-<p>Inheritance is declared in parentheses after the class name, and <code>super()</code> reaches the parent class — R’s <code>NextMethod</code>, but callable wherever you like:</p>
+<p>Inheritance is declared in parentheses after the class name, and <code>super()</code> reaches the parent class (R’s <code>NextMethod</code>, but callable wherever you like):</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb90"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BiasedFlips(CoinFlips):               <span class="co"># a BiasedFlips *is a* CoinFlips</span></span>
 <span id="cb90-2"><a href="#cb90-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, n, prob):</span>
@@ -994,12 +994,12 @@ HHHHHHHHHHHHTHHHHHHT</code></pre>
 Approx. 95% CI for P(H): [0.769, 1.000]</code></pre>
 </div>
 </div>
-<p>That is the whole inheritance story: <code>BiasedFlips</code> overrides what it must and inherits the rest, exactly what the class vector plus <code>NextMethod</code> bought us in S3. Everyday Python, mind you, often skips the formal <code>isinstance</code> question altogether: if an object has the methods you need, use it — “if it quacks like a duck, it <em>is</em> a duck” (<strong>duck typing</strong>), the informal spirit of S3 taken one cheerful step further.</p>
+<p>That is the whole inheritance story: <code>BiasedFlips</code> overrides what it must and inherits the rest, exactly what the class vector plus <code>NextMethod</code> bought us in S3. Everyday Python, mind you, often skips the formal <code>isinstance</code> question altogether: if an object has the methods you need, use it; “if it quacks like a duck, it <em>is</em> a duck” (<strong>duck typing</strong>), the informal spirit of S3 taken one cheerful step further.</p>
 </section>
 <section id="sec-bonus-python-bayes" class="level3" data-number="6.3.4">
 <h3 data-number="6.3.4" class="anchored" data-anchor-id="sec-bonus-python-bayes"><span class="header-section-number">6.3.4</span> The same engine, one dict at a time</h3>
-<p>Now the real test: can Python do the multiple-dispatch trick? Not natively — a method call dispatches on the type of <code>self</code> and on nothing else. But the dispatch <em>table</em> at the heart of the S4 machinery is just a lookup from a pair of classes to an update rule, and Python has a perfectly good pair-to-anything lookup: a dictionary with tuple keys. We will build the table ourselves.</p>
-<p>The cast first — same priors, same data classes. <code>__repr__</code> does what our <code>show</code> methods did, and <code>__init__</code> doubles as the validity check: there is no S4-style validator standing at the door, so you write your own and <code>raise</code>:</p>
+<p>Now the real test: can Python do the multiple-dispatch trick? Not natively: a method call dispatches on the type of <code>self</code> and on nothing else. But the dispatch <em>table</em> at the heart of the S4 machinery is just a lookup from a pair of classes to an update rule, and Python has a perfectly good pair-to-anything lookup: a dictionary with tuple keys. We will build the table ourselves.</p>
+<p>The cast first: same priors, same data classes. <code>__repr__</code> does what our <code>show</code> methods did, and <code>__init__</code> doubles as the validity check: there is no S4-style validator standing at the door, so you write your own and <code>raise</code>:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb96"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Beta:</span>
 <span id="cb96-2"><a href="#cb96-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, a, b):</span>
@@ -1046,7 +1046,7 @@ Approx. 95% CI for P(H): [0.769, 1.000]</code></pre>
 <span id="cb97-14"><a href="#cb97-14" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.x <span class="op">=</span> np.asarray(x)</span>
 <span id="cb97-15"><a href="#cb97-15" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.sd <span class="op">=</span> sd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Here is the multiple dispatch, spelled out by hand. The dictionary <code>conjugate</code> <em>is</em> the dispatch table — its keys are <code>(prior class, data class)</code> pairs — and <code>posterior()</code> plays the generic: it looks up the pair of types it was handed, with the <code>None</code> case as our <code>ANY</code> fallback:</p>
+<p>Here is the multiple dispatch, spelled out by hand. The dictionary <code>conjugate</code> <em>is</em> the dispatch table (its keys are <code>(prior class, data class)</code> pairs) and <code>posterior()</code> plays the generic: it looks up the pair of types it was handed, with the <code>None</code> case as our <code>ANY</code> fallback:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb98"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a>conjugate <span class="op">=</span> {}   <span class="co"># the dispatch table: (prior class, data class) -&gt; update function</span></span>
 <span id="cb98-2"><a href="#cb98-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -1057,7 +1057,7 @@ Approx. 95% CI for P(H): [0.769, 1.000]</code></pre>
 <span id="cb98-7"><a href="#cb98-7" aria-hidden="true" tabindex="-1"></a>                        <span class="ss">f"</span><span class="sc">{</span><span class="bu">type</span>(data)<span class="sc">.</span><span class="va">__name__</span><span class="sc">}</span><span class="ss"> data -- time to write an MCMC sampler"</span>)</span>
 <span id="cb98-8"><a href="#cb98-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> update(prior, data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Registering a method is now a dict assignment — compare each entry with its <code>setMethod</code> twin in <a href="#sec-bonus-multiple" class="quarto-xref"><span>Section 6.2.3</span></a>:</p>
+<p>Registering a method is now a dict assignment. Compare each entry with its <code>setMethod</code> twin in <a href="#sec-bonus-multiple" class="quarto-xref"><span>Section 6.2.3</span></a>:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb99"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Beta(a, b) + k successes in n trials  -&gt;  Beta(a + k, b + n - k)</span></span>
 <span id="cb99-2"><a href="#cb99-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> beta_binomial(prior, data):</span>
@@ -1083,7 +1083,7 @@ Approx. 95% CI for P(H): [0.769, 1.000]</code></pre>
 <span id="cb99-22"><a href="#cb99-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb99-23"><a href="#cb99-23" aria-hidden="true" tabindex="-1"></a>conjugate[(Normal, NormData)] <span class="op">=</span> normal_normal</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>The engine turns over exactly as before — same flat prior, same 7-in-20 data, and since there is no randomness in the updates, the two languages agree to the digit:</p>
+<p>The engine turns over exactly as before (same flat prior, same 7-in-20 data), and since there is no randomness in the updates, the two languages agree to the digit:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb100"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a>prior <span class="op">=</span> Beta(<span class="dv">1</span>, <span class="dv">1</span>)</span>
 <span id="cb100-2"><a href="#cb100-2" aria-hidden="true" tabindex="-1"></a>d1 <span class="op">=</span> BinomData(successes<span class="op">=</span><span class="dv">7</span>, trials<span class="op">=</span><span class="dv">20</span>)</span>
@@ -1113,7 +1113,7 @@ Approx. 95% CI for P(H): [0.769, 1.000]</code></pre>
 <pre><code>Normal(mean = 2.458844370945999, sd = 0.39968038348871576)</code></pre>
 </div>
 </div>
-<p>The draws differ from the R part’s — again, shared seed number, different streams — so the posterior mean will not match the R output; both runs, though, sit near the sample mean of their own 25 draws, and the posterior sd collapses from the prior’s 10 to just under 0.4. (In this known-noise model the posterior sd does not depend on the draws at all, so <em>that</em> number the two languages do agree on.)</p>
+<p>The draws differ from the R part’s (again, shared seed number, different streams), so the posterior mean will not match the R output; both runs, though, sit near the sample mean of their own 25 draws, and the posterior sd collapses from the prior’s 10 to just under 0.4. (In this known-noise model the posterior sd does not depend on the draws at all, so <em>that</em> number the two languages do agree on.)</p>
 <p>Our fallback fails just as informatively as the <code>ANY</code> method did:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb108"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a>posterior(Beta(<span class="dv">1</span>, <span class="dv">1</span>), PoisData([<span class="dv">2</span>, <span class="dv">0</span>, <span class="dv">3</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1131,7 +1131,7 @@ Approx. 95% CI for P(H): [0.769, 1.000]</code></pre>
 </section>
 <section id="prior-to-posterior-in-pictures-again" class="level3" data-number="6.3.5">
 <h3 data-number="6.3.5" class="anchored" data-anchor-id="prior-to-posterior-in-pictures-again"><span class="header-section-number">6.3.5</span> Prior to posterior, in pictures (again)</h3>
-<p>The closing visual once more, now with plotnine, ggplot2’s Python twin from the week 4 notes. Two Python-isms on the way: classes are themselves ordinary objects, so we can bolt a density method onto <code>Beta</code> <em>after the fact</em> — a habit called <em>monkey-patching</em>, handy in a notebook, frowned upon in production code — and it is <code>scipy.stats</code> playing the role of R’s <code>dbeta</code>:</p>
+<p>The closing visual once more, now with plotnine, ggplot2’s Python twin from the week 4 notes. Two Python-isms on the way: classes are themselves ordinary objects, so we can bolt a density method onto <code>Beta</code> <em>after the fact</em> (a habit called <em>monkey-patching</em>, handy in a notebook, frowned upon in production code), and it is <code>scipy.stats</code> playing the role of R’s <code>dbeta</code>:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb112"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy <span class="im">import</span> stats</span>
 <span id="cb112-2"><a href="#cb112-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -1166,8 +1166,8 @@ Approx. 95% CI for P(H): [0.769, 1.000]</code></pre>
 <section id="sec-bonus-compare" class="level3" data-number="6.3.6">
 <h3 data-number="6.3.6" class="anchored" data-anchor-id="sec-bonus-compare"><span class="header-section-number">6.3.6</span> Two tables, one honest comparison</h3>
 <p>Step back and compare what you just did twice.</p>
-<p>In R, S4 made the dispatch table <em>the language’s problem</em>: <code>setMethod</code> filed each update under its pair of classes, and lookup, inheritance-aware matching (a <code>NamedNormal</code> prior finds the <code>Normal</code> method automatically) and the <code>ANY</code> fallback all came built in. In Python, dispatch on more than one argument is <em>your problem</em>: the built-in mechanism — choosing behaviour by the thing before the dot — is <strong>single</strong> dispatch on <code>self</code>’s type, and the standard library’s <code>functools.singledispatch</code> automates single dispatch for plain functions but stops there too. So we built the pair table by hand: a dict, a two-line lookup, a <code>raise</code>. That is precisely the machinery S4 automates — and our hand-rolled version is honestly dumber, too: <code>type(prior)</code> matches exactly, so a <em>subclass</em> of <code>Beta</code> would sail straight past the <code>(Beta, BinomData)</code> entry that S4’s inheritance-aware dispatch would have found. Making the dict version subclass-aware is a nice puzzle, not a one-liner.</p>
-<p>The trade cuts both ways. Python’s single system is small, universal, and never leaves you wondering which of four object frameworks a package is written in. R’s S4 is heavier ceremony, but it puts a genuinely statistical kind of dispatch — behaviour that depends on a prior <em>and</em> a likelihood at once — directly into the language. Now you know what you are looking at when you meet either.</p>
+<p>In R, S4 made the dispatch table <em>the language’s problem</em>: <code>setMethod</code> filed each update under its pair of classes, and lookup, inheritance-aware matching (a <code>NamedNormal</code> prior finds the <code>Normal</code> method automatically) and the <code>ANY</code> fallback all came built in. In Python, dispatch on more than one argument is <em>your problem</em>: the built-in mechanism (choosing behaviour by the thing before the dot) is <strong>single</strong> dispatch on <code>self</code>’s type, and the standard library’s <code>functools.singledispatch</code> automates single dispatch for plain functions but stops there too. So we built the pair table by hand: a dict, a two-line lookup, a <code>raise</code>. That is precisely the machinery S4 automates, and our hand-rolled version is honestly dumber, too: <code>type(prior)</code> matches exactly, so a <em>subclass</em> of <code>Beta</code> would sail straight past the <code>(Beta, BinomData)</code> entry that S4’s inheritance-aware dispatch would have found. Making the dict version subclass-aware is a nice puzzle, not a one-liner.</p>
+<p>The trade cuts both ways. Python’s single system is small, universal, and never leaves you wondering which of four object frameworks a package is written in. R’s S4 is heavier ceremony, but it puts a genuinely statistical kind of dispatch (behaviour that depends on a prior <em>and</em> a likelihood at once) directly into the language. Now you know what you are looking at when you meet either.</p>
 
 
 </section>

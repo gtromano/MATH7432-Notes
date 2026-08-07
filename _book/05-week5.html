@@ -284,14 +284,14 @@ window.Quarto = {
 <blockquote class="blockquote">
 <p><strong>Fitting a model is minimising a function.</strong></p>
 </blockquote>
-<p>Maximum likelihood, least squares, penalised regression, neural networks — behind each of them sits an optimisation problem, and behind most of the algorithms that solve those problems sits some descendant of gradient descent. By the end of this chapter you will have met the whole family: plain gradient descent, its stochastic cousin, momentum, preconditioning, and the quasi-Newton method BFGS that the built-in optimisers of both languages — R’s <code>optim()</code> and Python’s <code>scipy.optimize.minimize()</code> — use in practice.</p>
+<p>Maximum likelihood, least squares, penalised regression, neural networks: behind each of them sits an optimisation problem, and behind most of the algorithms that solve those problems sits some descendant of gradient descent. By the end of this chapter you will have met the whole family: plain gradient descent, its stochastic cousin, momentum, preconditioning, and the quasi-Newton method BFGS that the built-in optimisers of both languages (R’s <code>optim()</code> and Python’s <code>scipy.optimize.minimize()</code>) use in practice.</p>
 <section id="sec-week5-gd" class="level2" data-number="5.1">
 <h2 data-number="5.1" class="anchored" data-anchor-id="sec-week5-gd"><span class="header-section-number">5.1</span> Gradient descent, again</h2>
 <p>Quick recap. We want to minimise a differentiable function <span class="math inline">f : \mathbb{R}^d \to \mathbb{R}</span>. The gradient <span class="math inline">\nabla f(\mathbf{x})</span> points in the direction of steepest <em>increase</em>, so we repeatedly take a small step the other way:</p>
 <p><span class="math display">
 \mathbf{x}_{n+1} = \mathbf{x}_n - \gamma \, \nabla f(\mathbf{x}_n),
 </span></p>
-<p>where <span class="math inline">\gamma &gt; 0</span> is the <strong>step size</strong> (machine learning people say <em>learning rate</em>). In <a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a> we packaged this into <code>grad_descent(f, grad, x0, gamma, n)</code>. Here it is again — chapters are self-contained — with one upgrade: instead of returning only the final point, it records the whole trajectory, because this week we want to <em>watch</em> the algorithm work.</p>
+<p>where <span class="math inline">\gamma &gt; 0</span> is the <strong>step size</strong> (machine learning people say <em>learning rate</em>). In <a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a> we packaged this into <code>grad_descent(f, grad, x0, gamma, n)</code>. Here it is again (chapters are self-contained) with one upgrade: instead of returning only the final point, it records the whole trajectory, because this week we want to <em>watch</em> the algorithm work.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -332,7 +332,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p><strong>Note for Python users:</strong> the R loop runs <code>i = 1, ..., n</code> and fills rows <code>2, ..., n + 1</code>; the Python loop runs <code>i = 0, ..., n - 1</code> and fills rows <code>1, ..., n</code> — the same trajectory, one index base apart (<a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>’s indexing note at work).</p>
+<p><strong>Note for Python:</strong> the R loop runs <code>i = 1, ..., n</code> and fills rows <code>2, ..., n + 1</code>; the Python loop runs <code>i = 0, ..., n - 1</code> and fills rows <code>1, ..., n</code>: the same trajectory, one index base apart (<a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>’s indexing note at work).</p>
 <p>Note the functional style from <a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a>: <code>f</code> and <code>grad</code> are <em>arguments</em>. The same dozen lines will minimise a toy parabola now and a logistic regression likelihood later, without changing a character.</p>
 <p>Let us try it on a friendly two-dimensional bowl,</p>
 <p><span class="math display">
@@ -375,8 +375,8 @@ f(x_1, x_2) = (x_1 - 1)^2 + 2\,(x_2 + 1)^2,
 </div>
 </div>
 </div>
-<p>Sixty steps and we are sitting on the minimum. To <em>see</em> the descent we plot the function as a <strong>contour plot</strong>: evaluate <span class="math inline">f</span> on a grid — <code>expand.grid()</code> in R, <code>np.meshgrid()</code> in Python — then hand the grid to <code>geom_contour()</code>. Since we will draw many of these, we write two small helper functions (again: <a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a> habits paying rent).</p>
-<p><strong>Note for Python users:</strong> plotnine, ggplot2’s Python twin from <a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>, has no <code>geom_contour()</code>. Every contour figure this week therefore falls back on matplotlib’s <code>plt.contour()</code> — same pictures, different engine — and the faceted contour figures become <code>plt.subplots()</code> panels.</p>
+<p>Sixty steps and we are sitting on the minimum. To <em>see</em> the descent we plot the function as a <strong>contour plot</strong>: evaluate <span class="math inline">f</span> on a grid (<code>expand.grid()</code> in R, <code>np.meshgrid()</code> in Python), then hand the grid to <code>geom_contour()</code>. Since we will draw many of these, we write two small helper functions (again: <a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a> habits paying rent).</p>
+<p><strong>Note for Python:</strong> plotnine, ggplot2’s Python twin from <a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>, has no <code>geom_contour()</code>. Every contour figure this week therefore falls back on matplotlib’s <code>plt.contour()</code> (same pictures, different engine), and the faceted contour figures become <code>plt.subplots()</code> panels.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -453,7 +453,7 @@ f(x_1, x_2) = (x_1 - 1)^2 + 2\,(x_2 + 1)^2,
 </section>
 <section id="sec-week5-stepsize" class="level2" data-number="5.2">
 <h2 data-number="5.2" class="anchored" data-anchor-id="sec-week5-stepsize"><span class="header-section-number">5.2</span> Why the step size is hard</h2>
-<p>The step size <span class="math inline">\gamma</span> is doing a lot of quiet work. To expose it, we use a function that is deliberately <em>ill-conditioned</em> — much steeper in one direction than the other:</p>
+<p>The step size <span class="math inline">\gamma</span> is doing a lot of quiet work. To expose it, we use a function that is deliberately <em>ill-conditioned</em> (much steeper in one direction than the other):</p>
 <p><span class="math display">
 f(x_1, x_2) = \frac{x_1^2}{2} + \frac{10\, x_2^2}{2},
 \qquad
@@ -532,20 +532,20 @@ f(x_1, x_2) = \frac{x_1^2}{2} + \frac{10\, x_2^2}{2},
 <p>Three step sizes, three personalities:</p>
 <ul>
 <li><strong>Too small</strong> (<span class="math inline">\gamma = 0.01</span>): every step is safe and almost useless. After 60 iterations we have barely moved along the valley.</li>
-<li><strong>Near the limit</strong> (<span class="math inline">\gamma = 0.18</span>): the steep <span class="math inline">x_2</span> direction overshoots and bounces from one wall of the valley to the other — the famous <strong>zig-zag</strong> — while slowly drifting towards the minimum.</li>
+<li><strong>Near the limit</strong> (<span class="math inline">\gamma = 0.18</span>): the steep <span class="math inline">x_2</span> direction overshoots and bounces from one wall of the valley to the other (the famous <strong>zig-zag</strong>) while slowly drifting towards the minimum.</li>
 <li><strong>Too big</strong> (<span class="math inline">\gamma = 0.25</span>): each bounce is <em>bigger</em> than the last. The iterates diverge. (The panel is clipped; the true trajectory left the building.)</li>
 </ul>
 <section id="sec-week5-conditioning" class="level3" data-number="5.2.1">
 <h3 data-number="5.2.1" class="anchored" data-anchor-id="sec-week5-conditioning"><span class="header-section-number">5.2.1</span> The condition number</h3>
-<p>There is a clean piece of intuition behind this. For a quadratic, gradient descent in each coordinate multiplies the error by <span class="math inline">(1 - \gamma \lambda)</span> per step, where <span class="math inline">\lambda</span> is the curvature in that direction. (These directional curvatures are exactly the <em>eigenvalues</em> of the Hessian of <span class="math inline">f</span> — the <code>eigen()</code> from <a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>, quietly reappearing as promised.) Stability requires <span class="math inline">|1 - \gamma \lambda| &lt; 1</span> for <em>every</em> direction, i.e.</p>
+<p>There is a clean piece of intuition behind this. For a quadratic, gradient descent in each coordinate multiplies the error by <span class="math inline">(1 - \gamma \lambda)</span> per step, where <span class="math inline">\lambda</span> is the curvature in that direction. (These directional curvatures are exactly the <em>eigenvalues</em> of the Hessian of <span class="math inline">f</span>: the <code>eigen()</code> from <a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>, quietly reappearing as promised.) Stability requires <span class="math inline">|1 - \gamma \lambda| &lt; 1</span> for <em>every</em> direction, i.e.</p>
 <p><span class="math display">
 \gamma &lt; \frac{2}{L}, \qquad L = \text{largest curvature},
 </span></p>
-<p>which for our valley means <span class="math inline">\gamma &lt; 2/10 = 0.2</span> — exactly why <span class="math inline">0.18</span> scraped through and <span class="math inline">0.25</span> exploded. But <em>progress</em> in the flattest direction is governed by the smallest curvature <span class="math inline">\mu</span>: per step the error shrinks by <span class="math inline">(1 - \gamma\mu)</span>, at best about <span class="math inline">(1 - \mu/L)</span>. The ratio</p>
+<p>which for our valley means <span class="math inline">\gamma &lt; 2/10 = 0.2</span>: exactly why <span class="math inline">0.18</span> scraped through and <span class="math inline">0.25</span> exploded. But <em>progress</em> in the flattest direction is governed by the smallest curvature <span class="math inline">\mu</span>: per step the error shrinks by <span class="math inline">(1 - \gamma\mu)</span>, at best about <span class="math inline">(1 - \mu/L)</span>. The ratio</p>
 <p><span class="math display">
 \kappa = \frac{L}{\mu} \qquad \text{(the condition number)}
 </span></p>
-<p>controls how many iterations you need: as <span class="math inline">\kappa</span> grows, the iteration count grows in proportion. Our valley has <span class="math inline">\kappa = 10</span> and is already annoying. Real statistical problems — say a regression with one covariate measured in grams and another in tonnes — can have <span class="math inline">\kappa</span> in the millions, and plain gradient descent simply stops being a usable tool. Hold that thought; it is the villain for the rest of the chapter.</p>
+<p>controls how many iterations you need: as <span class="math inline">\kappa</span> grows, the iteration count grows in proportion. Our valley has <span class="math inline">\kappa = 10</span> and is already annoying. Real statistical problems (say a regression with one covariate measured in grams and another in tonnes) can have <span class="math inline">\kappa</span> in the millions, and plain gradient descent simply stops being a usable tool. Hold that thought; it is the villain for the rest of the chapter.</p>
 <p>A small helper we will use to compare methods fairly: how many iterations until we are within <code>tol</code> of the target?</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -628,8 +628,8 @@ L(\boldsymbol\beta) = \frac{1}{n}\sum_{i=1}^n
 \qquad
 \nabla L(\boldsymbol\beta) = \frac{1}{n} X^\top\big(\sigma(X\boldsymbol\beta) - \mathbf{y}\big),
 </span></p>
-<p>with <span class="math inline">\sigma</span> applied elementwise. No closed-form minimiser exists here — you <em>must</em> optimise numerically. This is the everyday reality of maximum likelihood.</p>
-<p>Let us simulate one dataset for each. We fix the random seed first — <code>set.seed()</code> in R, a seeded generator <code>np.random.default_rng()</code> in Python — so that you get the same data, plots and fitted values as these notes.</p>
+<p>with <span class="math inline">\sigma</span> applied elementwise. No closed-form minimiser exists here: you <em>must</em> optimise numerically. This is the everyday reality of maximum likelihood.</p>
+<p>Let us simulate one dataset for each. We fix the random seed first (<code>set.seed()</code> in R, a seeded generator <code>np.random.default_rng()</code> in Python) so that you get the same data, plots and fitted values as these notes.</p>
 <p><strong>Note:</strong> the two languages cannot share a random stream. The R and Python columns draw <em>different</em> datasets from the same model: each column is reproducible within its own language, and every fitted value below matches its own column’s data, but the numbers differ slightly between the columns.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -698,8 +698,8 @@ L(\boldsymbol\beta) = \frac{1}{n}\sum_{i=1}^n
 </div>
 </div>
 </div>
-<p><strong>Note for Python users:</strong> a <code>lambda</code> holds a single expression only, so the multi-line R lambdas become small <code>def</code>s — the same first-class function objects either way (<a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a>).</p>
-<p>For linear regression we do not actually <em>need</em> an iterative method: setting <span class="math inline">\nabla L = 0</span> gives the normal equations <span class="math inline">X^\top X \boldsymbol\beta = X^\top \mathbf{y}</span>, which <code>solve()</code> — <code>np.linalg.solve()</code> in Python — dispatches in one line, the very linear algebra you did in <a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>:</p>
+<p><strong>Note for Python:</strong> a <code>lambda</code> holds a single expression only, so the multi-line R lambdas become small <code>def</code>s: the same first-class function objects either way (<a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a>).</p>
+<p>For linear regression we do not actually <em>need</em> an iterative method: setting <span class="math inline">\nabla L = 0</span> gives the normal equations <span class="math inline">X^\top X \boldsymbol\beta = X^\top \mathbf{y}</span>, which <code>solve()</code> (<code>np.linalg.solve()</code> in Python) dispatches in one line, the very linear algebra you did in <a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -722,7 +722,7 @@ L(\boldsymbol\beta) = \frac{1}{n}\sum_{i=1}^n
 </div>
 </div>
 </div>
-<p>(In real life R’s <code>lm()</code> — or <code>np.linalg.lstsq()</code> in Python — does this for you, more carefully.) The closed form gives us a gold standard to check gradient descent against:</p>
+<p>(In real life R’s <code>lm()</code>, or <code>np.linalg.lstsq()</code> in Python, does this for you, more carefully.) The closed form gives us a gold standard to check gradient descent against:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -753,7 +753,7 @@ grad_descent  1.930201 -1.014763</code></pre>
 </div>
 </div>
 </div>
-<p>Identical to working precision, in about fifty effective steps. And because the loss has two parameters, we can watch the descent over the loss surface itself — the contours below are contours of <span class="math inline">L(\beta_0, \beta_1)</span>, a picture worth keeping in mind every time you fit <em>any</em> model:</p>
+<p>Identical to working precision, in about fifty effective steps. And because the loss has two parameters, we can watch the descent over the loss surface itself: the contours below are contours of <span class="math inline">L(\beta_0, \beta_1)</span>, a picture worth keeping in mind every time you fit <em>any</em> model:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -789,7 +789,7 @@ grad_descent  1.930201 -1.014763</code></pre>
 </div>
 </div>
 </div>
-<p>The cross marks <span class="math inline">\hat{\boldsymbol\beta}_{\text{OLS}}</span>. Gradient descent walks straight to the same place the algebra pointed to. For logistic regression there is no cross to draw in advance — the iterative method is the only game in town. We will fit it in <a href="#sec-week5-bfgs" class="quarto-xref"><span>Section 5.7</span></a>.</p>
+<p>The cross marks <span class="math inline">\hat{\boldsymbol\beta}_{\text{OLS}}</span>. Gradient descent walks straight to the same place the algebra pointed to. For logistic regression there is no cross to draw in advance: the iterative method is the only game in town. We will fit it in <a href="#sec-week5-bfgs" class="quarto-xref"><span>Section 5.7</span></a>.</p>
 </section>
 <section id="sec-week5-sgd" class="level2" data-number="5.4">
 <h2 data-number="5.4" class="anchored" data-anchor-id="sec-week5-sgd"><span class="header-section-number">5.4</span> Stochastic gradient descent</h2>
@@ -797,7 +797,7 @@ grad_descent  1.930201 -1.014763</code></pre>
 <p><span class="math display">
 \nabla L(\theta) = \frac{1}{n} \sum_{i=1}^{n} \nabla \ell_i(\theta).
 </span></p>
-<p>Every single step of gradient descent touches <strong>all <span class="math inline">n</span> observations</strong>. For our <span class="math inline">n = 200</span> toy that is nothing; for <span class="math inline">n = 10^8</span> user records it means one step of GD costs a full pass over a dataset that may not even fit in memory. The sum structure suggests a cheeky fix: <em>don’t compute the whole sum</em>. Pick one index <span class="math inline">I</span> uniformly at random and use <span class="math inline">\nabla \ell_I(\theta)</span> as a stand-in for <span class="math inline">\nabla L(\theta)</span>. It is a noisy stand-in, but it is <strong>unbiased</strong>: <span class="math inline">\mathbb{E}\big[\nabla \ell_I(\theta)\big] = \nabla L(\theta)</span> — on average, it is the right direction. The update</p>
+<p>Every single step of gradient descent touches <strong>all <span class="math inline">n</span> observations</strong>. For our <span class="math inline">n = 200</span> toy that is nothing; for <span class="math inline">n = 10^8</span> user records it means one step of GD costs a full pass over a dataset that may not even fit in memory. The sum structure suggests a cheeky fix: <em>don’t compute the whole sum</em>. Pick one index <span class="math inline">I</span> uniformly at random and use <span class="math inline">\nabla \ell_I(\theta)</span> as a stand-in for <span class="math inline">\nabla L(\theta)</span>. It is a noisy stand-in, but it is <strong>unbiased</strong>: <span class="math inline">\mathbb{E}\big[\nabla \ell_I(\theta)\big] = \nabla L(\theta)</span>. On average, it is the right direction. The update</p>
 <p><span class="math display">
 \theta_{t+1} = \theta_t - \gamma_t \, \nabla \ell_{I_t}(\theta_t),
 \qquad I_t \sim \text{Uniform}\{1, \dots, n\},
@@ -852,7 +852,7 @@ grad_descent  1.930201 -1.014763</code></pre>
 </div>
 </div>
 </div>
-<p><strong>Note for Python users:</strong> <code>sample(n_data, 1)</code> draws from <span class="math inline">\{1, \dots, n\}</span>; <code>rng.integers(n_data)</code> draws from <span class="math inline">\{0, \dots, n-1\}</span> — each exactly the right range for its language’s indexing. And where R’s <code>sample()</code> quietly uses the global RNG state, the Python column leans on the global <code>rng</code> object in the same way.</p>
+<p><strong>Note for Python:</strong> <code>sample(n_data, 1)</code> draws from <span class="math inline">\{1, \dots, n\}</span>; <code>rng.integers(n_data)</code> draws from <span class="math inline">\{0, \dots, n-1\}</span>: each exactly the right range for its language’s indexing. And where R’s <code>sample()</code> quietly uses the global RNG state, the Python column leans on the global <code>rng</code> object in the same way.</p>
 <p>Let us run it on the regression loss twice: once with a constant step size, once with a decaying one.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -913,18 +913,18 @@ grad_descent  1.930201 -1.014763</code></pre>
 </div>
 </div>
 </div>
-<p>Both trajectories are drunk versions of the gradient descent path — that is the noise of estimating the gradient from one observation. But the endgames differ:</p>
+<p>Both trajectories are drunk versions of the gradient descent path: that is the noise of estimating the gradient from one observation. But the endgames differ:</p>
 <ul>
 <li>With a <strong>constant</strong> step the iterates never settle: they reach the neighbourhood of <span class="math inline">\hat{\boldsymbol\beta}</span> quickly and then rattle around it forever, in a “noise ball” whose radius grows with <span class="math inline">\gamma</span>.</li>
 <li>With a <strong>decaying</strong> step the early iterations still move fast, while the shrinking steps gradually strangle the noise, and the trajectory funnels into the minimum.</li>
 </ul>
-<p>How fast should <span class="math inline">\gamma_t</span> decay? The classical answer (Robbins and Monro, 1951 — this algorithm is older than the computer you are running it on) is, informally:</p>
+<p>How fast should <span class="math inline">\gamma_t</span> decay? The classical answer (Robbins and Monro, 1951: this algorithm is older than the computer you are running it on) is, informally:</p>
 <p><span class="math display">
 \sum_{t=1}^{\infty} \gamma_t = \infty
 \qquad \text{and} \qquad
 \sum_{t=1}^{\infty} \gamma_t^2 &lt; \infty.
 </span></p>
-<p>The first condition says the steps must add up to infinity — otherwise the algorithm can run out of fuel before reaching the minimum, however far away it started. The second says they must shrink fast enough that the noise averages out. Schedules like <span class="math inline">\gamma_t = a/(b + t)</span> satisfy both, which is why you keep seeing that shape.</p>
+<p>The first condition says the steps must add up to infinity: otherwise the algorithm can run out of fuel before reaching the minimum, however far away it started. The second says they must shrink fast enough that the noise averages out. Schedules like <span class="math inline">\gamma_t = a/(b + t)</span> satisfy both, which is why you keep seeing that shape.</p>
 <p>Finally, the claim that actually sells SGD: progress <em>per data point touched</em>. One GD step costs <span class="math inline">n = 200</span> observation-gradients; one SGD step costs 1. Plot the loss against that budget:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -989,8 +989,8 @@ grad_descent  1.930201 -1.014763</code></pre>
 </div>
 </div>
 </div>
-<p><strong>Note for Python users:</strong> pandas has no <code>bind_rows()</code> or <code>filter()</code> verbs — <code>pd.concat()</code> plus a boolean mask do the same job (<a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>) — and plotnine still calls the line-width aesthetic <code>size</code>, which ggplot2 has since renamed <code>linewidth</code>.</p>
-<p>By the time GD has finished its <em>first</em> step (200 evaluations), SGD has already collapsed most of the loss. Read the other end honestly too: GD then converges to the exact minimiser, while SGD closes in more slowly and less precisely. For small <span class="math inline">n</span> and high accuracy, GD (or better, <a href="#sec-week5-bfgs" class="quarto-xref"><span>Section 5.7</span></a>) wins; for enormous <span class="math inline">n</span> and statistical-scale accuracy — remember the estimate itself has sampling error of order <span class="math inline">1/\sqrt{n}</span>, so chasing the tenth decimal of the minimiser is vanity — SGD is the only affordable option. It is the workhorse that trains essentially every neural network.</p>
+<p><strong>Note for Python:</strong> pandas has no <code>bind_rows()</code> or <code>filter()</code> verbs; <code>pd.concat()</code> plus a boolean mask do the same job (<a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>). And plotnine still calls the line-width aesthetic <code>size</code>, which ggplot2 has since renamed <code>linewidth</code>.</p>
+<p>By the time GD has finished its <em>first</em> step (200 evaluations), SGD has already collapsed most of the loss. Read the other end honestly too: GD then converges to the exact minimiser, while SGD closes in more slowly and less precisely. For small <span class="math inline">n</span> and high accuracy, GD (or better, <a href="#sec-week5-bfgs" class="quarto-xref"><span>Section 5.7</span></a>) wins; for enormous <span class="math inline">n</span> and statistical-scale accuracy (remember the estimate itself has sampling error of order <span class="math inline">1/\sqrt{n}</span>, so chasing the tenth decimal of the minimiser is vanity), SGD is the only affordable option. It is the workhorse that trains essentially every neural network.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Exercise 5.2: Mini-batch SGD">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1001,7 +1001,7 @@ Exercise 5.2: Mini-batch SGD
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Fill in the blanks to turn <code>sgd()</code> into mini-batch SGD, then run it on the regression loss. The batch gradient function is given — note (on the R side) the <code>drop = FALSE</code>: when the batch holds a single index, <code>X[idx, ]</code> would silently collapse the one-row matrix to a plain vector, and <code>drop = FALSE</code> keeps the matrix shape so the algebra survives <code>batch = 1</code>:</p>
+<p>Fill in the blanks to turn <code>sgd()</code> into mini-batch SGD, then run it on the regression loss. The batch gradient function is given. Note (on the R side) the <code>drop = FALSE</code>: when the batch holds a single index, <code>X[idx, ]</code> would silently collapse the one-row matrix to a plain vector, and <code>drop = FALSE</code> keeps the matrix shape so the algebra survives <code>batch = 1</code>:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1044,24 +1044,24 @@ Exercise 5.2: Mini-batch SGD
 </div>
 </div>
 </div>
-<p><strong>Note for Python users:</strong> numpy dodges the <code>drop = FALSE</code> trap — indexing with an index <em>array</em> (<code>X[idx]</code>) always keeps the 2-D shape; only a bare scalar index drops the dimension. The trap on your side is <code>rng.choice()</code>, which samples <strong>with</strong> replacement unless told <code>replace=False</code>, whereas R’s <code>sample()</code> is without replacement by default.</p>
-<p>Run 2000 steps with constant <code>gamma = \(t) 0.1</code> (<code>lambda t: 0.1</code>) for batch sizes 1, 10 and 50, and compare the wobble of the final 500 iterates (e.g.&nbsp;via <code>sd()</code> of each coordinate — <code>.std()</code> in Python — or just by plotting the paths). What does the batch size buy you, and what does it cost?</p>
+<p><strong>Note for Python:</strong> numpy dodges the <code>drop = FALSE</code> trap: indexing with an index <em>array</em> (<code>X[idx]</code>) always keeps the 2-D shape; only a bare scalar index drops the dimension. The trap on the Python side is <code>rng.choice()</code>, which samples <strong>with</strong> replacement unless told <code>replace=False</code>, whereas R’s <code>sample()</code> is without replacement by default.</p>
+<p>Run 2000 steps with constant <code>gamma = \(t) 0.1</code> (<code>lambda t: 0.1</code>) for batch sizes 1, 10 and 50, and compare the wobble of the final 500 iterates (e.g.&nbsp;via <code>sd()</code> of each coordinate, <code>.std()</code> in Python, or just by plotting the paths). What does the batch size buy you, and what does it cost?</p>
 </div>
 </div>
 </section>
 <section id="sec-week5-momentum" class="level2" data-number="5.5">
 <h2 data-number="5.5" class="anchored" data-anchor-id="sec-week5-momentum"><span class="header-section-number">5.5</span> Momentum: a ball rolling downhill</h2>
-<p>Back to the zig-zag valley of <a href="#sec-week5-stepsize" class="quarto-xref"><span>Section 5.2</span></a>. The step size was capped by the steep direction, progress was throttled along the flat one, and the trajectory wasted its energy bouncing between walls. Physics suggests a fix. Imagine the iterate is not a point teleporting around, but a <strong>heavy ball rolling on the surface of <span class="math inline">f</span>, with friction</strong>. A ball entering a narrow valley rattles briefly between the walls, the rattling cancels itself out, and the ball settles into rolling <em>along</em> the valley — gathering speed in any direction the slope keeps pushing.</p>
+<p>Back to the zig-zag valley of <a href="#sec-week5-stepsize" class="quarto-xref"><span>Section 5.2</span></a>. The step size was capped by the steep direction, progress was throttled along the flat one, and the trajectory wasted its energy bouncing between walls. Physics suggests a fix. Imagine the iterate is not a point teleporting around, but a <strong>heavy ball rolling on the surface of <span class="math inline">f</span>, with friction</strong>. A ball entering a narrow valley rattles briefly between the walls, the rattling cancels itself out, and the ball settles into rolling <em>along</em> the valley, gathering speed in any direction the slope keeps pushing.</p>
 <p>To simulate that, give the iterate a velocity <span class="math inline">\mathbf{v}</span> that accumulates gradients instead of forgetting them:</p>
 <p><span class="math display">
 \mathbf{v}_{t+1} = \beta\, \mathbf{v}_t - \gamma\, \nabla f(\mathbf{x}_t),
 \qquad
 \mathbf{x}_{t+1} = \mathbf{x}_t + \mathbf{v}_{t+1},
 </span></p>
-<p>with <span class="math inline">\beta \in [0, 1)</span>. This is the <strong>heavy-ball method</strong>, or gradient descent with <strong>momentum</strong>. The coefficient <span class="math inline">\beta</span> is the memory of the ball: each step the old velocity is kept, scaled by <span class="math inline">\beta</span>, so <span class="math inline">1 - \beta</span> acts as friction. <span class="math inline">\beta = 0</span> is plain gradient descent (total friction — all velocity lost each step); <span class="math inline">\beta \to 1</span> is a frictionless ball that overshoots and oscillates forever. In between, something useful happens:</p>
+<p>with <span class="math inline">\beta \in [0, 1)</span>. This is the <strong>heavy-ball method</strong>, or gradient descent with <strong>momentum</strong>. The coefficient <span class="math inline">\beta</span> is the memory of the ball: each step the old velocity is kept, scaled by <span class="math inline">\beta</span>, so <span class="math inline">1 - \beta</span> acts as friction. <span class="math inline">\beta = 0</span> is plain gradient descent (total friction: all velocity lost each step); <span class="math inline">\beta \to 1</span> is a frictionless ball that overshoots and oscillates forever. In between, something useful happens:</p>
 <ul>
-<li>in the <strong>zig-zag direction</strong> the gradient flips sign every step, so successive contributions to <span class="math inline">\mathbf{v}</span> <em>cancel</em> — the oscillation damps itself;</li>
-<li>in the <strong>consistent downhill direction</strong> the contributions all point the same way and <em>accumulate</em> — the ball accelerates along the valley floor.</li>
+<li>in the <strong>zig-zag direction</strong> the gradient flips sign every step, so successive contributions to <span class="math inline">\mathbf{v}</span> <em>cancel</em>: the oscillation damps itself;</li>
+<li>in the <strong>consistent downhill direction</strong> the contributions all point the same way and <em>accumulate</em>: the ball accelerates along the valley floor.</li>
 </ul>
 <p>In code, two lines change:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
@@ -1182,10 +1182,10 @@ Exercise 5.2: Mini-batch SGD
 </div>
 </div>
 </div>
-<p>The orange path shakes off the zig-zag within a few bounces and cruises down the valley, reaching tolerance in half the iterations — and the gap widens as <span class="math inline">\kappa</span> grows. In practice <span class="math inline">\beta</span> is a tuning knob like <span class="math inline">\gamma</span>: values around <span class="math inline">0.9</span> are the folklore default in machine learning, but on a nearly-quadratic problem like this a smaller <span class="math inline">\beta</span> damps faster (try <span class="math inline">0.9</span> here and watch it overshoot the minimum and loop back).</p>
+<p>The orange path shakes off the zig-zag within a few bounces and cruises down the valley, reaching tolerance in half the iterations, and the gap widens as <span class="math inline">\kappa</span> grows. In practice <span class="math inline">\beta</span> is a tuning knob like <span class="math inline">\gamma</span>: values around <span class="math inline">0.9</span> are the folklore default in machine learning, but on a nearly-quadratic problem like this a smaller <span class="math inline">\beta</span> damps faster (try <span class="math inline">0.9</span> here and watch it overshoot the minimum and loop back).</p>
 <section id="stochastic-momentum" class="level3" data-number="5.5.1">
 <h3 data-number="5.5.1" class="anchored" data-anchor-id="stochastic-momentum"><span class="header-section-number">5.5.1</span> Stochastic momentum</h3>
-<p>Momentum drops straight into SGD — replace the full gradient with the single-sample one:</p>
+<p>Momentum drops straight into SGD. Replace the full gradient with the single-sample one:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1223,7 +1223,7 @@ Exercise 5.2: Mini-batch SGD
 </div>
 </div>
 </div>
-<p>Now <span class="math inline">\mathbf{v}</span> is a running average of <em>noisy</em> gradients, so momentum also acts as a noise filter: individual samples may point sideways, but their average points downhill. One honest subtlety: with memory <span class="math inline">\beta</span>, the steps effectively add up to <span class="math inline">\gamma/(1-\beta)</span> worth of gradient — with <span class="math inline">\beta = 0.9</span> that is a factor of 10 — so shrink <span class="math inline">\gamma</span> accordingly when you switch momentum on.</p>
+<p>Now <span class="math inline">\mathbf{v}</span> is a running average of <em>noisy</em> gradients, so momentum also acts as a noise filter: individual samples may point sideways, but their average points downhill. One honest subtlety: with memory <span class="math inline">\beta</span>, the steps effectively add up to <span class="math inline">\gamma/(1-\beta)</span> worth of gradient (with <span class="math inline">\beta = 0.9</span> that is a factor of 10), so shrink <span class="math inline">\gamma</span> accordingly when you switch momentum on.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1287,7 +1287,7 @@ Exercise 5.2: Mini-batch SGD
 </div>
 </div>
 </div>
-<p>Both end up at the same place, but the momentum path is visibly smoother — it turns gently where plain SGD staggers. SGD-plus-momentum, with mini-batches, is more or less <em>the</em> algorithm that trains deep neural networks.</p>
+<p>Both end up at the same place, but the momentum path is visibly smoother: it turns gently where plain SGD staggers. SGD-plus-momentum, with mini-batches, is more or less <em>the</em> algorithm that trains deep neural networks.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Exercise 5.3: Momentum pays off">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1347,7 +1347,7 @@ Exercise 5.3: Momentum pays off
 </div>
 </div>
 </div>
-<p>What is the <em>ideal</em> <span class="math inline">P</span>? Our valley has Hessian (matrix of second derivatives) <span class="math inline">H = \mathrm{diag}(1, 10)</span>: curvature 1 along <span class="math inline">x_1</span>, 10 along <span class="math inline">x_2</span>. Choosing <span class="math inline">P = H^{-1} = \mathrm{diag}(1, 1/10)</span> divides each direction by its own curvature, so <em>every</em> direction behaves like curvature 1 — the valley becomes a perfectly round bowl, <span class="math inline">\kappa = 1</span>. With <span class="math inline">\gamma = 1</span>:</p>
+<p>What is the <em>ideal</em> <span class="math inline">P</span>? Our valley has Hessian (matrix of second derivatives) <span class="math inline">H = \mathrm{diag}(1, 10)</span>: curvature 1 along <span class="math inline">x_1</span>, 10 along <span class="math inline">x_2</span>. Choosing <span class="math inline">P = H^{-1} = \mathrm{diag}(1, 1/10)</span> divides each direction by its own curvature, so <em>every</em> direction behaves like curvature 1: the valley becomes a perfectly round bowl, <span class="math inline">\kappa = 1</span>. With <span class="math inline">\gamma = 1</span>:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1384,7 +1384,7 @@ Exercise 5.3: Momentum pays off
 </div>
 </div>
 </div>
-<p>One step. Not “converges quickly” — <em>lands exactly on the minimum in one step</em>.</p>
+<p>One step. Not “converges quickly”: <em>lands exactly on the minimum in one step</em>.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1437,7 +1437,7 @@ Exercise 5.3: Momentum pays off
 <li><strong>Cost.</strong> In <span class="math inline">d</span> dimensions the Hessian has <span class="math inline">d^2</span> entries, and applying its inverse means solving a <span class="math inline">d \times d</span> linear system: <span class="math inline">O(d^3)</span> per step. For a neural network with <span class="math inline">d = 10^6</span> parameters, the Hessian alone would need terabytes of memory.</li>
 <li><strong>Fragility.</strong> Away from the minimum the Hessian need not be positive definite, and then <span class="math inline">-H^{-1}\nabla f</span> may not even point downhill. Making Newton robust takes real engineering.</li>
 </ul>
-<p>Cheap compromises are everywhere in statistics and machine learning: use only the <em>diagonal</em> of the Hessian (exactly our <span class="math inline">P</span> above — for axis-aligned problems it is the whole story, and in general it is a decent approximation); or simply <strong>standardise your covariates</strong>, which is preconditioning by a diagonal matrix before the algorithm even starts. If you remember one practical trick from this section: <em>rescale your variables before optimising</em>. Exercise 5.4 shows what happens if you don’t.</p>
+<p>Cheap compromises are everywhere in statistics and machine learning: use only the <em>diagonal</em> of the Hessian (exactly our <span class="math inline">P</span> above: for axis-aligned problems it is the whole story, and in general it is a decent approximation); or simply <strong>standardise your covariates</strong>, which is preconditioning by a diagonal matrix before the algorithm even starts. If you remember one practical trick from this section: <em>rescale your variables before optimising</em>. Exercise 5.4 shows what happens if you don’t.</p>
 </section>
 <section id="sec-week5-bfgs" class="level2" data-number="5.7">
 <h2 data-number="5.7" class="anchored" data-anchor-id="sec-week5-bfgs"><span class="header-section-number">5.7</span> BFGS: learning the Hessian as you go</h2>
@@ -1447,20 +1447,20 @@ Exercise 5.3: Momentum pays off
 \;\approx\;
 H \, (\mathbf{x}_{k+1} - \mathbf{x}_k),
 </span></p>
-<p>so each step tells us how the gradient <em>changed</em> when we moved in one particular direction — one slice of the Hessian, for free. Quasi-Newton methods maintain a running approximation <span class="math inline">B_k \approx H^{-1}</span> and require it to explain the most recent step exactly, the <strong>secant condition</strong>:</p>
+<p>so each step tells us how the gradient <em>changed</em> when we moved in one particular direction: one slice of the Hessian, for free. Quasi-Newton methods maintain a running approximation <span class="math inline">B_k \approx H^{-1}</span> and require it to explain the most recent step exactly, the <strong>secant condition</strong>:</p>
 <p><span class="math display">
 B_{k+1} \, \underbrace{\big(\nabla f_{k+1} - \nabla f_k\big)}_{\mathbf{y}_k}
 = \underbrace{\mathbf{x}_{k+1} - \mathbf{x}_k}_{\mathbf{s}_k}.
 </span></p>
-<p><strong>BFGS</strong> (Broyden–Fletcher–Goldfarb–Shanno, 1970 — four people found it independently in the same year) updates <span class="math inline">B_k</span> by the smallest symmetric modification that satisfies the secant condition — a <em>rank-two update</em>: cheap matrix–vector algebra, no matrix inversion, and <span class="math inline">B_k</span> stays positive definite so the step <span class="math inline">-B_k \nabla f_k</span> always points downhill (provided each step actually observes positive curvature, <span class="math inline">\mathbf{y}_k^\top \mathbf{s}_k &gt; 0</span> — the line search inside <code>optim()</code> and <code>minimize()</code> sees to this). For the curious, the update is</p>
+<p><strong>BFGS</strong> (Broyden–Fletcher–Goldfarb–Shanno, 1970: four people found it independently in the same year) updates <span class="math inline">B_k</span> by the smallest symmetric modification that satisfies the secant condition, a <em>rank-two update</em>: cheap matrix–vector algebra, no matrix inversion, and <span class="math inline">B_k</span> stays positive definite so the step <span class="math inline">-B_k \nabla f_k</span> always points downhill (provided each step actually observes positive curvature, <span class="math inline">\mathbf{y}_k^\top \mathbf{s}_k &gt; 0</span>: the line search inside <code>optim()</code> and <code>minimize()</code> sees to this). For the curious, the update is</p>
 <p><span class="math display">
 B_{k+1} = \big(I - \rho_k \mathbf{s}_k \mathbf{y}_k^\top\big) B_k
           \big(I - \rho_k \mathbf{y}_k \mathbf{s}_k^\top\big)
           + \rho_k \mathbf{s}_k \mathbf{s}_k^\top,
 \qquad \rho_k = \frac{1}{\mathbf{y}_k^\top \mathbf{s}_k},
 </span></p>
-<p>and we will not derive it — the point to retain is the <em>idea</em>: start with <span class="math inline">B_0 = I</span> (plain gradient descent), and let each observed gradient difference teach the algorithm a bit more of the local geometry. After a handful of steps BFGS is taking nearly Newton-quality steps while having only ever evaluated <span class="math inline">f</span> and <span class="math inline">\nabla f</span>.</p>
-<p>You will never implement BFGS yourself, because both languages ship it — R as <code>optim()</code>, Python inside <code>scipy.optimize.minimize()</code>:</p>
+<p>and we will not derive it. The point to retain is the <em>idea</em>: start with <span class="math inline">B_0 = I</span> (plain gradient descent), and let each observed gradient difference teach the algorithm a bit more of the local geometry. After a handful of steps BFGS is taking nearly Newton-quality steps while having only ever evaluated <span class="math inline">f</span> and <span class="math inline">\nabla f</span>.</p>
+<p>You will never implement BFGS yourself, because both languages ship it (R as <code>optim()</code>, Python inside <code>scipy.optimize.minimize()</code>):</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1471,7 +1471,7 @@ B_{k+1} = \big(I - \rho_k \mathbf{s}_k \mathbf{y}_k^\top\big) B_k
 <div class="sourceCode" id="cb56"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>sp.optimize.minimize(fun, x0, jac<span class="op">=</span>grad, method<span class="op">=</span><span class="st">"BFGS"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
-<p>with <code>par</code>/<code>x0</code> the starting point, <code>fn</code>/<code>fun</code> the function to minimise and <code>gr</code>/<code>jac</code> its gradient — the same ingredients our <code>grad_descent()</code> takes (this is why we wrote everything functional-style: the interfaces match). Time to fit the logistic regression from <a href="#sec-week5-losses" class="quarto-xref"><span>Section 5.3</span></a>, which has been waiting patiently for a competent optimiser:</p>
+<p>with <code>par</code>/<code>x0</code> the starting point, <code>fn</code>/<code>fun</code> the function to minimise and <code>gr</code>/<code>jac</code> its gradient: the same ingredients our <code>grad_descent()</code> takes (this is why we wrote everything functional-style: the interfaces match). Time to fit the logistic regression from <a href="#sec-week5-losses" class="quarto-xref"><span>Section 5.3</span></a>, which has been waiting patiently for a competent optimiser:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1521,8 +1521,8 @@ B_{k+1} = \big(I - \rho_k \mathbf{s}_k \mathbf{y}_k^\top\big) B_k
 </div>
 </div>
 </div>
-<p><strong>Note for Python users:</strong> the report fields differ in name and convention: <code>$par</code>, <code>$value</code>, <code>$counts</code> and <code>$convergence</code> become <code>.x</code>, <code>.fun</code>, <code>.nfev</code>/<code>.njev</code> and <code>.success</code> — and R signals success with <code>convergence == 0</code>, scipy with <code>success == True</code>. Always check it, whatever it is called.</p>
-<p>About fifteen gradient evaluations in the R run (a dozen in the Python run, on its own draw of the data). Let us line it up against our own algorithms — and against a reference fit: <code>glm()</code>, R’s official logistic regression fitter, on the left; on the right, since Python has no built-in <code>glm()</code> (the usual tools live in the <code>statsmodels</code> package), BFGS rerun with a very strict tolerance — measuring cost in observation-gradients touched, as in <a href="#sec-week5-sgd" class="quarto-xref"><span>Section 5.4</span></a>:</p>
+<p><strong>Note for Python:</strong> the report fields differ in name and convention: <code>$par</code>, <code>$value</code>, <code>$counts</code> and <code>$convergence</code> become <code>.x</code>, <code>.fun</code>, <code>.nfev</code>/<code>.njev</code> and <code>.success</code>. And R signals success with <code>convergence == 0</code>, scipy with <code>success == True</code>. Always check it, whatever it is called.</p>
+<p>About fifteen gradient evaluations in the R run (a dozen in the Python run, on its own draw of the data). Let us line it up against our own algorithms, and against a reference fit: <code>glm()</code>, R’s official logistic regression fitter, on the left; on the right, since Python has no built-in <code>glm()</code> (the usual tools live in the <code>statsmodels</code> package), BFGS rerun with a very strict tolerance, measuring cost in observation-gradients touched, as in <a href="#sec-week5-sgd" class="quarto-xref"><span>Section 5.4</span></a>:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1595,13 +1595,13 @@ B_{k+1} = \big(I - \rho_k \mathbf{s}_k \mathbf{y}_k^\top\big) B_k
 </div>
 </div>
 </div>
-<p>Read the table slowly: it summarises the whole chapter. (The two columns fit two different draws of the data, so the loss values differ between languages — the <em>pattern</em> is the same.)</p>
+<p>Read the table slowly: it summarises the whole chapter. (The two columns fit two different draws of the data, so the loss values differ between languages: the <em>pattern</em> is the same.)</p>
 <ul>
-<li><strong>BFGS matches the reference fit — <code>glm()</code> in R — to six decimals</strong> at the cost of a few thousand observation-gradients, with <em>no tuning at all</em> — no <span class="math inline">\gamma</span>, no schedule, no <span class="math inline">\beta</span>. The curvature information it accumulates replaces all the knobs we spent this chapter turning by hand.</li>
+<li><strong>BFGS matches the reference fit (<code>glm()</code> in R) to six decimals</strong> at the cost of a few thousand observation-gradients, with <em>no tuning at all</em>: no <span class="math inline">\gamma</span>, no schedule, no <span class="math inline">\beta</span>. The curvature information it accumulates replaces all the knobs we spent this chapter turning by hand.</li>
 <li><strong>GD gets there too</strong>, but only after we hand-tuned <span class="math inline">\gamma</span>, and at over ten times the cost. On an ill-conditioned problem (Exercise 5.4) the gap becomes a chasm.</li>
-<li><strong>SGD is nearly as accurate here at a fraction of the cost</strong> — and its cost would be <em>unchanged</em> if <span class="math inline">n</span> were <span class="math inline">10^8</span>, which is the regime it is built for.</li>
+<li><strong>SGD is nearly as accurate here at a fraction of the cost</strong>, and its cost would be <em>unchanged</em> if <span class="math inline">n</span> were <span class="math inline">10^8</span>, which is the regime it is built for.</li>
 </ul>
-<p>Two closing remarks on <code>optim()</code> and <code>minimize()</code>. For problems with many parameters there is <code>method = "L-BFGS-B"</code> (same name in both), a low-memory variant that stores only the last few <span class="math inline">(\mathbf{s}_k, \mathbf{y}_k)</span> pairs instead of the full <span class="math inline">d \times d</span> matrix (and accepts box constraints on the parameters). And practically: <strong><code>optim()</code> with BFGS is what you reach for</strong> when fitting a model by maximum likelihood in R (<code>minimize()</code> in Python) — countless packages are, under the hood, exactly <code>optim(par, nll, gr, method = "BFGS")</code> wearing a nice interface.</p>
+<p>Two closing remarks on <code>optim()</code> and <code>minimize()</code>. For problems with many parameters there is <code>method = "L-BFGS-B"</code> (same name in both), a low-memory variant that stores only the last few <span class="math inline">(\mathbf{s}_k, \mathbf{y}_k)</span> pairs instead of the full <span class="math inline">d \times d</span> matrix (and accepts box constraints on the parameters). And practically: <strong><code>optim()</code> with BFGS is what you reach for</strong> when fitting a model by maximum likelihood in R (<code>minimize()</code> in Python): countless packages are, under the hood, exactly <code>optim(par, nll, gr, method = "BFGS")</code> wearing a nice interface.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Exercise 5.4: optim in the wild">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1651,11 +1651,11 @@ Exercise 5.4: optim in the wild
 </div>
 </div>
 <ol type="a">
-<li>Fit with <code>optim(c(0, 0, 0), nll_cars, nll_cars_grad, method = "BFGS")</code> and compare the NLL at the optimum with <code>glm(am ~ hp + wt, data = mtcars, family = binomial)</code> (compute <code>nll_cars(coef(...))</code>). Check <code>$convergence</code> — if it is not <code>0</code>, look up what that means in <code>?optim</code> and fix it via the <code>control</code> argument.</li>
+<li>Fit with <code>optim(c(0, 0, 0), nll_cars, nll_cars_grad, method = "BFGS")</code> and compare the NLL at the optimum with <code>glm(am ~ hp + wt, data = mtcars, family = binomial)</code> (compute <code>nll_cars(coef(...))</code>). Check <code>$convergence</code>: if it is not <code>0</code>, look up what that means in <code>?optim</code> and fix it via the <code>control</code> argument.</li>
 <li>Now try your own <code>grad_descent()</code> with <code>gamma = 1e-3</code>, then with <code>gamma = 1e-4</code> and <code>n = 20000</code>. Describe what happens in each case.</li>
 <li>Explain (b) in one or two sentences using <a href="#sec-week5-conditioning" class="quarto-xref"><span>Section 5.2.1</span></a>. Hint: look at the scales of the columns of <code>X_cars</code>. Which section of this chapter offers a fix that would let gradient descent compete?</li>
 </ol>
-<p><strong>Note for Python users:</strong> the fit in (a) is <code>sp.optimize.minimize(nll_cars, np.zeros(3), jac=nll_cars_grad, method="BFGS")</code>; the fields to check are <code>.success</code> and <code>.message</code>, and options such as iteration caps go in <code>options = {"maxiter": 500}</code>. With no <code>glm()</code> in Python, compare against a strict-tolerance refit (<code>options = {"gtol": 1e-10}</code>), as the reference row of the table above did.</p>
+<p><strong>Note for Python:</strong> the fit in (a) is <code>sp.optimize.minimize(nll_cars, np.zeros(3), jac=nll_cars_grad, method="BFGS")</code>; the fields to check are <code>.success</code> and <code>.message</code>, and options such as iteration caps go in <code>options = {"maxiter": 500}</code>. With no <code>glm()</code> in Python, compare against a strict-tolerance refit (<code>options = {"gtol": 1e-10}</code>), as the reference row of the table above did.</p>
 </div>
 </div>
 </section>
@@ -1663,7 +1663,7 @@ Exercise 5.4: optim in the wild
 <h2 data-number="5.8" class="anchored" data-anchor-id="sec-week5-outro"><span class="header-section-number">5.8</span> Where you will see all this again</h2>
 <p>This chapter is a gateway. The same handful of ideas reappears, barely disguised, all over statistics and machine learning:</p>
 <ul>
-<li><strong>Maximum likelihood, everywhere.</strong> Almost every model you will fit from now on is fitted by numerically minimising a negative log-likelihood. Sometimes the optimiser is visible (<code>optim()</code> or <code>minimize()</code> in a package’s source code), sometimes hidden (R’s <code>glm()</code> uses iteratively reweighted least squares — a Newton variant), but it is always there, and now you know what its knobs mean and what its failure modes look like. When a model “fails to converge”, you have seen the picture: a too-large step diverging, or an ill-conditioned likelihood crawling.</li>
+<li><strong>Maximum likelihood, everywhere.</strong> Almost every model you will fit from now on is fitted by numerically minimising a negative log-likelihood. Sometimes the optimiser is visible (<code>optim()</code> or <code>minimize()</code> in a package’s source code), sometimes hidden (R’s <code>glm()</code> uses iteratively reweighted least squares, a Newton variant), but it is always there, and now you know what its knobs mean and what its failure modes look like. When a model “fails to converge”, you have seen the picture: a too-large step diverging, or an ill-conditioned likelihood crawling.</li>
 <li><strong>Neural networks.</strong> Training a network is minimising an average loss over millions of observations and millions of parameters: mini-batch SGD with momentum is the core engine, and the popular Adam optimiser is momentum plus an adaptive <em>diagonal preconditioner</em> estimated on the fly. You have now implemented the essential parts of it in a few dozen lines of code.</li>
 <li><strong>Sampling algorithms.</strong> When you meet Markov chain Monte Carlo in weeks 8–10 of this module, you will find the same geometry problem in a new costume: a sampler exploring an elongated, ill-conditioned posterior zig-zags just like gradient descent did, and the fix is again preconditioning (there it goes by names like “mass matrix” or “proposal covariance”). The valley picture from this chapter is worth keeping.</li>
 </ul>

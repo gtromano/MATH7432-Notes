@@ -12,22 +12,22 @@ import matplotlib.pyplot as plt
 plt.rcParams["figure.figsize"] = (6, 4)
 ```
 
-Welcome to MATH7432! Over the next five weeks we will learn how to program — in R or in
-Python, your choice — and how to use it to build the computational tools that modern
-statistics runs on. By the end of the module you will have implemented, from scratch,
-algorithms that estimate statistical models — the same family of algorithms that trains
-neural networks. This week we start from zero: no programming background is assumed.
+Welcome to MATH7432! Over the next five weeks we will learn how to program, in both R and
+Python, and how to use them to build the computational tools that modern statistics runs
+on. By the end of the module you will have implemented, from scratch, algorithms that
+estimate statistical models: the same family of algorithms that trains neural networks.
+This week we start from zero: no programming background is assumed.
 
 Before the code, three definitions, compressed as much as academically acceptable.
 A **computer** is a device with a processor (which does arithmetic, very fast), memory (which
 holds the numbers the processor is currently working on) and storage (which holds files that
 survive a reboot). A **program** is a list of instructions for the processor. Processors only
-understand *machine code* — streams of 0s and 1s — which humans are famously bad at writing,
+understand *machine code* (streams of 0s and 1s), which humans are famously bad at writing,
 so we write programs in a **programming language**: a formal language that is readable by
-humans and translated for the machine. R and Python — the two languages of this module — are
+humans and translated for the machine. R and Python, the two languages of this module, are
 both *high-level*, *interpreted* languages: high-level means they read almost like
 mathematics, and interpreted means each line is translated and executed on the spot, so you
-can have a live conversation with your computer — type a command, get an answer, type the
+can have a live conversation with your computer: type a command, get an answer, type the
 next one. This makes them ideal for data analysis, where you rarely know step 10 before
 seeing the result of step 3.
 
@@ -38,26 +38,25 @@ method ever published.
 
 **Python** was created in 1991 by Guido van Rossum in the Netherlands, and is named after
 the comedy group Monty Python, not the snake. It is a free, open-source, general-purpose
-language with a philosophy of readability, and — through the libraries numpy and pandas,
-which we will lean on heavily — it has become the other lingua franca of scientific
-computing, and the language most machine learning is written in.
+language with a philosophy of readability. Through the libraries numpy and pandas, which
+we will lean on heavily, it has become the other lingua franca of scientific computing,
+and the language most machine learning is written in.
 
 A good statistician picks the right tool for the task, and today the tasks of statistics
-are done in these two. In this module you are expected to *learn one of them* — your pick,
-unless your programme has already picked for you. Every example in these notes appears in
-both languages, so whichever you choose, the notes double as a dictionary for reading the
-other.
+are done in these two: the modern statistician needs both in their toolset! So in this
+module you will learn *both of them*, side by side. Every example in these notes appears
+in both languages, translated line for line, and the translation is itself part of the
+course: hopping between the two until the crossing feels routine is exactly the skill we
+are after.
 
-If you have ever felt that working with data means being trapped in a spreadsheet, dragging
-formulas across cells until the heat death of the universe:
 
-![](images/chapter1/skyrim-finally-awake.jpg){width="450" fig-alt="Skyrim meme: 'Hey you, you're finally awake.'"}
-
-Throughout these notes you will meet chunks of code with their output printed underneath —
+Throughout these notes you will meet chunks of code with their output printed underneath:
 **side by side in the two languages, R always on the left, Python always on the right** (on
 a narrow screen the columns stack, and the bold label above each chunk tells you which is
-which). Follow the column of the language you are learning; glancing at the other one
-occasionally is how you become bilingual for free:
+which). Both columns are for you: read them as a pair, and let each language sharpen the
+other. For the exercises, work in whichever language you know less well, alternating between
+the two if you know neither, and always check the solutions for both (the preface has the
+full strategy). Here is the layout in action:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -102,8 +101,8 @@ see several panels:
 -   the **environment** panel: lists the objects you have created so far;
 -   a miscellaneous panel showing files, plots and help pages.
 
-**Note for Python users:** everything in this section applies to you too. RStudio speaks
-Python as well, and it is what we use in the labs for both languages: a Python script ends
+**Note for Python:** everything in this section applies on the Python side too. RStudio
+speaks Python as well, and it is what we use in the labs for both languages: a Python script ends
 in `.py` instead of `.R`, the Python console prompt is `>>>` rather than `>`, and on your
 own laptop you will want Python from [python.org](https://www.python.org) (the university
 machines have it already). Comments are `#` in Python too, so everything below about
@@ -149,10 +148,10 @@ We comment code generously in these notes, and you should do the same in yours.
 
 Every R function has a help page: `?seq` (or `help(seq)`) opens the documentation for `seq`.
 The *Description*, *Usage* and *Arguments* sections are the ones to read first, and the
-*Examples* at the bottom can be copy-pasted. Python's equivalent is `help()` — e.g.
-`help(len)`, or `help(np.arange)` once numpy is loaded — and the online documentation for
+*Examples* at the bottom can be copy-pasted. Python's equivalent is `help()` (e.g.
+`help(len)`, or `help(np.arange)` once numpy is loaded), and the online documentation for
 numpy and pandas is excellent. For anything the help pages cannot answer, the internet is
-full of people who had your exact error message before you — Stack Overflow in particular.
+full of people who had your exact error message before you: Stack Overflow in particular.
 Reading other people's answers is a core programming skill, not cheating.
 
 ## R as a glorified calculator
@@ -174,13 +173,13 @@ access to it. All the basic operations are here:
 
 : Basic mathematical operations in the two languages. `pi` is built into R; Python keeps it in the `math` library.
 
-**Note for Python users:** the `math.` prefix in the right-hand column means those functions
-live in the **math** *library*, which must be loaded — once, at the top of your script —
+**Note for Python:** the `math.` prefix in the right-hand column means those functions
+live in the **math** *library*, which must be loaded (once, at the top of your script)
 with `import math`. That includes the constant `math.pi`, since bare `pi` does not exist in
 Python. Loading libraries is everyday Python life; numpy and pandas arrive later this
 chapter in exactly the same way. And one trap deserves its own sentence: **the power
 operator in Python is `**`**, because `^` exists there too but means something entirely
-different (bitwise XOR) — `2^10` runs happily in Python and returns `8`. Ouch.
+different (bitwise XOR): `2^10` runs happily in Python and returns `8`. Ouch.
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -204,7 +203,7 @@ different (bitwise XOR) — `2^10` runs happily in Python and returns `8`. Ouch.
 </div>
 :::
 
-In the R output, the `[1]` tells you that `13` is the first element of the answer — for now
+In the R output, the `[1]` tells you that `13` is the first element of the answer: for now
 answers have only one element, but that changes very soon (Python just prints the bare
 number). Operations follow the usual algebraic precedence (powers, then multiplication and
 division, then addition and subtraction, left to right), and parentheses override it:
@@ -233,8 +232,8 @@ division, then addition and subtraction, left to right), and parentheses overrid
 </div>
 :::
 
-So any formula you can write on paper, you can type — for instance the one that circles
-your lecturer's mind at 4am like a haunted seagull:
+So any formula you can write on paper, you can type. Take, for instance, the one that
+circles your lecturer's mind at 4am like a haunted seagull:
 $$
 \frac{\sqrt{3/4}}{\frac{1}{3} - \frac{2}{\pi^2}}.
 $$
@@ -270,14 +269,14 @@ Use the console to evaluate:
 a.  $\dfrac{49^2 - 542}{42 + 63^2}$
 b.  $\sqrt{\pi^3} - \cos(2\pi)$
 c.  whether $2026$ is divisible by $7$, and whether it is divisible by $1013$
-    (the `%%` operator — `%` in Python — is your friend: what should the remainder be?);
+    (the `%%` operator, `%` in Python, is your friend: what should the remainder be?);
 d.  each person's share when a £147.68 dinner bill is split among 7 people.
 :::
 
 ## Variables and assignment
 
 A calculator with no memory forces you to re-type intermediate results. Our languages
-instead let you store any result in a **variable** — a labelled box in memory — using the
+instead let you store any result in a **variable** (a labelled box in memory) using the
 assignment operator: `<-` in R (read it as "gets"), the plain `=` in Python:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
@@ -306,11 +305,11 @@ x - y
 </div>
 :::
 
-**Note on `<-` vs `=`:** R also accepts `=` for assignment, and Python users will type it
-on reflex — but the R community's convention is `<-`, and we follow it in these notes.
-Python offers no choice: assignment is `=`, and `<-` is not assignment at all there — in
-Python `x <- 3` parses as "`x` less than `-3`", a comparison that quietly returns `True` or
-`False`. Beware when switching columns.
+**Note on `<-` vs `=`:** R also accepts `=` for assignment, and fingers fresh from the
+Python column will type it on reflex, but the R community's convention is `<-`, and we
+follow it in these notes. Python offers no choice: assignment is `=`, and `<-` is not
+assignment at all there. In Python `x <- 3` parses as "`x` less than `-3`", a comparison
+that quietly returns `True` or `False`. Beware when switching columns.
 
 Typing a variable's name prints its content, and the environment panel of RStudio lists
 everything you have created:
@@ -366,7 +365,7 @@ X
 </div>
 :::
 
-Second, assigning to an existing variable silently overwrites it — neither language asks
+Second, assigning to an existing variable silently overwrites it; neither language asks
 "are you sure?":
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
@@ -453,7 +452,7 @@ numerator / denominator
 :::
 
 Same result, but each piece now has a name, can be inspected separately, and can be reused.
-Name your variables like this — lowercase, words separated by `_`, meaning over brevity
+Name your variables like this: lowercase, words separated by `_`, meaning over brevity
 (a convention both language communities happen to agree on).
 
 ::: {.callout-tip title="Exercise 1.2: Compound interest, minimal effort"}
@@ -470,7 +469,7 @@ c.  A rival bank offers 5%. Change `rate`, re-run your lines, and report the new
 ### Types, briefly
 
 Not everything in a variable is a number. Both languages distinguish several **types** of
-value, and R's `class()` — Python's `type()` — tells you which one you are holding:
+value, and R's `class()` (Python's `type()`) tells you which one you are holding:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -498,23 +497,23 @@ type(True)          # bool: True or False
 </div>
 :::
 
-Numbers you know. **Character** values (strings) are text wrapped in quotes — without the
+Numbers you know. **Character** values (strings) are text wrapped in quotes: without the
 quotes, `statistics` would be the name of a variable. **Logical** values are the atoms of
 decision-making in a program; @sec-week2 is largely about them, so we park them here.
 
-**Note for Python users:** the type names differ — `float` for numeric, `str` for
-character, `bool` for logical — and so does the spelling of the logicals: R shouts `TRUE`
+**Note for Python:** the type names differ (`float` for numeric, `str` for
+character, `bool` for logical) and so does the spelling of the logicals: R shouts `TRUE`
 and `FALSE` in full capitals, Python writes `True` and `False` with a capital initial only.
 Each language rejects the other's spelling.
 
 ## Vectors {#sec-week1-vectors}
 
 Statistics is not done one number at a time: you have $n$ observations, and you want to act
-on all of them at once. R's fundamental data structure, the **vector**, is exactly that — an
+on all of them at once. R's fundamental data structure, the **vector**, is exactly that: an
 ordered collection of values of the same type. The workhorse for creating one is `c()`,
 short for *combine*.
 
-**Note for Python users:** plain Python has *lists* — `[1.62, 1.85]`, square brackets —
+**Note for Python:** plain Python has *lists* (`[1.62, 1.85]`, square brackets),
 but the object that matches R's vector, elementwise mathematics included, is the **array**
 from the **numpy** library, the foundation of all scientific Python. Load it once per
 script with `import numpy as np`; everything in it is then available as `np.something`, and
@@ -549,7 +548,7 @@ len(heights)   # how many elements?
 :::
 
 Vectors of text work the same way (`c("Ada", "Bea", "Cal")`), but one vector cannot mix
-types: if you try `c(1, "two")`, R silently converts everything to character — worth knowing
+types: if you try `c(1, "two")`, R silently converts everything to character, worth knowing
 before it surprises you. (numpy plays it exactly the same: `np.array([1, "two"])` comes
 back as two strings.)
 
@@ -591,12 +590,12 @@ np.repeat([1, 2], 3)                # repeat each element 3 times
 </div>
 :::
 
-**Note for Python users:** `np.arange(a, b)` stops *one step before* `b` — the end point is
+**Note for Python:** `np.arange(a, b)` stops *one step before* `b`: the end point is
 excluded, which is why the integers 1 to 10 take `np.arange(1, 11)`. This end-exclusion
 habit runs right through Python (it returns in slicing, below), so burn it in now.
 
 `seq()` is our first function with named arguments: `from`, `to`, `by`, `length.out`.
-Naming the arguments (rather than relying on their order) keeps calls readable — check
+Naming the arguments (rather than relying on their order) keeps calls readable; check
 `?seq` for the full story. Python has named (*keyword*) arguments too:
 `np.linspace(start = 0, stop = 1, num = 5)` reads just as well.
 
@@ -698,8 +697,8 @@ np.exp(np.array([0, 1, 2]))
 </div>
 :::
 
-This style — one expression acting on $n$ numbers at once — is called **vectorised** code.
-It is how R — and numpy, which exists for precisely this — wants to be written: compact,
+This style, one expression acting on $n$ numbers at once, is called **vectorised** code.
+It is how R (and numpy, which exists for precisely this) wants to be written: compact,
 close to the mathematical notation, and (as we will measure in @sec-week2) much faster than
 handling elements one at a time.
 
@@ -736,9 +735,9 @@ np.argmax(heights)   # the INDEX of the largest element -- counted from 0!
 </div>
 :::
 
-(numpy also offers these as *methods* attached to the array itself — `heights.mean()` — a
+(numpy also offers these as *methods* attached to the array itself, `heights.mean()`, a
 spelling you will meet everywhere in the wild; the function form keeps our columns aligned.
-And yes, `which.max` and `np.argmax` just disagreed by one about the same element — the
+And yes, `which.max` and `np.argmax` just disagreed by one about the same element: the
 next-but-one section explains why.)
 
 ### Recycling, and its footgun
@@ -771,13 +770,13 @@ np.arange(1, 7) * np.tile([1, -1], 3)    # alternating signs, repetition made ex
 </div>
 :::
 
-**Note for Python users — recycling vs broadcasting:** numpy does *not* recycle. Its rule,
+**Note for Python (recycling vs broadcasting):** numpy does *not* recycle. Its rule,
 called **broadcasting**, only stretches a scalar (or, once we reach matrices, a length-1
 axis) to fit; two vectors of lengths 6 and 2 simply refuse to combine, with an error, not a
 warning. That is why the Python column above repeats the short array explicitly with
-`np.tile`. You lose a convenience and dodge a footgun — many would call that a win.
+`np.tile`. You lose a convenience and dodge a footgun; many would call that a win.
 
-R only complains when the longer length is not a multiple of the shorter — and even then
+R only complains when the longer length is not a multiple of the shorter, and even then
 it is a *warning*, not an error, and you still get an answer. numpy, meanwhile, refuses
 outright and names the two shapes it could not reconcile:
 
@@ -805,9 +804,9 @@ np.arange(1, 7) + np.array([0, 10, 100, 1000])
 :::
 
 This is the footgun: if your two vectors were *supposed* to be the same length and are not
-— say a typo dropped an observation — R may silently recycle and hand you plausible-looking
+(say a typo dropped an observation), R may silently recycle and hand you plausible-looking
 garbage. When a warning like the one above appears, treat it as an error until proven
-innocent, and check your `length()`s. (**Note for Python users:** this footgun is R-only —
+innocent, and check your `length()`s. (**Note for Python:** this footgun is R-only;
 numpy's refusal to broadcast mismatched lengths turns the silent bug into an immediate,
 honest error.)
 
@@ -820,14 +819,14 @@ b.  `c(1, 2, 3) * c(1, -1)`
 c.  `1:8 / c(1, 2, 4, 8)`
 d.  `(1:3)^(1:6)`
 
-*Python users:* translate each expression into numpy (`np.arange`, `np.array`) and predict
-instead whether numpy *runs it or raises an error* — and, for those that refuse, reproduce
-R's answer with an explicit `np.tile`.
+On the Python side, translate each expression into numpy (`np.arange`, `np.array`) and
+predict instead whether numpy *runs it or raises an error*; for those that refuse,
+reproduce R's answer with an explicit `np.tile`.
 :::
 
 ### Indexing: getting elements out
 
-Every element of a vector has a position — and here the two languages part ways in the most
+Every element of a vector has a position, and here the two languages part ways in the most
 consequential fashion of the whole module: R counts positions from 1, like humans and
 mathematicians; Python counts from 0. Square brackets extract elements by position:
 
@@ -864,9 +863,9 @@ R counts positions **from 1**, Python **from 0**: the first element is `x[1]` in
 `x[0]` in Python, and the element in position $k$ of your maths is `x[k]` in R but
 `x[k - 1]` in Python.
 
-Negative indices are worse than different — they are *false friends*. In R, `x[-1]` means
+Negative indices are worse than different: they are *false friends*. In R, `x[-1]` means
 "everything **except** the first element". In Python, `x[-1]` means "count **from the
-end**": it *is* the last element (a beloved idiom — no `len(x) - 1` needed). The same
+end**": it *is* the last element (a beloved idiom, no `len(x) - 1` needed). The same
 characters, two entirely different results, and no error message to warn you. More
 translation bugs are born on this line than anywhere else: when in doubt, print and check.
 :::
@@ -900,9 +899,9 @@ x[[4, 0]]      # same elements, opposite order
 :::
 
 (There is the end-exclusion again: Python's slice `a:b` runs from index `a` up to, but not
-including, index `b` — just like `np.arange`.)
+including, index `b`, just like `np.arange`.)
 
-A **negative** index means "everything except" in R — and something else entirely in
+A **negative** index means "everything except" in R, and something else entirely in
 Python:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
@@ -962,7 +961,7 @@ x
 
 One teaser before we move on: in both languages, brackets also accept conditions, so
 `x[x > 50]` returns the elements larger than 50. How and why that works is the business of
-@sec-week2 — resist the urge for one more week.
+@sec-week2: resist the urge for one more week.
 
 :::: {.callout-tip title="Exercise 1.5: Marking spree"}
 Ten students sat a test, scoring (out of 100):
@@ -993,7 +992,7 @@ marks = np.array([63, 58, 71, 45, 82, 69, 77, 52, 88, 60])
 
 a.  Compute the mean mark and the range (maximum minus minimum).
 b.  Which student (i.e. which *position*) got the top mark? Extract their mark using that
-    position — in one command, without typing the position yourself.
+    position (in one command, without typing the position yourself).
 c.  Extract the marks of students 2, 5 and 9 in a single command.
 d.  Extract everyone *except* student 4, who has an exceptional-circumstances claim pending.
 e.  The lecturer, feeling generous, adds 3 marks to everyone. Compute the new vector and
@@ -1037,14 +1036,14 @@ plt.show()
 
 That is genuinely all it takes to graph a function. (One asymmetry: base R plots points
 unless you ask for a line with `type = "l"`; matplotlib's `plt.plot` draws a line unless
-you ask otherwise — `plt.scatter` is its point-plotter.) We will keep using quick
-one-liners like this as visual checks, and do plotting *properly* — labels, colours,
-themes, publication quality — in @sec-week4.
+you ask otherwise; `plt.scatter` is its point-plotter.) We will keep using quick
+one-liners like this as visual checks, and do plotting *properly* (labels, colours,
+themes, publication quality) in @sec-week4.
 
 ## Saving your work: csv files and the working directory
 
-Variables live in memory, and memory is wiped when your session closes. To keep results —
-or to share them with anyone who is not inside your session — you write them to a file on
+Variables live in memory, and memory is wiped when your session closes. To keep results,
+or to share them with anyone who is not inside your session, you write them to a file on
 disk. The standard exchange format for data is the **csv** (comma-separated values) file, a
 plain text table that every spreadsheet and statistics package can read:
 
@@ -1074,10 +1073,10 @@ pd.DataFrame(lancaster_rain).to_csv("week1_rain_py.csv", index=False)
 </div>
 :::
 
-**Note for Python users:** csv duty falls to **pandas**, Python's data-frame library
+**Note for Python:** csv duty falls to **pandas**, Python's data-frame library
 (imported as `pd` by near-universal convention). pandas thinks in tables, so the array is
 wrapped in a `DataFrame` on its way to disk, and `index=False` is the counterpart of R's
-`row.names = FALSE`. The Python column writes to `week1_rain_py.csv` — a different file
+`row.names = FALSE`. The Python column writes to `week1_rain_py.csv`: a different file
 name from the R column, so the two languages never overwrite each other's work.
 
 But *where* did that file go? Into your **working directory**: the folder on disk where
@@ -1140,8 +1139,8 @@ pd.DataFrame(lancaster_rain).to_csv("../week1_rain_py.csv")    # parent director
 
 Rather than hard-coding long paths like `"C:/Users/you/Desktop/stuff/..."` (which break the
 moment the script moves to another machine), the sane workflow is to keep your scripts and
-data in one folder and make that the working directory — in RStudio: *Session > Set Working
-Directory > To Source File Location*.
+data in one folder and make that the working directory (in RStudio: *Session > Set Working
+Directory > To Source File Location*).
 
 Reading the file back in is the mirror image:
 
@@ -1171,7 +1170,7 @@ rain_from_file
 
 The printout looks slightly different from a vector: it has a column name (`x` in R;
 pandas defaults to `0`) and numbered rows (from 0 in Python, naturally). That is because
-`read.csv()` — and equally pandas' `read_csv()` — returns a **data frame**: the
+`read.csv()` (and equally pandas' `read_csv()`) returns a **data frame**: the
 table-shaped cousin of the vector, and the single most important object in applied
 statistics. It gets the star treatment in @sec-week4; for now, csv out and csv in is all
 we need.
@@ -1179,10 +1178,10 @@ we need.
 ::: {.callout-tip title="Exercise 1.6: There and back again (a csv's tale)"}
 a.  Create a vector `temps` with the daily maximum temperatures
     $4.2, 6.8, 7.5, 3.1, 5.0, 8.4, 6.9$ (°C, a week in a Lancaster spring).
-b.  Write it to a file called `week1_temps.csv` (Python users: `week1_temps_py.csv`, so
+b.  Write it to a file called `week1_temps.csv` (Python: `week1_temps_py.csv`, so
     the two languages stay out of each other's way), without row names (pandas: without
     the index).
-c.  Find the file on disk and open it with a plain text editor (Notepad, TextEdit) —
+c.  Find the file on disk and open it with a plain text editor (Notepad, TextEdit),
     *not* Excel. Describe what you see: how are the values laid out?
 d.  Read the file back into a new variable and check the values survived the round trip.
 e.  What does the file look like if you forget `row.names = FALSE` (`index=False`) in
@@ -1191,8 +1190,8 @@ e.  What does the file look like if you forget `row.names = FALSE` (`index=False
 
 ## Matrices and a taste of linear algebra {#sec-week1-matrices}
 
-You know matrices from linear algebra; both our languages know them too, and — R being
-built by statisticians, numpy by numerical scientists — they are very good at them. A
+You know matrices from linear algebra; both our languages know them too, and (R being
+built by statisticians, numpy by numerical scientists) they are very good at them. A
 matrix in R is a vector wrapped onto rows and columns by `matrix()`; in numpy, a matrix is
 simply a 2-D array:
 
@@ -1248,10 +1247,10 @@ A
 </div>
 :::
 
-**Note for Python users:** numpy's own filling order is the opposite of R's — row by row
+**Note for Python:** numpy's own filling order is the opposite of R's: row by row
 ("C order"); the `order="F"` above ("Fortran order", the column-major convention R
 inherited) was only there to imitate R's default. The idiomatic numpy build is the second
-chunk's: hand `np.array` a list of rows and no reshaping is needed — the code looks like
+chunk's: hand `np.array` a list of rows and no reshaping is needed, so the code looks like
 the matrix.
 
 The dimensions are always rows first, columns second:
@@ -1283,8 +1282,8 @@ A.shape[1]   # columns
 :::
 
 You can also build matrices by gluing vectors together: `cbind()` (numpy:
-`np.column_stack`) binds them as columns, `rbind()` (`np.vstack`) as rows — remember the
-column one, it earns its keep in the challenge at the end of this chapter.
+`np.column_stack`) binds them as columns, `rbind()` (`np.vstack`) as rows. Remember the
+column one: it earns its keep in the challenge at the end of this chapter.
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -1343,7 +1342,7 @@ A[:, [0, 2]]  # columns 1 and 3
 </div>
 :::
 
-And `t()` — in numpy the `.T` attribute — transposes:
+And `t()` (in numpy the `.T` attribute) transposes:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -1369,8 +1368,8 @@ A.T
 
 ### Matrix arithmetic: `*` is not what you think
 
-Here is the classic trap — and it is the same trap in both languages. The ordinary
-arithmetic operators work on matrices exactly as they do on vectors — **elementwise**:
+Here is the classic trap, and it is the same trap in both languages. The ordinary
+arithmetic operators work on matrices exactly as they do on vectors, **elementwise**:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -1400,8 +1399,8 @@ B * C     # elementwise! NOT the matrix product
 </div>
 :::
 
-The actual matrix product — rows times columns, as in $\left(BC\right)_{ij} = \sum_k B_{ik}
-C_{kj}$ — has its own operator: `%*%` in R, `@` in Python:
+The actual matrix product (rows times columns, as in $\left(BC\right)_{ij} = \sum_k B_{ik}
+C_{kj}$) has its own operator: `%*%` in R, `@` in Python:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -1428,8 +1427,8 @@ B @ C
 The usual conformity rule applies: an $(n \times k)$ matrix can only `%*%` a
 $(k \times m)$ one. Writing `*` where you meant `%*%` (or `@`) is a rite of passage in
 either language; the resulting bug is nasty precisely because both versions run without
-error and return a matrix of the same size. Check a small case by hand when in doubt —
-which is, conveniently, the next exercise.
+error and return a matrix of the same size. Check a small case by hand when in doubt:
+that is, conveniently, the next exercise.
 
 ::: {.callout-tip title="Exercise 1.7: Matrix products, by hand and by machine"}
 Let
@@ -1476,12 +1475,12 @@ np.round(B @ B_inv, 10)    # B times its inverse: the identity (up to rounding)
 </div>
 :::
 
-**Note for Python users:** numpy files all of linear algebra under `np.linalg`, and names
+**Note for Python:** numpy files all of linear algebra under `np.linalg`, and names
 things honestly: `np.linalg.inv` inverts, `np.linalg.solve` (coming below) solves systems,
 `np.linalg.det` takes determinants. R's `solve()` carries the misleading-name burden alone.
 
 (The `round()` is there because floating-point arithmetic leaves microscopic dust like
-`2.2e-16` where exact zeros should be — more on that in @sec-week2.) The identity matrix
+`2.2e-16` where exact zeros should be; more on that in @sec-week2.) The identity matrix
 itself, should you need one, is `diag(2)` in R, `np.eye(2)` in Python.
 
 A matrix is invertible if and only if its determinant is non-zero, and `det()`
@@ -1514,7 +1513,7 @@ np.linalg.det(S)
 :::
 
 Asking for the inverse of a singular matrix fails loudly in both languages (an *error*,
-not a warning — priorities in the right place):
+not a warning: priorities in the right place):
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -1581,7 +1580,7 @@ np.linalg.solve(A, b)
 :::
 
 Mathematically this is $\mathbf{x} = A^{-1}\mathbf{b}$, and `solve(A) %*% b` (Python:
-`np.linalg.inv(A) @ b`) gives the same answer — but the two-argument `solve(A, b)` /
+`np.linalg.inv(A) @ b`) gives the same answer, but the two-argument `solve(A, b)` /
 `np.linalg.solve(A, b)` never forms the inverse explicitly, which is both faster and
 numerically more stable. Statistics is full of linear systems (you are about to meet the
 most famous one in Challenge 1.1), so this one-liner will follow you for the rest of your
@@ -1635,14 +1634,14 @@ evecs
 </div>
 :::
 
-**Note for Python users:** `np.linalg.eig` hands back a *pair* — eigenvalues, eigenvectors
-— rather than R's single object, and unlike R it makes no promise about their order (here
-it happens to match R's largest-first). For symmetric matrices — and covariance matrices
-always are — the specialised `np.linalg.eigh` is faster, more accurate, and sorts
+**Note for Python:** `np.linalg.eig` hands back a *pair* (eigenvalues, eigenvectors)
+rather than R's single object, and unlike R it makes no promise about their order (here
+it happens to match R's largest-first). For symmetric matrices, and covariance matrices
+always are, the specialised `np.linalg.eigh` is faster, more accurate, and sorts
 eigenvalues in *ascending* order, so the "top" eigenvalue comes last.
 
 The eigenvector with the largest eigenvalue points in the direction along which the data
-varies most, and the eigenvalues split the total variance across those directions — this
+varies most, and the eigenvalues split the total variance across those directions. This
 single idea is principal component analysis, the workhorse of dimension reduction.
 Eigenvalues will also quietly reappear in @sec-week5, where they govern how fast our
 optimisation algorithms converge. For now: `eigen()` (and `np.linalg.eig`) exists, and
@@ -1685,18 +1684,18 @@ $$
 $$
 where $X$ is the matrix whose first column is all 1s and whose second column is $x$.
 
-a.  Build $X$ with `cbind()` (a neat trick: `cbind(1, x)` recycles the 1). In Python —
-    no recycling there — build the column of ones explicitly:
+a.  Build $X$ with `cbind()` (a neat trick: `cbind(1, x)` recycles the 1). In Python,
+    where there is no recycling, build the column of ones explicitly:
     `np.column_stack([np.ones(len(x)), x])`.
 b.  Compute $\boldsymbol{\hat\beta}$ with `t()`, `%*%` and `solve()` (Python: `.T`, `@`
-    and `np.linalg.inv` — or better, `np.linalg.solve`).
+    and `np.linalg.inv`, or better, `np.linalg.solve`).
 c.  Plot the data with `plot(x, y)` and overlay your line with
     `abline(a = beta[1], b = beta[2])`. (matplotlib has no `abline`: use
     `plt.scatter(x, y)`, then draw the line yourself with
     `plt.plot(x, beta[0] + beta[1] * x)`.) Admire.
 
 You have just fitted your first regression, with your bare hands, using only week-1
-material. In @sec-week5 we will fit models like this by *optimisation* — and see exactly
+material. In @sec-week5 we will fit models like this by *optimisation*, and see exactly
 where this magic formula comes from.
 ::::
 
@@ -1727,11 +1726,11 @@ c.  What proportion of the total variance lies along the first eigenvector? In
 
 ## What you can do now
 
--   Use R or Python as a calculator, keep results in variables, and organise it all in
-    commented scripts.
+-   Use both R and Python as calculators, keep results in variables, and organise it all
+    in commented scripts.
 -   Build vectors with `c()`, `seq()` and `rep()` (numpy: `np.array`,
-    `np.arange`/`np.linspace`, `np.tile`/`np.repeat`), slice them by position — minding
-    who counts from 1 and who from 0 — and act on all elements at once with vectorised
+    `np.arange`/`np.linspace`, `np.tile`/`np.repeat`), slice them by position (minding
+    who counts from 1 and who from 0) and act on all elements at once with vectorised
     arithmetic; recycling (R) and broadcasting (numpy) warning bells installed.
 -   Round-trip your data to disk as csv files (`write.csv`/`read.csv`; pandas'
     `to_csv`/`read_csv`), and know where your session put them.
@@ -1740,5 +1739,5 @@ c.  What proportion of the total variance lies along the first eigenvector? In
     (`np.linalg.eig`).
 
 Next week, in @sec-week2, we teach the machine to make decisions: `TRUE` and `FALSE`
-(`True` and `False`) in earnest, `if` and `else`, loops — and with them our first proper
+(`True` and `False`) in earnest, `if` and `else`, loops, and with them our first proper
 algorithm, gradient descent, which will carry us all the way to @sec-week5.

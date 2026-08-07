@@ -262,15 +262,14 @@ window.Quarto = {
   </ul></li>
   <li><a href="#sec-week2-while" id="toc-sec-week2-while" class="nav-link" data-scroll-target="#sec-week2-while"><span class="header-section-number">2.6</span> <code>while</code>, <code>break</code> and <code>next</code></a></li>
   <li><a href="#sec-week2-vectorise" id="toc-sec-week2-vectorise" class="nav-link" data-scroll-target="#sec-week2-vectorise"><span class="header-section-number">2.7</span> When not to loop</a></li>
-  <li><a href="#sec-week2-recursion" id="toc-sec-week2-recursion" class="nav-link" data-scroll-target="#sec-week2-recursion"><span class="header-section-number">2.8</span> A brief look at recursion</a></li>
-  <li><a href="#sec-week2-gd" id="toc-sec-week2-gd" class="nav-link" data-scroll-target="#sec-week2-gd"><span class="header-section-number">2.9</span> A first taste of gradient descent</a>
+  <li><a href="#sec-week2-gd" id="toc-sec-week2-gd" class="nav-link" data-scroll-target="#sec-week2-gd"><span class="header-section-number">2.8</span> A first taste of gradient descent</a>
   <ul class="collapse">
-  <li><a href="#the-idea-follow-the-slope-downhill" id="toc-the-idea-follow-the-slope-downhill" class="nav-link" data-scroll-target="#the-idea-follow-the-slope-downhill"><span class="header-section-number">2.9.1</span> The idea: follow the slope downhill</a></li>
-  <li><a href="#the-algorithm-in-code" id="toc-the-algorithm-in-code" class="nav-link" data-scroll-target="#the-algorithm-in-code"><span class="header-section-number">2.9.2</span> The algorithm in code</a></li>
-  <li><a href="#the-step-size-is-a-dial-not-a-detail" id="toc-the-step-size-is-a-dial-not-a-detail" class="nav-link" data-scroll-target="#the-step-size-is-a-dial-not-a-detail"><span class="header-section-number">2.9.3</span> The step size is a dial, not a detail</a></li>
-  <li><a href="#beyond-the-quadratic" id="toc-beyond-the-quadratic" class="nav-link" data-scroll-target="#beyond-the-quadratic"><span class="header-section-number">2.9.4</span> Beyond the quadratic</a></li>
+  <li><a href="#the-idea-follow-the-slope-downhill" id="toc-the-idea-follow-the-slope-downhill" class="nav-link" data-scroll-target="#the-idea-follow-the-slope-downhill"><span class="header-section-number">2.8.1</span> The idea: follow the slope downhill</a></li>
+  <li><a href="#the-algorithm-in-code" id="toc-the-algorithm-in-code" class="nav-link" data-scroll-target="#the-algorithm-in-code"><span class="header-section-number">2.8.2</span> The algorithm in code</a></li>
+  <li><a href="#the-step-size-is-a-dial-not-a-detail" id="toc-the-step-size-is-a-dial-not-a-detail" class="nav-link" data-scroll-target="#the-step-size-is-a-dial-not-a-detail"><span class="header-section-number">2.8.3</span> The step size is a dial, not a detail</a></li>
+  <li><a href="#beyond-the-quadratic" id="toc-beyond-the-quadratic" class="nav-link" data-scroll-target="#beyond-the-quadratic"><span class="header-section-number">2.8.4</span> Beyond the quadratic</a></li>
   </ul></li>
-  <li><a href="#challenges" id="toc-challenges" class="nav-link" data-scroll-target="#challenges"><span class="header-section-number">2.10</span> Challenges</a></li>
+  <li><a href="#challenges" id="toc-challenges" class="nav-link" data-scroll-target="#challenges"><span class="header-section-number">2.9</span> Challenges</a></li>
   </ul>
 </nav>
     </div>
@@ -296,7 +295,7 @@ window.Quarto = {
 </header>
 
 
-<p>Last week (<a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>) we taught the computer arithmetic. This week we teach it to <em>make decisions</em> and to <em>repeat itself</em> — the two ingredients that turn a calculator into an algorithm. By the end of the chapter we will have built our first genuinely useful one: <strong>gradient descent</strong>, the workhorse optimiser behind most of modern statistics and machine learning (<a href="#sec-week2-gd" class="quarto-xref"><span>Section 2.9</span></a>). Everything else in this chapter is training for that final section.</p>
+<p>Last week (<a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>) we taught the computer arithmetic. This week we teach it to <em>make decisions</em> and to <em>repeat itself</em>: the two ingredients that turn a calculator into an algorithm. By the end of the chapter we will have built our first genuinely useful one: <strong>gradient descent</strong>, the workhorse optimiser behind most of modern statistics and machine learning (<a href="#sec-week2-gd" class="quarto-xref"><span>Section 2.8</span></a>). Everything else in this chapter is training for that final section.</p>
 <section id="sec-week2-comparisons" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="sec-week2-comparisons"><span class="header-section-number">2.1</span> Comparisons</h2>
 <p>A comparison takes two values and returns a <em>logical</em>: <code>TRUE</code> or <code>FALSE</code>. The operators are <code>==</code> (equal), <code>!=</code> (not equal), <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code> and <code>&gt;=</code>.</p>
@@ -355,8 +354,8 @@ window.Quarto = {
 </div>
 </div>
 <p>Note the double <code>=</code> in <code>==</code>: a single <code>=</code> is assignment, and mixing the two up is a rite of passage.</p>
-<p><strong>Note for Python users:</strong> R spells its logicals <code>TRUE</code> and <code>FALSE</code>; Python capitalises only the first letter, <code>True</code> and <code>False</code>. Same objects, different outfits — and each language rejects the other’s spelling.</p>
-<p>Like arithmetic, comparisons are <strong>vectorised</strong>: comparing a vector against a scalar (or another vector — R recycles, numpy broadcasts; <a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>) gives a whole vector of logicals.</p>
+<p><strong>Note for Python:</strong> R spells its logicals <code>TRUE</code> and <code>FALSE</code>; Python capitalises only the first letter, <code>True</code> and <code>False</code>. Same objects, different outfits, and each language rejects the other’s spelling.</p>
+<p>Like arithmetic, comparisons are <strong>vectorised</strong>: comparing a vector against a scalar (or another vector: R recycles, numpy broadcasts; <a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>) gives a whole vector of logicals.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -389,7 +388,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>One trap worth knowing now: comparing anything with <code>NA</code> (a missing value) gives <code>NA</code>, not <code>FALSE</code> — R refuses to claim it knows how a missing value compares. To test for missingness use <code>is.na()</code>.</p>
+<p>One trap worth knowing now: comparing anything with <code>NA</code> (a missing value) gives <code>NA</code>, not <code>FALSE</code>: R refuses to claim it knows how a missing value compares. To test for missingness use <code>is.na()</code>.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -418,7 +417,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p><strong>Note for Python users:</strong> Python has no true missing-value marker like R’s <code>NA</code>. The closest stand-in is the floating-point “not a number”, <code>np.nan</code> — but where R’s <code>NA</code> <em>propagates</em> through comparisons (<code>NA == NA</code> is <code>NA</code>), <code>nan</code> simply compares <code>False</code> to everything, including itself. Test for it with <code>np.isnan()</code>, never with <code>==</code>. (Proper missing-data handling arrives with pandas in <a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>.)</p>
+<p><strong>Note for Python:</strong> Python has no true missing-value marker like R’s <code>NA</code>. The closest stand-in is the floating-point “not a number”, <code>np.nan</code>. But where R’s <code>NA</code> <em>propagates</em> through comparisons (<code>NA == NA</code> is <code>NA</code>), <code>nan</code> simply compares <code>False</code> to everything, including itself. Test for it with <code>np.isnan()</code>, never with <code>==</code>. (Proper missing-data handling arrives with pandas in <a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>.)</p>
 <section id="the-floating-point-trap" class="level3" data-number="2.1.1">
 <h3 data-number="2.1.1" class="anchored" data-anchor-id="the-floating-point-trap"><span class="header-section-number">2.1.1</span> The floating-point trap</h3>
 <p>Here is the most famous line of code in numerical computing:</p>
@@ -442,7 +441,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>R is not broken — and Python agrees, which should tell you something. This section is entirely <em>language-shared</em>: both languages store decimals in the same IEEE 754 double-precision <em>binary floating point</em>, and just as <span class="math inline">1/3</span> has no finite decimal expansion, <span class="math inline">0.1</span> has no finite binary one. What gets stored is the nearest representable number, correct to about 16 significant digits, and the tiny rounding errors surface when you compare:</p>
+<p>R is not broken, and Python agrees, which should tell you something. This section is entirely <em>language-shared</em>: both languages store decimals in the same IEEE 754 double-precision <em>binary floating point</em>, and just as <span class="math inline">1/3</span> has no finite decimal expansion, <span class="math inline">0.1</span> has no finite binary one. What gets stored is the nearest representable number, correct to about 16 significant digits, and the tiny rounding errors surface when you compare:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -471,7 +470,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>The rule: <strong>never test floating-point numbers for exact equality</strong>. Ask instead whether they are equal <em>up to a small tolerance</em>, either by hand or with a ready-made helper — <code>all.equal()</code> in R, <code>math.isclose()</code> in Python (with <code>np.isclose()</code> / <code>np.allclose()</code> as the array versions):</p>
+<p>The rule: <strong>never test floating-point numbers for exact equality</strong>. Ask instead whether they are equal <em>up to a small tolerance</em>, either by hand or with a ready-made helper: <code>all.equal()</code> in R, <code>math.isclose()</code> in Python (with <code>np.isclose()</code> / <code>np.allclose()</code> as the array versions):</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -518,14 +517,14 @@ window.Quarto = {
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>math.isclose(<span class="dv">1</span>, <span class="fl">1.5</span>)   <span class="co"># a plain False — nothing to wrap</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>math.isclose(<span class="dv">1</span>, <span class="fl">1.5</span>)   <span class="co"># a plain False: nothing to wrap</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>False</code></pre>
 </div>
 </div>
 </div>
 </div>
-<p><strong>Note for Python users:</strong> the <code>isTRUE()</code> dance is an R quirk. <code>math.isclose()</code> returns a plain <code>True</code>/<code>False</code> you can test directly — the Python column above is only there to prove it.</p>
+<p><strong>Note for Python:</strong> the <code>isTRUE()</code> dance is an R quirk. <code>math.isclose()</code> returns a plain <code>True</code>/<code>False</code> you can test directly; the Python column above is only there to prove it.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Exercise 2.1: The pedantic computer">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -543,7 +542,7 @@ Exercise 2.1: The pedantic computer
 <li><code>sqrt(2)^2 == 2</code></li>
 <li><code>1e5 / (1e5 + 1e-16) == 1</code></li>
 </ol>
-<p>(Python users: item (c) is <code>math.sqrt(2)**2 == 2</code> — recall <code>**</code> is Python’s power operator; the other three run as written.)</p>
+<p>(Python: item (c) is <code>math.sqrt(2)**2 == 2</code>; recall <code>**</code> is Python’s power operator. The other three run as written.)</p>
 <p>Explain what you see, and rewrite the comparisons in (b) and (c) so that they return <code>TRUE</code> for the right reason.</p>
 </div>
 </div>
@@ -601,9 +600,9 @@ Exercise 2.1: The pedantic computer
 </div>
 </div>
 </div>
-<p><strong>Note for Python users:</strong> on single logicals the operators are <em>words</em> — <code>and</code>, <code>or</code>, <code>not</code> (and <code>^</code> doubles as xor on booleans). Python’s <code>&amp;</code> and <code>|</code> exist too, but as elementwise operators: they become important on numpy arrays in a moment.</p>
-<p>In R, comparisons bind tighter than logical operators, and <code>&amp;</code> binds tighter than <code>|</code>, so <code>x &gt; 2 &amp; x &lt; 5</code> means what you hope it means. <strong>Note for Python users:</strong> numpy’s <code>&amp;</code> and <code>|</code> bind <em>tighter</em> than comparisons, so that same line would be read as <code>x &gt; (2 &amp; x) &lt; 5</code> — parentheses around every comparison are mandatory: <code>(x &gt; 2) &amp; (x &lt; 5)</code>. When in doubt, in either language, parenthesise — future you will be grateful.</p>
-<p>All three operators are vectorised — R uses the same <code>&amp;</code>, <code>|</code>, <code>!</code> on vectors; numpy’s elementwise trio is <code>&amp;</code>, <code>|</code>, <code>~</code> — which lets us combine conditions elementwise:</p>
+<p><strong>Note for Python:</strong> on single logicals the operators are <em>words</em>: <code>and</code>, <code>or</code>, <code>not</code> (and <code>^</code> doubles as xor on booleans). Python’s <code>&amp;</code> and <code>|</code> exist too, but as elementwise operators: they become important on numpy arrays in a moment.</p>
+<p>In R, comparisons bind tighter than logical operators, and <code>&amp;</code> binds tighter than <code>|</code>, so <code>x &gt; 2 &amp; x &lt; 5</code> means what you hope it means. <strong>Note for Python:</strong> numpy’s <code>&amp;</code> and <code>|</code> bind <em>tighter</em> than comparisons, so that same line would be read as <code>x &gt; (2 &amp; x) &lt; 5</code>, so parentheses around every comparison are mandatory: <code>(x &gt; 2) &amp; (x &lt; 5)</code>. When in doubt, in either language, parenthesise; future you will be grateful.</p>
+<p>All three operators are vectorised (R uses the same <code>&amp;</code>, <code>|</code>, <code>!</code> on vectors; numpy’s elementwise trio is <code>&amp;</code>, <code>|</code>, <code>~</code>), which lets us combine conditions elementwise:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -657,8 +656,8 @@ Exercise 2.1: The pedantic computer
 </div>
 </div>
 </div>
-<p>They also <em>short-circuit</em>: <code>a &amp;&amp; b</code> never evaluates <code>b</code> if <code>a</code> is already <code>FALSE</code>. That makes them the right choice inside <code>if()</code> conditions (coming up shortly), where you want exactly one <code>TRUE</code>/<code>FALSE</code> and you may want the second check skipped when the first fails — e.g. <code>n &gt; 0 &amp;&amp; x[n] &gt; 5</code> never touches <code>x[n]</code> when <code>n</code> is 0. Rule of thumb: <code>&amp;</code>/<code>|</code> for vectors, <code>&amp;&amp;</code>/<code>||</code> for <code>if</code> conditions.</p>
-<p><strong>Note for Python users:</strong> there is no doubled-up operator to learn — and nothing missing, either. Python’s <code>and</code>/<code>or</code> <em>are</em> the single-value, short-circuiting pair (<code>n &gt; 0 and x[n - 1] &gt; 5</code> skips the second check exactly like R’s <code>&amp;&amp;</code>), while <code>&amp;</code>/<code>|</code> are the elementwise pair — and, as the error above shows, <code>and</code> on a numpy array refuses to guess. The rule of thumb translates directly: <code>&amp;</code>/<code>|</code> for arrays, <code>and</code>/<code>or</code> for <code>if</code> conditions.</p>
+<p>They also <em>short-circuit</em>: <code>a &amp;&amp; b</code> never evaluates <code>b</code> if <code>a</code> is already <code>FALSE</code>. That makes them the right choice inside <code>if()</code> conditions (coming up shortly), where you want exactly one <code>TRUE</code>/<code>FALSE</code> and you may want the second check skipped when the first fails, e.g. <code>n &gt; 0 &amp;&amp; x[n] &gt; 5</code> never touches <code>x[n]</code> when <code>n</code> is 0. Rule of thumb: <code>&amp;</code>/<code>|</code> for vectors, <code>&amp;&amp;</code>/<code>||</code> for <code>if</code> conditions.</p>
+<p><strong>Note for Python:</strong> there is no doubled-up operator to learn, and nothing missing, either. Python’s <code>and</code>/<code>or</code> <em>are</em> the single-value, short-circuiting pair (<code>n &gt; 0 and x[n - 1] &gt; 5</code> skips the second check exactly like R’s <code>&amp;&amp;</code>), while <code>&amp;</code>/<code>|</code> are the elementwise pair. As the error above shows, <code>and</code> on a numpy array refuses to guess. The rule of thumb translates directly: <code>&amp;</code>/<code>|</code> for arrays, <code>and</code>/<code>or</code> for <code>if</code> conditions.</p>
 </section>
 <section id="any-all-and-in" class="level3" data-number="2.2.2">
 <h3 data-number="2.2.2" class="anchored" data-anchor-id="any-all-and-in"><span class="header-section-number">2.2.2</span> <code>any()</code>, <code>all()</code> and <code>%in%</code></h3>
@@ -732,7 +731,7 @@ Exercise 2.2: Leap year logic
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>A year is a leap year if it is divisible by 4, <em>except</em> that century years (divisible by 100) are not — <em>unless</em> they are also divisible by 400. So 2024 and 2000 are leap years; 2023 and 1900 are not.</p>
+<p>A year is a leap year if it is divisible by 4, <em>except</em> that century years (divisible by 100) are not, <em>unless</em> they are also divisible by 400. So 2024 and 2000 are leap years; 2023 and 1900 are not.</p>
 <p>Store a year in a variable and write a <strong>single logical expression</strong> (no <code>if</code> needed) that is <code>TRUE</code> exactly when it is a leap year. The modulo operator <code>%%</code> (<code>%</code> in Python) gives remainders: <code>2024 %% 4 == 0</code>. Check your expression on 2024, 2023, 2000 and 1900.</p>
 </div>
 </div>
@@ -740,7 +739,7 @@ Exercise 2.2: Leap year logic
 </section>
 <section id="sec-week2-logical-indexing" class="level2" data-number="2.3">
 <h2 data-number="2.3" class="anchored" data-anchor-id="sec-week2-logical-indexing"><span class="header-section-number">2.3</span> Logical indexing</h2>
-<p>Last week we indexed vectors by <em>position</em>: <code>x[3]</code>, <code>x[c(1, 5)]</code>. The second — and in statistics, far more useful — way is to index with a <strong>logical vector</strong>: R keeps the elements where the index is <code>TRUE</code>, and numpy indexing behaves the same way.</p>
+<p>Last week we indexed vectors by <em>position</em>: <code>x[3]</code>, <code>x[c(1, 5)]</code>. The second (and in statistics, far more useful) way is to index with a <strong>logical vector</strong>: R keeps the elements where the index is <code>TRUE</code>, and numpy indexing behaves the same way.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -837,8 +836,8 @@ Exercise 2.2: Leap year logic
 </div>
 </div>
 </div>
-<p><strong>Note for Python users:</strong> <code>which()</code>’s companion <code>np.where(condition)</code> returns a <em>tuple</em> of index arrays (one per dimension) — the <code>[0]</code> extracts the one we want — and of course the positions are 0-based where R’s are 1-based.</p>
-<p>That last trick — <code>mean()</code> of a logical vector is a proportion — is one of the most-used idioms in statistical computing. Here it is verifying the “68–95” rule for the normal distribution on simulated data (we set the seed so the “random” numbers are reproducible):</p>
+<p><strong>Note for Python:</strong> <code>which()</code>’s companion <code>np.where(condition)</code> returns a <em>tuple</em> of index arrays (one per dimension); the <code>[0]</code> extracts the one we want. And of course the positions are 0-based where R’s are 1-based.</p>
+<p>That last trick (the <code>mean()</code> of a logical vector is a proportion) is one of the most-used idioms in statistical computing. Here it is verifying the “68–95” rule for the normal distribution on simulated data (we set the seed so the “random” numbers are reproducible):</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -871,7 +870,7 @@ Exercise 2.2: Leap year logic
 </div>
 </div>
 </div>
-<p><strong>A note on seeds in two languages.</strong> <code>set.seed(7432)</code> and <code>rng = np.random.default_rng(7432)</code> each make their own language reproducible, but R and numpy use <em>different</em> generators: the two columns above print different numbers, and always will. Never expect the R and Python streams to match — expect each to match <em>itself</em> on every re-run, and both to agree with the theory.</p>
+<p><strong>A note on seeds in two languages.</strong> <code>set.seed(7432)</code> and <code>rng = np.random.default_rng(7432)</code> each make their own language reproducible, but R and numpy use <em>different</em> generators: the two columns above print different numbers, and always will. Never expect the R and Python streams to match: expect each to match <em>itself</em> on every re-run, and both to agree with the theory.</p>
 <p>Logical indexing also works on the left of an assignment, replacing just the selected elements:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -907,7 +906,7 @@ Exercise 2.3: A century of leap years
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Take your leap-year expression from Exercise 2.2 and apply it to the vector <code>years &lt;- 1900:2025</code> (it is vectorised for free — that’s the beauty of it). (Python: <code>years = np.arange(1900, 2026)</code>, and remember the parentheses around each comparison.)</p>
+<p>Take your leap-year expression from Exercise 2.2 and apply it to the vector <code>years &lt;- 1900:2025</code> (it is vectorised for free; that’s the beauty of it). (Python: <code>years = np.arange(1900, 2026)</code>, and remember the parentheses around each comparison.)</p>
 <ol type="a">
 <li>Extract the leap years with logical indexing.</li>
 <li>How many are there? What proportion of all years is that?</li>
@@ -944,7 +943,7 @@ Exercise 2.3: A century of leap years
 </div>
 </div>
 </div>
-<p>In R the condition goes in <code>( )</code> and the code to run goes in <code>{ }</code>; in Python there are no parentheses or braces — a colon <code>:</code> ends the condition, and the body is delimited by <em>indentation</em> (consistent, four spaces by convention), which in Python is syntax, not cosmetics. In both languages the condition must evaluate to a <strong>single</strong> <code>TRUE</code> or <code>FALSE</code>. Add alternatives with <code>else if</code> (<code>elif</code> in Python) and a catch-all <code>else</code> — the <em>first</em> branch whose condition is <code>TRUE</code> runs, and the rest are skipped:</p>
+<p>In R the condition goes in <code>( )</code> and the code to run goes in <code>{ }</code>; in Python there are no parentheses or braces: a colon <code>:</code> ends the condition, and the body is delimited by <em>indentation</em> (consistent, four spaces by convention), which in Python is syntax, not cosmetics. In both languages the condition must evaluate to a <strong>single</strong> <code>TRUE</code> or <code>FALSE</code>. Add alternatives with <code>else if</code> (<code>elif</code> in Python) and a catch-all <code>else</code>: the <em>first</em> branch whose condition is <code>TRUE</code> runs, and the rest are skipped:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -978,7 +977,7 @@ Exercise 2.3: A century of leap years
 </div>
 </div>
 </div>
-<p>A classic example is <em>FizzBuzz</em>, once allegedly a job-interview filter: print “Fizz” if a number is divisible by 3, “Buzz” if by 5, “FizzBuzz” if by both, and the number otherwise. Order matters — the both-case must come first, or it can never be reached:</p>
+<p>A classic example is <em>FizzBuzz</em>, once allegedly a job-interview filter: print “Fizz” if a number is divisible by 3, “Buzz” if by 5, “FizzBuzz” if by both, and the number otherwise. Order matters: the both-case must come first, or it can never be reached:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1042,7 +1041,7 @@ Exercise 2.3: A century of leap years
 <p>Both languages refuse, each in its own words: R demands a condition of length one; numpy declares the truth value of an array <em>ambiguous</em> and points you to <code>.any()</code> / <code>.all()</code>.</p>
 <section id="vectorised-choice-ifelse" class="level3" data-number="2.4.1">
 <h3 data-number="2.4.1" class="anchored" data-anchor-id="vectorised-choice-ifelse"><span class="header-section-number">2.4.1</span> Vectorised choice: <code>ifelse()</code></h3>
-<p>When you want an elementwise either/or across a whole vector, use <code>ifelse()</code> in R — it takes a logical vector and picks from two alternatives, per element, in one line. Python has no vectorised <code>ifelse()</code> of its own; <code>np.where(condition, yes, no)</code> is the numpy idiom that fills the role:</p>
+<p>When you want an elementwise either/or across a whole vector, use <code>ifelse()</code> in R: it takes a logical vector and picks from two alternatives, per element, in one line. Python has no vectorised <code>ifelse()</code> of its own; <code>np.where(condition, yes, no)</code> is the numpy idiom that fills the role:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1117,7 +1116,7 @@ Exercise 2.4: The p-value verdict machine
 </div>
 </div>
 </div>
-<p>The loop variable <code>i</code> takes each value in turn, and the block runs once per value. <strong>Note for Python users:</strong> <code>range(1, 6)</code> produces 1, 2, 3, 4, 5 — the stop value is <em>excluded</em>, the mirror image of R’s inclusive <code>1:5</code>. Forgetting this off-by-one is the classic porting bug in both directions. You can loop over any vector — in Python, over any <em>iterable</em>: lists, arrays, strings, <code>range</code>s — not just integers:</p>
+<p>The loop variable <code>i</code> takes each value in turn, and the block runs once per value. <strong>Note for Python:</strong> <code>range(1, 6)</code> produces 1, 2, 3, 4, 5; the stop value is <em>excluded</em>, the mirror image of R’s inclusive <code>1:5</code>. Forgetting this off-by-one is the classic porting bug in both directions. You can loop over any vector, not just integers (in Python, over any <em>iterable</em>: lists, arrays, strings, <code>range</code>s):</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1145,8 +1144,8 @@ Wed</code></pre>
 </div>
 </div>
 </div>
-<p>When you need positions rather than values, prefer <code>seq_along(x)</code> to <code>1:length(x)</code>. They agree on non-empty vectors, but on an empty vector <code>1:length(x)</code> is <code>1:0</code> — the sequence <code>c(1, 0)</code> — so the loop runs twice on nothing at all, usually with baffling errors. <code>seq_along</code> produces an empty sequence and the loop correctly runs zero times.</p>
-<p><strong>Note for Python users:</strong> the positions idiom is <code>range(len(x))</code> — the direct companion of <code>seq_along(x)</code>, just 0-based — and it has no empty-vector trap: <code>range(0)</code> is empty, so the loop correctly runs zero times. Since the positions start at 0, anything arithmetic done with them (like the divide-by-position below) needs an <code>i + 1</code>.</p>
+<p>When you need positions rather than values, prefer <code>seq_along(x)</code> to <code>1:length(x)</code>. They agree on non-empty vectors, but on an empty vector <code>1:length(x)</code> is <code>1:0</code> (the sequence <code>c(1, 0)</code>), so the loop runs twice on nothing at all, usually with baffling errors. <code>seq_along</code> produces an empty sequence and the loop correctly runs zero times.</p>
+<p><strong>Note for Python:</strong> the positions idiom is <code>range(len(x))</code>, the direct companion of <code>seq_along(x)</code>, just 0-based, and it has no empty-vector trap: <code>range(0)</code> is empty, so the loop correctly runs zero times. Since the positions start at 0, anything arithmetic done with them (like the divide-by-position below) needs an <code>i + 1</code>.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1167,7 +1166,7 @@ Wed</code></pre>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb177"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb177-1"><a href="#cb177-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.array([<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>])</span>
 <span id="cb177-2"><a href="#cb177-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(x)):</span>
-<span id="cb177-3"><a href="#cb177-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(x[i] <span class="op">/</span> (i <span class="op">+</span> <span class="dv">1</span>))   <span class="co"># i runs 0, 1, 2 — hence the + 1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb177-3"><a href="#cb177-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(x[i] <span class="op">/</span> (i <span class="op">+</span> <span class="dv">1</span>))   <span class="co"># i runs 0, 1, 2, hence the + 1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>10.0
 10.0
@@ -1198,7 +1197,7 @@ Exercise 2.5: FizzBuzz, at last, in bulk
 <p><span class="math display">
 r_i = r_{i-1} + r_{i-2}, \qquad r_1 = r_2 = 1,
 </span></p>
-<p>where each element is the sum of the previous two — no way to compute element 20 without computing 19 and 18 first. With a loop it is immediate: we create a vector, then fill it in order, using earlier entries to build later ones.</p>
+<p>where each element is the sum of the previous two: no way to compute element 20 without computing 19 and 18 first. With a loop it is immediate: we create a vector, then fill it in order, using earlier entries to build later ones.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1236,7 +1235,7 @@ r_i = r_{i-1} + r_{i-2}, \qquad r_1 = r_2 = 1,
 </div>
 </div>
 </div>
-<p>If a loop confuses you, the universal debugging move is to put <code>print()</code> statements inside it — print <code>i</code>, print <code>fib[i]</code> — and watch the state evolve iteration by iteration.</p>
+<p>If a loop confuses you, the universal debugging move is to put <code>print()</code> statements inside it (print <code>i</code>, print <code>fib[i]</code>) and watch the state evolve iteration by iteration.</p>
 </section>
 <section id="grow-or-preallocate" class="level3" data-number="2.5.2">
 <h3 data-number="2.5.2" class="anchored" data-anchor-id="grow-or-preallocate"><span class="header-section-number">2.5.2</span> Grow or preallocate?</h3>
@@ -1260,7 +1259,7 @@ r_i = r_{i-1} + r_{i-2}, \qquad r_1 = r_2 = 1,
 </div>
 </div>
 </div>
-<p>This works, but every <code>c()</code> call — and every <code>np.append()</code> call — builds a brand-new copy of the whole vector, so filling <span class="math inline">n</span> slots costs on the order of <span class="math inline">n^2</span> copying. Let’s measure the difference: in R with the <code>microbenchmark</code> package, in Python with the standard-library <code>timeit</code> module. Both run each expression several times, so we judge by the distribution of timings rather than one noisy measurement:</p>
+<p>This works, but every <code>c()</code> call (and every <code>np.append()</code> call) builds a brand-new copy of the whole vector, so filling <span class="math inline">n</span> slots costs on the order of <span class="math inline">n^2</span> copying. Let’s measure the difference: in R with the <code>microbenchmark</code> package, in Python with the standard-library <code>timeit</code> module. Both run each expression several times, so we judge by the distribution of timings rather than one noisy measurement:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1279,13 +1278,13 @@ r_i = r_{i-1} + r_{i-2}, \qquad r_1 = r_2 = 1,
 <span id="cb185-12"><a href="#cb185-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">times =</span> <span class="dv">10</span></span>
 <span id="cb185-13"><a href="#cb185-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Unit: microseconds
-        expr       min        lq      mean    median        uq        max neval
-        grow 51307.997 56382.430 62495.473 57085.674 58111.006 120512.532    10
- preallocate   900.176  1049.627  1210.967  1138.529  1245.695   1799.624    10
- cld
-  a 
-   b</code></pre>
+<pre><code>Unit: milliseconds
+        expr       min        lq       mean     median         uq        max
+        grow 83.971549 102.55862 127.095381 118.132532 139.443942 214.945579
+ preallocate  1.240073   1.47723   1.951008   1.680174   2.307619   3.573065
+ neval cld
+    10  a 
+    10   b</code></pre>
 </div>
 </div>
 </div>
@@ -1308,23 +1307,23 @@ r_i = r_{i-1} + r_{i-2}, \qquad r_1 = r_2 = 1,
 <span id="cb187-14"><a href="#cb187-14" aria-hidden="true" tabindex="-1"></a><span class="co"># best of 10 runs of each, in milliseconds</span></span>
 <span id="cb187-15"><a href="#cb187-15" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(grow, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>16.815196999232285</code></pre>
+<pre><code>19.861154999489372</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb189"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb189-1"><a href="#cb189-1" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(preallocate, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.682104000588879</code></pre>
+<pre><code>0.8125079993988038</code></pre>
 </div>
 </div>
 </div>
 </div>
-<p><strong>Note for Python users:</strong> <code>timeit</code> wants a <em>function</em> to call, hence the two <code>def</code>s — a full treatment of writing functions is <a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a>’s business; for now, <code>def name(): ...</code> simply packages the block. <code>timeit.repeat(f, number=1, repeat=10)</code> returns ten timings in seconds; the minimum is the honest estimate, and we scale it to milliseconds.</p>
-<p>Same result, dozens of times apart — roughly fifty-fold in the R run, twenty-odd-fold in the Python one, and the magnitudes, not the exact numbers, are the message. Since the copying cost is quadratic, the gap widens as <code>n</code> grows. The habit to build, in either language: <strong>decide the size first, allocate, then fill.</strong></p>
-<p><strong>Note for Python users:</strong> the quadratic sin here belongs to <em>numpy arrays</em>. Plain Python lists over-allocate as they grow, so <code>my_list.append(...)</code> is genuinely cheap, and building a list then converting with <code>np.array(my_list)</code> is idiomatic Python. For numerical work, preallocating the numpy array as above remains the habit to build.</p>
+<p><strong>Note for Python:</strong> <code>timeit</code> wants a <em>function</em> to call, hence the two <code>def</code>s. A full treatment of writing functions is <a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a>’s business; for now, <code>def name(): ...</code> simply packages the block. <code>timeit.repeat(f, number=1, repeat=10)</code> returns ten timings in seconds; the minimum is the honest estimate, and we scale it to milliseconds.</p>
+<p>Same result, dozens of times apart: roughly fifty-fold in the R run, twenty-odd-fold in the Python one, and the magnitudes, not the exact numbers, are the message. Since the copying cost is quadratic, the gap widens as <code>n</code> grows. The habit to build, in either language: <strong>decide the size first, allocate, then fill.</strong></p>
+<p><strong>Note for Python:</strong> the quadratic sin here belongs to <em>numpy arrays</em>. Plain Python lists over-allocate as they grow, so <code>my_list.append(...)</code> is genuinely cheap, and building a list then converting with <code>np.array(my_list)</code> is idiomatic Python. For numerical work, preallocating the numpy array as above remains the habit to build.</p>
 </section>
 </section>
 <section id="sec-week2-while" class="level2" data-number="2.6">
 <h2 data-number="2.6" class="anchored" data-anchor-id="sec-week2-while"><span class="header-section-number">2.6</span> <code>while</code>, <code>break</code> and <code>next</code></h2>
-<p>A <code>for</code> loop needs to know in advance how many times to run. A <code>while</code> loop keeps going <em>as long as a condition holds</em> — ideal when the number of iterations is itself the unknown.</p>
+<p>A <code>for</code> loop needs to know in advance how many times to run. A <code>while</code> loop keeps going <em>as long as a condition holds</em>, ideal when the number of iterations is itself the unknown.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1360,8 +1359,8 @@ r_i = r_{i-1} + r_{i-2}, \qquad r_1 = r_2 = 1,
 </div>
 </div>
 </div>
-<p>The line <code>i &lt;- i + 1</code> is load-bearing: forget to update the state and the condition never becomes <code>FALSE</code>, so the loop runs forever. (If that happens, the Stop button or <code>Esc</code> in RStudio — <code>Ctrl</code>+<code>C</code> at a console — is your friend. We’ve all been there.)</p>
-<p>A more statistical example: how many draws from a standard normal until we see one above 2? The answer is random, so a <code>for</code> loop can’t know its own length — a <code>while</code> loop is the natural fit.</p>
+<p>The line <code>i &lt;- i + 1</code> is load-bearing: forget to update the state and the condition never becomes <code>FALSE</code>, so the loop runs forever. (If that happens, the Stop button or <code>Esc</code> in RStudio, or <code>Ctrl</code>+<code>C</code> at a console, is your friend. We’ve all been there.)</p>
+<p>A more statistical example: how many draws from a standard normal until we see one above 2? The answer is random, so a <code>for</code> loop can’t know its own length; a <code>while</code> loop is the natural fit.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1395,7 +1394,7 @@ r_i = r_{i-1} + r_{i-2}, \qquad r_1 = r_2 = 1,
 </div>
 </div>
 </div>
-<p>(Theory check: <span class="math inline">P(Z &gt; 2) \approx 0.023</span>, so on average we expect about <span class="math inline">1/0.023 \approx 44</span> attempts. The two columns disagree — 61 draws in the R run, 31 in the Python run — because the two seeded streams differ; both counts are perfectly ordinary draws from the same geometric distribution with mean about 44.)</p>
+<p>(Theory check: <span class="math inline">P(Z &gt; 2) \approx 0.023</span>, so on average we expect about <span class="math inline">1/0.023 \approx 44</span> attempts. The two columns disagree (61 draws in the R run, 31 in the Python run) because the two seeded streams differ; both counts are perfectly ordinary draws from the same geometric distribution with mean about 44.)</p>
 <p>Two keywords fine-tune any loop: <code>next</code> (<code>continue</code> in Python) skips the rest of the current iteration, and <code>break</code> (the same word in both languages) exits the loop immediately.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -1436,7 +1435,7 @@ r_i = r_{i-1} + r_{i-2}, \qquad r_1 = r_2 = 1,
 </div>
 </div>
 </div>
-<p>Use them sparingly — a loop that jumps around is harder to reason about, and often a clearer <code>while</code> condition can express the same logic.</p>
+<p>Use them sparingly: a loop that jumps around is harder to reason about, and often a clearer <code>while</code> condition can express the same logic.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Exercise 2.6: Double your money">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1451,14 +1450,14 @@ Exercise 2.6: Double your money
 <ol type="a">
 <li>Use a <code>while</code> loop to find how many whole years it takes for the balance to at least double.</li>
 <li>Sanity-check your answer against the closed form <span class="math inline">\log(2)/\log(1.05)</span>.</li>
-<li>Now suppose you also add £500 at the end of each year. How many years to reach £10,000? (No closed form now — this is exactly the kind of question loops are for.)</li>
+<li>Now suppose you also add £500 at the end of each year. How many years to reach £10,000? (No closed form now; this is exactly the kind of question loops are for.)</li>
 </ol>
 </div>
 </div>
 </section>
 <section id="sec-week2-vectorise" class="level2" data-number="2.7">
 <h2 data-number="2.7" class="anchored" data-anchor-id="sec-week2-vectorise"><span class="header-section-number">2.7</span> When not to loop</h2>
-<p>Time for a confession: much of what beginners write loops for, R and numpy already do better with the vectorised operations of <a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>. Squaring a million numbers needs no loop — <code>x^2</code> (<code>x**2</code>) <em>is</em> the loop, executed in fast compiled code rather than element-by-element in the interpreter:</p>
+<p>Time for a confession: much of what beginners write loops for, R and numpy already do better with the vectorised operations of <a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>. Squaring a million numbers needs no loop: <code>x^2</code> (<code>x**2</code>) <em>is</em> the loop, executed in fast compiled code rather than element-by-element in the interpreter:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1474,9 +1473,12 @@ Exercise 2.6: Double your money
 <span id="cb203-9"><a href="#cb203-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Unit: microseconds
-       expr       min        lq      mean   median        uq      max neval cld
-       loop 29133.334 29643.022 30381.530 30332.13 31138.768 32005.21    10  a 
- vectorised   753.443   890.282  8583.701  2531.63  2950.315 66399.32    10   b</code></pre>
+       expr       min        lq      mean    median        uq      max neval
+       loop 33943.655 35233.062 35681.541 35752.284 36435.224 36693.34    10
+ vectorised   873.308  1012.366  8949.573  2833.304  3250.969 67707.34    10
+ cld
+  a 
+   b</code></pre>
 </div>
 </div>
 </div>
@@ -1496,17 +1498,17 @@ Exercise 2.6: Double your money
 <span id="cb205-11"><a href="#cb205-11" aria-hidden="true" tabindex="-1"></a><span class="co"># best of 10 runs of each, in milliseconds</span></span>
 <span id="cb205-12"><a href="#cb205-12" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(loop, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>153.16676899965387</code></pre>
+<pre><code>173.97907699978532</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb207"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb207-1"><a href="#cb207-1" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(vectorised, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.23698899894952774</code></pre>
+<pre><code>0.31753800067235716</code></pre>
 </div>
 </div>
 </div>
 </div>
-<p>The vectorised version is tens of times faster in the R run — and <em>hundreds</em> of times in the Python one, where every trip around an interpreted loop (plus the numpy machinery invoked on each single element) costs more. And that is against a <em>well-written</em>, preallocated loop; against a sloppy one the gap stretches further still, as Exercise 2.7 will show. The same holds for <code>sum(x)</code> versus an accumulator loop, <code>sqrt(x)</code>, logical indexing versus a loop of <code>if</code>s, and so on.</p>
-<p>So, when do we actually loop? Ask one question: <strong>does element <span class="math inline">i</span> of my output depend on element <span class="math inline">i-1</span>?</strong> If no — the computations are independent — think vectors first. If yes — there is state, as in Fibonacci, compound interest, or the simulation of any process that evolves over time — a loop is the honest tool, and with preallocation it will be perfectly fast.</p>
+<p>The vectorised version is tens of times faster in the R run, and <em>hundreds</em> of times in the Python one, where every trip around an interpreted loop (plus the numpy machinery invoked on each single element) costs more. And that is against a <em>well-written</em>, preallocated loop; against a sloppy one the gap stretches further still, as Exercise 2.7 will show. The same holds for <code>sum(x)</code> versus an accumulator loop, <code>sqrt(x)</code>, logical indexing versus a loop of <code>if</code>s, and so on.</p>
+<p>So, when do we actually loop? Ask one question: <strong>does element <span class="math inline">i</span> of my output depend on element <span class="math inline">i-1</span>?</strong> If no (the computations are independent), think vectors first. If yes (there is state, as in Fibonacci, compound interest, or the simulation of any process that evolves over time), a loop is the honest tool, and with preallocation it will be perfectly fast.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Exercise 2.7: Vectorise this">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1550,150 +1552,63 @@ Exercise 2.7: Vectorise this
 </div>
 </div>
 </section>
-<section id="sec-week2-recursion" class="level2" data-number="2.8">
-<h2 data-number="2.8" class="anchored" data-anchor-id="sec-week2-recursion"><span class="header-section-number">2.8</span> A brief look at recursion</h2>
-<p>Loops are not the only way to repeat. A <strong>recursive</strong> definition solves a problem in terms of smaller instances of itself, plus a <em>base case</em> to stop the descent — exactly how we wrote Fibonacci mathematically: <span class="math inline">r_i = r_{i-1} + r_{i-2}</span>, with <span class="math inline">r_1 = r_2 = 1</span> as the base.</p>
-<p>Writing this in code needs a one-week sneak preview of <a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a>: R’s <code>\(n) ...</code> and Python’s <code>lambda n: ...</code> each create a <em>function</em> — a reusable piece of code with input <code>n</code> — which we can assign to a name and then call. Details next week; for now, take the syntax on trust — you only need to copy the pattern.</p>
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
-<div>
-<p><strong>R</strong></p>
-<div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb211"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb211-1"><a href="#cb211-1" aria-hidden="true" tabindex="-1"></a>fib_rec <span class="ot">&lt;-</span> \(n) <span class="cf">if</span> (n <span class="sc">&lt;=</span> <span class="dv">2</span>) <span class="dv">1</span> <span class="cf">else</span> <span class="fu">fib_rec</span>(n <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">+</span> <span class="fu">fib_rec</span>(n <span class="sc">-</span> <span class="dv">2</span>)</span>
-<span id="cb211-2"><a href="#cb211-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb211-3"><a href="#cb211-3" aria-hidden="true" tabindex="-1"></a><span class="fu">fib_rec</span>(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 55</code></pre>
-</div>
-</div>
-</div>
-<div>
-<p><strong>Python</strong></p>
-<div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb213"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb213-1"><a href="#cb213-1" aria-hidden="true" tabindex="-1"></a>fib_rec <span class="op">=</span> <span class="kw">lambda</span> n: <span class="dv">1</span> <span class="cf">if</span> n <span class="op">&lt;=</span> <span class="dv">2</span> <span class="cf">else</span> fib_rec(n <span class="op">-</span> <span class="dv">1</span>) <span class="op">+</span> fib_rec(n <span class="op">-</span> <span class="dv">2</span>)</span>
-<span id="cb213-2"><a href="#cb213-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb213-3"><a href="#cb213-3" aria-hidden="true" tabindex="-1"></a>fib_rec(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>55</code></pre>
-</div>
-</div>
-</div>
-</div>
-<p>The definition <em>is</em> the recurrence: <code>fib_rec</code> calls itself on smaller inputs until it hits the base case. (In R, <code>if</code> is an expression that returns a value, which is why this one-liner works; Python’s counterpart is the <em>conditional expression</em> <code>value_if_true if condition else value_if_false</code> — note the value comes first.)</p>
-<p>Elegant — and, here, catastrophically inefficient. Each call spawns <em>two</em> more calls, so the total number of calls grows exponentially in <code>n</code>, and the same values get recomputed over and over. Watch the time explode as <code>n</code> creeps up (R’s <code>elapsed</code> is the wall-clock time in seconds; the Python column uses <code>timeit.timeit(..., number=1)</code>, which returns seconds directly):</p>
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
-<div>
-<p><strong>R</strong></p>
-<div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb215"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb215-1"><a href="#cb215-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(<span class="fu">fib_rec</span>(<span class="dv">20</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>   user  system elapsed 
-  0.002   0.000   0.002 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb217"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb217-1"><a href="#cb217-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(<span class="fu">fib_rec</span>(<span class="dv">30</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>   user  system elapsed 
-  0.241   0.002   0.243 </code></pre>
-</div>
-</div>
-</div>
-<div>
-<p><strong>Python</strong></p>
-<div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb219"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb219-1"><a href="#cb219-1" aria-hidden="true" tabindex="-1"></a>timeit.timeit(<span class="kw">lambda</span>: fib_rec(<span class="dv">20</span>), number<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>0.00030246999813243747</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb221"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb221-1"><a href="#cb221-1" aria-hidden="true" tabindex="-1"></a>timeit.timeit(<span class="kw">lambda</span>: fib_rec(<span class="dv">30</span>), number<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>0.042222887990646996</code></pre>
-</div>
-</div>
-</div>
-</div>
-<p>Ten more terms, roughly a hundred times slower — while our humble loop filled 10,000 slots in milliseconds. Recursion also has a hard depth limit: every nested call sits on a stack waiting for its sub-calls, and R gives up beyond a few thousand levels. Python is stricter still, with a default cap of 1,000 frames — inspect or change it with <code>sys.getrecursionlimit()</code> / <code>sys.setrecursionlimit()</code>, though wanting to raise it is usually a hint that a loop would serve better. Forget the base case and you hit the limit immediately:</p>
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
-<div>
-<p><strong>R</strong></p>
-<div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb223"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb223-1"><a href="#cb223-1" aria-hidden="true" tabindex="-1"></a>broken <span class="ot">&lt;-</span> \(n) <span class="fu">broken</span>(n <span class="sc">-</span> <span class="dv">1</span>)   <span class="co"># no base case!</span></span>
-<span id="cb223-2"><a href="#cb223-2" aria-hidden="true" tabindex="-1"></a><span class="fu">broken</span>(<span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</div>
-<div>
-<p><strong>Python</strong></p>
-<div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb224"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb224-1"><a href="#cb224-1" aria-hidden="true" tabindex="-1"></a>broken <span class="op">=</span> <span class="kw">lambda</span> n: broken(n <span class="op">-</span> <span class="dv">1</span>)   <span class="co"># no base case!</span></span>
-<span id="cb224-2"><a href="#cb224-2" aria-hidden="true" tabindex="-1"></a>broken(<span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>RecursionError: maximum recursion depth exceeded</code></pre>
-</div>
-</div>
-</div>
-</div>
-<p>Verdict: recursion is a beautiful way to <em>think</em> — and for divide-and-conquer algorithms it can be genuinely efficient — but for simple sequences, in either language, the loop wins.</p>
-<div class="callout callout-style-default callout-tip callout-titled" title="Exercise 2.8: Recursive factorial">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Exercise 2.8: Recursive factorial
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<ol type="a">
-<li>Write a recursive function <code>fact_rec</code> for <span class="math inline">n! = n \times (n-1)!</span> with base case <span class="math inline">0! = 1</span>, mimicking <code>fib_rec</code> above.</li>
-<li>Check <code>fact_rec(10)</code> against R’s built-in <code>factorial(10)</code> (Python: <code>math.factorial(10)</code>).</li>
-<li>Try <code>fact_rec(10000)</code>. What happens, and why? Would a loop version have the same problem?</li>
-</ol>
-</div>
-</div>
-</section>
-<section id="sec-week2-gd" class="level2" data-number="2.9">
-<h2 data-number="2.9" class="anchored" data-anchor-id="sec-week2-gd"><span class="header-section-number">2.9</span> A first taste of gradient descent</h2>
-<p>Time to put the toolbox to work. A huge share of statistics reduces to one task: <strong>minimise a function</strong>. Least squares minimises a sum of squared errors; maximum likelihood minimises a negative log-likelihood. For a few lucky models calculus hands us a formula, but for most modern ones there is no closed form — so we minimise <em>numerically</em>, with an algorithm. The simplest one worth knowing is gradient descent, and we can already build it with nothing but this week’s loops.</p>
+<section id="sec-week2-gd" class="level2" data-number="2.8">
+<h2 data-number="2.8" class="anchored" data-anchor-id="sec-week2-gd"><span class="header-section-number">2.8</span> A first taste of gradient descent</h2>
+<p>Time to put the toolbox to work. A huge share of statistics reduces to one task: <strong>minimise a function</strong>. Least squares minimises a sum of squared errors; maximum likelihood minimises a negative log-likelihood. For a few lucky models calculus hands us a formula, but for most modern ones there is no closed form, so we minimise <em>numerically</em>, with an algorithm. The simplest one worth knowing is gradient descent, and we can already build it with nothing but this week’s loops.</p>
 <p>Here is the simplest statistical loss there is. Given observations <span class="math inline">y_1, \dots, y_n</span>, which single number <span class="math inline">m</span> summarises them best? Pick the one minimising the <strong>quadratic loss</strong></p>
 <p><span class="math display">
 L(m) = \frac{1}{n} \sum_{i=1}^n (y_i - m)^2 .
 </span></p>
-<p>(You may already know the answer is the sample mean <span class="math inline">\bar{y}</span> — perfect, that gives us a way to check whether our algorithm works.)</p>
-<section id="the-idea-follow-the-slope-downhill" class="level3" data-number="2.9.1">
-<h3 data-number="2.9.1" class="anchored" data-anchor-id="the-idea-follow-the-slope-downhill"><span class="header-section-number">2.9.1</span> The idea: follow the slope downhill</h3>
-<p>Imagine standing on the curve of <span class="math inline">L</span> at some guess <span class="math inline">m</span>, in fog, unable to see where the minimum is. You can still feel the ground through your feet: the derivative</p>
+<p>(You may already know the answer is the sample mean <span class="math inline">\bar{y}</span>: perfect, that gives us a way to check whether our algorithm works.)</p>
+<section id="the-idea-follow-the-slope-downhill" class="level3" data-number="2.8.1">
+<h3 data-number="2.8.1" class="anchored" data-anchor-id="the-idea-follow-the-slope-downhill"><span class="header-section-number">2.8.1</span> The idea: follow the slope downhill</h3>
+<p>Imagine standing on the curve of <span class="math inline">L</span> at some guess <span class="math inline">m</span>, in fog, unable to see where the minimum is. You can still feel the ground through your feet…</p>
+<p><img src="images/chapter2/silent_hill.png" class="img-fluid" width="450"></p>
+<p>Fortunately, the derivative</p>
 <p><span class="math display">
 L'(m) = -\frac{2}{n} \sum_{i=1}^n (y_i - m)
 </span></p>
-<p>tells you the local slope. If <span class="math inline">L'(m) &lt; 0</span> the function is decreasing, so the minimum lies to the <em>right</em>: step right. If <span class="math inline">L'(m) &gt; 0</span>, step left. Both cases are captured by one update — move <em>against</em> the slope:</p>
+<p>tells you the local slope. If <span class="math inline">L'(m) &lt; 0</span> the function is decreasing, so the minimum lies to the <em>right</em>: step right. If <span class="math inline">L'(m) &gt; 0</span>, step left. Both cases are captured by one update: move <em>against</em> the slope:</p>
 <p><span class="math display">
 m_{k+1} = m_k - \gamma \, L'(m_k),
 </span></p>
-<p>where <span class="math inline">\gamma &gt; 0</span> (the <strong>step size</strong>, or <em>learning rate</em>) scales how far we move. Notice the magnitude is used too: where the function is steep we take big strides; as the slope flattens near the minimum, the steps shrink on their own. Repeat until the steps become negligible — that is the whole algorithm.</p>
+<p>where <span class="math inline">\gamma &gt; 0</span> (the <strong>step size</strong>, or <em>learning rate</em>) scales how far we move. Notice the magnitude is used too: where the function is steep we take big strides; as the slope flattens near the minimum, the steps shrink on their own. Repeat until the steps become negligible: that is the whole algorithm. Here is the idea in a single picture, run for a few iterations on the loss we are about to minimise:</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="02-week2_files/figure-html/unnamed-chunk-69-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></p>
+<figcaption>The slope idea on the quadratic loss <span class="math inline">L(m)</span>, for the data of the R run (step size <span class="math inline">\gamma = 0.25</span>, chosen to make a clean picture). Each coloured point is an iterate <span class="math inline">m_k</span>, and the short segment through it shows the local slope there: the slope points uphill, so the update steps the other way (dashed arrows), and as the slope flattens towards the minimum the steps shrink on their own.</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </section>
-<section id="the-algorithm-in-code" class="level3" data-number="2.9.2">
-<h3 data-number="2.9.2" class="anchored" data-anchor-id="the-algorithm-in-code"><span class="header-section-number">2.9.2</span> The algorithm in code</h3>
-<p>This is a computation with state — <span class="math inline">m_{k+1}</span> depends on <span class="math inline">m_k</span> — so it’s a job for a loop. We store the whole trajectory in a preallocated vector so we can inspect it afterwards, and we write the derivative <em>inline</em> as <code>-2 * mean(y - m)</code> (numpy: <code>-2 * np.mean(y - m)</code>):</p>
+<section id="the-algorithm-in-code" class="level3" data-number="2.8.2">
+<h3 data-number="2.8.2" class="anchored" data-anchor-id="the-algorithm-in-code"><span class="header-section-number">2.8.2</span> The algorithm in code</h3>
+<p>This is a computation with state (<span class="math inline">m_{k+1}</span> depends on <span class="math inline">m_k</span>), so it’s a job for a loop. We store the whole trajectory in a preallocated vector so we can inspect it afterwards, and we write the derivative <em>inline</em> as <code>-2 * mean(y - m)</code> (numpy: <code>-2 * np.mean(y - m)</code>):</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb226"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb226-1"><a href="#cb226-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">7432</span>)</span>
-<span id="cb226-2"><a href="#cb226-2" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">200</span>, <span class="at">mean =</span> <span class="dv">3</span>, <span class="at">sd =</span> <span class="dv">2</span>)   <span class="co"># our data</span></span>
-<span id="cb226-3"><a href="#cb226-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb226-4"><a href="#cb226-4" aria-hidden="true" tabindex="-1"></a>gamma <span class="ot">&lt;-</span> <span class="fl">0.1</span>      <span class="co"># step size</span></span>
-<span id="cb226-5"><a href="#cb226-5" aria-hidden="true" tabindex="-1"></a>n_iter <span class="ot">&lt;-</span> <span class="dv">60</span>      <span class="co"># number of iterations</span></span>
-<span id="cb226-6"><a href="#cb226-6" aria-hidden="true" tabindex="-1"></a>m_path <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n_iter)</span>
-<span id="cb226-7"><a href="#cb226-7" aria-hidden="true" tabindex="-1"></a>m_path[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="dv">10</span>   <span class="co"># a deliberately terrible starting guess</span></span>
-<span id="cb226-8"><a href="#cb226-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb226-9"><a href="#cb226-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>n_iter) {</span>
-<span id="cb226-10"><a href="#cb226-10" aria-hidden="true" tabindex="-1"></a>  slope <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">mean</span>(y <span class="sc">-</span> m_path[k <span class="sc">-</span> <span class="dv">1</span>])          <span class="co"># L'(m) at the current point</span></span>
-<span id="cb226-11"><a href="#cb226-11" aria-hidden="true" tabindex="-1"></a>  m_path[k] <span class="ot">&lt;-</span> m_path[k <span class="sc">-</span> <span class="dv">1</span>] <span class="sc">-</span> gamma <span class="sc">*</span> slope     <span class="co"># the descent step</span></span>
-<span id="cb226-12"><a href="#cb226-12" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb226-13"><a href="#cb226-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb226-14"><a href="#cb226-14" aria-hidden="true" tabindex="-1"></a>m_path[n_iter]   <span class="co"># where we ended up</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb211"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb211-1"><a href="#cb211-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">7432</span>)</span>
+<span id="cb211-2"><a href="#cb211-2" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">200</span>, <span class="at">mean =</span> <span class="dv">3</span>, <span class="at">sd =</span> <span class="dv">2</span>)   <span class="co"># our data</span></span>
+<span id="cb211-3"><a href="#cb211-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb211-4"><a href="#cb211-4" aria-hidden="true" tabindex="-1"></a>gamma <span class="ot">&lt;-</span> <span class="fl">0.1</span>      <span class="co"># step size</span></span>
+<span id="cb211-5"><a href="#cb211-5" aria-hidden="true" tabindex="-1"></a>n_iter <span class="ot">&lt;-</span> <span class="dv">60</span>      <span class="co"># number of iterations</span></span>
+<span id="cb211-6"><a href="#cb211-6" aria-hidden="true" tabindex="-1"></a>m_path <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n_iter)</span>
+<span id="cb211-7"><a href="#cb211-7" aria-hidden="true" tabindex="-1"></a>m_path[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="dv">10</span>   <span class="co"># a deliberately terrible starting guess</span></span>
+<span id="cb211-8"><a href="#cb211-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb211-9"><a href="#cb211-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>n_iter) {</span>
+<span id="cb211-10"><a href="#cb211-10" aria-hidden="true" tabindex="-1"></a>  slope <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">mean</span>(y <span class="sc">-</span> m_path[k <span class="sc">-</span> <span class="dv">1</span>])          <span class="co"># L'(m) at the current point</span></span>
+<span id="cb211-11"><a href="#cb211-11" aria-hidden="true" tabindex="-1"></a>  m_path[k] <span class="ot">&lt;-</span> m_path[k <span class="sc">-</span> <span class="dv">1</span>] <span class="sc">-</span> gamma <span class="sc">*</span> slope     <span class="co"># the descent step</span></span>
+<span id="cb211-12"><a href="#cb211-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb211-13"><a href="#cb211-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb211-14"><a href="#cb211-14" aria-hidden="true" tabindex="-1"></a>m_path[n_iter]   <span class="co"># where we ended up</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 2.660242</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb228"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb228-1"><a href="#cb228-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(y)          <span class="co"># where we should be</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb213"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb213-1"><a href="#cb213-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(y)          <span class="co"># where we should be</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 2.660228</code></pre>
 </div>
@@ -1702,40 +1617,40 @@ m_{k+1} = m_k - \gamma \, L'(m_k),
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb230"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb230-1"><a href="#cb230-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">7432</span>)</span>
-<span id="cb230-2"><a href="#cb230-2" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> rng.normal(loc<span class="op">=</span><span class="dv">3</span>, scale<span class="op">=</span><span class="dv">2</span>, size<span class="op">=</span><span class="dv">200</span>)   <span class="co"># our data</span></span>
-<span id="cb230-3"><a href="#cb230-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb230-4"><a href="#cb230-4" aria-hidden="true" tabindex="-1"></a>gamma <span class="op">=</span> <span class="fl">0.1</span>       <span class="co"># step size</span></span>
-<span id="cb230-5"><a href="#cb230-5" aria-hidden="true" tabindex="-1"></a>n_iter <span class="op">=</span> <span class="dv">60</span>       <span class="co"># number of iterations</span></span>
-<span id="cb230-6"><a href="#cb230-6" aria-hidden="true" tabindex="-1"></a>m_path <span class="op">=</span> np.zeros(n_iter)</span>
-<span id="cb230-7"><a href="#cb230-7" aria-hidden="true" tabindex="-1"></a>m_path[<span class="dv">0</span>] <span class="op">=</span> <span class="dv">10</span>    <span class="co"># a deliberately terrible starting guess</span></span>
-<span id="cb230-8"><a href="#cb230-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb230-9"><a href="#cb230-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, n_iter):</span>
-<span id="cb230-10"><a href="#cb230-10" aria-hidden="true" tabindex="-1"></a>    slope <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span> np.mean(y <span class="op">-</span> m_path[k <span class="op">-</span> <span class="dv">1</span>])      <span class="co"># L'(m) at the current point</span></span>
-<span id="cb230-11"><a href="#cb230-11" aria-hidden="true" tabindex="-1"></a>    m_path[k] <span class="op">=</span> m_path[k <span class="op">-</span> <span class="dv">1</span>] <span class="op">-</span> gamma <span class="op">*</span> slope    <span class="co"># the descent step</span></span>
-<span id="cb230-12"><a href="#cb230-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb230-13"><a href="#cb230-13" aria-hidden="true" tabindex="-1"></a>m_path[n_iter <span class="op">-</span> <span class="dv">1</span>]   <span class="co"># where we ended up</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb215"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb215-1"><a href="#cb215-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">7432</span>)</span>
+<span id="cb215-2"><a href="#cb215-2" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> rng.normal(loc<span class="op">=</span><span class="dv">3</span>, scale<span class="op">=</span><span class="dv">2</span>, size<span class="op">=</span><span class="dv">200</span>)   <span class="co"># our data</span></span>
+<span id="cb215-3"><a href="#cb215-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb215-4"><a href="#cb215-4" aria-hidden="true" tabindex="-1"></a>gamma <span class="op">=</span> <span class="fl">0.1</span>       <span class="co"># step size</span></span>
+<span id="cb215-5"><a href="#cb215-5" aria-hidden="true" tabindex="-1"></a>n_iter <span class="op">=</span> <span class="dv">60</span>       <span class="co"># number of iterations</span></span>
+<span id="cb215-6"><a href="#cb215-6" aria-hidden="true" tabindex="-1"></a>m_path <span class="op">=</span> np.zeros(n_iter)</span>
+<span id="cb215-7"><a href="#cb215-7" aria-hidden="true" tabindex="-1"></a>m_path[<span class="dv">0</span>] <span class="op">=</span> <span class="dv">10</span>    <span class="co"># a deliberately terrible starting guess</span></span>
+<span id="cb215-8"><a href="#cb215-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb215-9"><a href="#cb215-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, n_iter):</span>
+<span id="cb215-10"><a href="#cb215-10" aria-hidden="true" tabindex="-1"></a>    slope <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span> np.mean(y <span class="op">-</span> m_path[k <span class="op">-</span> <span class="dv">1</span>])      <span class="co"># L'(m) at the current point</span></span>
+<span id="cb215-11"><a href="#cb215-11" aria-hidden="true" tabindex="-1"></a>    m_path[k] <span class="op">=</span> m_path[k <span class="op">-</span> <span class="dv">1</span>] <span class="op">-</span> gamma <span class="op">*</span> slope    <span class="co"># the descent step</span></span>
+<span id="cb215-12"><a href="#cb215-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb215-13"><a href="#cb215-13" aria-hidden="true" tabindex="-1"></a>m_path[n_iter <span class="op">-</span> <span class="dv">1</span>]   <span class="co"># where we ended up</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>np.float64(2.929473307049999)</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb232"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb232-1"><a href="#cb232-1" aria-hidden="true" tabindex="-1"></a>np.mean(y)           <span class="co"># where we should be</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb217"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb217-1"><a href="#cb217-1" aria-hidden="true" tabindex="-1"></a>np.mean(y)           <span class="co"># where we should be</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>np.float64(2.929459762585767)</code></pre>
 </div>
 </div>
 </div>
 </div>
-<p>It works: sixty iterations of “step against the slope” land on the sample mean to several decimals. (The two columns simulate <em>different</em> datasets — remember, the streams never match — so they print different numbers: each lands on its own <span class="math inline">\bar{y}</span>, both a touch under the true mean of 3.) A quick plot of the trajectory — base <code>plot()</code> in R, <code>matplotlib</code> in Python — shows the approach: big early strides, then ever-finer adjustments (quick-and-dirty plots for now; we do plotting properly in <a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>):</p>
+<p>It works: sixty iterations of “step against the slope” land on the sample mean to several decimals. (The two columns simulate <em>different</em> datasets, because the streams never match, so they print different numbers: each lands on its own sample mean, 2.66 in the R run and 2.93 in the Python run, both consistent with the true mean of 3 given <span class="math inline">n = 200</span>.) A quick plot of the trajectory (base <code>plot()</code> in R, <code>matplotlib</code> in Python) shows the approach: big early strides, then ever-finer adjustments (quick-and-dirty plots for now; we do plotting properly in <a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>):</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb234"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb234-1"><a href="#cb234-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(m_path, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">xlab =</span> <span class="st">"iteration k"</span>, <span class="at">ylab =</span> <span class="fu">expression</span>(m[k]))</span>
-<span id="cb234-2"><a href="#cb234-2" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="fu">mean</span>(y), <span class="at">lty =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">"red"</span>)   <span class="co"># the target</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb219"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb219-1"><a href="#cb219-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(m_path, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">xlab =</span> <span class="st">"iteration k"</span>, <span class="at">ylab =</span> <span class="fu">expression</span>(m[k]))</span>
+<span id="cb219-2"><a href="#cb219-2" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="fu">mean</span>(y), <span class="at">lty =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">"red"</span>)   <span class="co"># the target</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="02-week2_files/figure-html/unnamed-chunk-77-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></p>
+<p><img src="02-week2_files/figure-html/unnamed-chunk-72-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></p>
 </figure>
 </div>
 </div>
@@ -1744,13 +1659,132 @@ m_{k+1} = m_k - \gamma \, L'(m_k),
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb235"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb235-1"><a href="#cb235-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb235-2"><a href="#cb235-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb235-3"><a href="#cb235-3" aria-hidden="true" tabindex="-1"></a>plt.plot(m_path, <span class="st">"o-"</span>)                                 <span class="co"># "o-": points joined by lines</span></span>
-<span id="cb235-4"><a href="#cb235-4" aria-hidden="true" tabindex="-1"></a>plt.axhline(np.mean(y), linestyle<span class="op">=</span><span class="st">"--"</span>, color<span class="op">=</span><span class="st">"red"</span>)   <span class="co"># the target</span></span>
-<span id="cb235-5"><a href="#cb235-5" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"iteration k"</span>)</span>
-<span id="cb235-6"><a href="#cb235-6" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"$m_k$"</span>)</span>
-<span id="cb235-7"><a href="#cb235-7" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb220"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb220-1"><a href="#cb220-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb220-2"><a href="#cb220-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb220-3"><a href="#cb220-3" aria-hidden="true" tabindex="-1"></a>plt.plot(m_path, <span class="st">"o-"</span>)                                 <span class="co"># "o-": points joined by lines</span></span>
+<span id="cb220-4"><a href="#cb220-4" aria-hidden="true" tabindex="-1"></a>plt.axhline(np.mean(y), linestyle<span class="op">=</span><span class="st">"--"</span>, color<span class="op">=</span><span class="st">"red"</span>)   <span class="co"># the target</span></span>
+<span id="cb220-5"><a href="#cb220-5" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"iteration k"</span>)</span>
+<span id="cb220-6"><a href="#cb220-6" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"$m_k$"</span>)</span>
+<span id="cb220-7"><a href="#cb220-7" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="02-week2_files/figure-html/unnamed-chunk-73-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="the-step-size-is-a-dial-not-a-detail" class="level3" data-number="2.8.3">
+<h3 data-number="2.8.3" class="anchored" data-anchor-id="the-step-size-is-a-dial-not-a-detail"><span class="header-section-number">2.8.3</span> The step size is a dial, not a detail</h3>
+<p>Everything above used <span class="math inline">\gamma = 0.1</span>. That choice matters more than it looks:</p>
+<ul>
+<li><strong>Too small</strong> (<span class="math inline">\gamma = 0.005</span>, say): every step is a timid shuffle. The algorithm still converges, but might need thousands of iterations instead of sixty.</li>
+<li><strong>Too large</strong>: each step overshoots the minimum and lands on the far side, further up than where it started. The iterates bounce from side to side with growing amplitude: the algorithm <em>diverges</em>:</li>
+</ul>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
+<div>
+<p><strong>R</strong></p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb221"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb221-1"><a href="#cb221-1" aria-hidden="true" tabindex="-1"></a>gamma <span class="ot">&lt;-</span> <span class="fl">1.05</span>                      <span class="co"># too ambitious</span></span>
+<span id="cb221-2"><a href="#cb221-2" aria-hidden="true" tabindex="-1"></a>m_path <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n_iter)</span>
+<span id="cb221-3"><a href="#cb221-3" aria-hidden="true" tabindex="-1"></a>m_path[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb221-4"><a href="#cb221-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>n_iter) {</span>
+<span id="cb221-5"><a href="#cb221-5" aria-hidden="true" tabindex="-1"></a>  slope <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">mean</span>(y <span class="sc">-</span> m_path[k <span class="sc">-</span> <span class="dv">1</span>])</span>
+<span id="cb221-6"><a href="#cb221-6" aria-hidden="true" tabindex="-1"></a>  m_path[k] <span class="ot">&lt;-</span> m_path[k <span class="sc">-</span> <span class="dv">1</span>] <span class="sc">-</span> gamma <span class="sc">*</span> slope</span>
+<span id="cb221-7"><a href="#cb221-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb221-8"><a href="#cb221-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(m_path, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">xlab =</span> <span class="st">"iteration k"</span>, <span class="at">ylab =</span> <span class="fu">expression</span>(m[k]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="02-week2_files/figure-html/unnamed-chunk-74-3.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div>
+<p><strong>Python</strong></p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb222"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb222-1"><a href="#cb222-1" aria-hidden="true" tabindex="-1"></a>gamma <span class="op">=</span> <span class="fl">1.05</span>                       <span class="co"># too ambitious</span></span>
+<span id="cb222-2"><a href="#cb222-2" aria-hidden="true" tabindex="-1"></a>m_path <span class="op">=</span> np.zeros(n_iter)</span>
+<span id="cb222-3"><a href="#cb222-3" aria-hidden="true" tabindex="-1"></a>m_path[<span class="dv">0</span>] <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb222-4"><a href="#cb222-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, n_iter):</span>
+<span id="cb222-5"><a href="#cb222-5" aria-hidden="true" tabindex="-1"></a>    slope <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span> np.mean(y <span class="op">-</span> m_path[k <span class="op">-</span> <span class="dv">1</span>])</span>
+<span id="cb222-6"><a href="#cb222-6" aria-hidden="true" tabindex="-1"></a>    m_path[k] <span class="op">=</span> m_path[k <span class="op">-</span> <span class="dv">1</span>] <span class="op">-</span> gamma <span class="op">*</span> slope</span>
+<span id="cb222-7"><a href="#cb222-7" aria-hidden="true" tabindex="-1"></a>plt.plot(m_path, <span class="st">"o-"</span>)</span>
+<span id="cb222-8"><a href="#cb222-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"iteration k"</span>)</span>
+<span id="cb222-9"><a href="#cb222-9" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"$m_k$"</span>)</span>
+<span id="cb222-10"><a href="#cb222-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="02-week2_files/figure-html/unnamed-chunk-75-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>Every quantity in that plot is further from the answer than the terrible initial guess. Choosing <span class="math inline">\gamma</span> well (and adapting it on the fly) is a central theme of <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a>; for now, Exercise 2.8 lets you map out the dial yourself.</p>
+</section>
+<section id="beyond-the-quadratic" class="level3" data-number="2.8.4">
+<h3 data-number="2.8.4" class="anchored" data-anchor-id="beyond-the-quadratic"><span class="header-section-number">2.8.4</span> Beyond the quadratic</h3>
+<p>Nothing in the recipe used the fact that <span class="math inline">L</span> was a quadratic, only that we can evaluate a derivative. Take the cubic</p>
+<p><span class="math display">
+g(x) = x^3 + x^2 - x - 1, \qquad g'(x) = 3x^2 + 2x - 1,
+</span></p>
+<p>which has a local minimum at <span class="math inline">x = 1/3</span> (and a local maximum at <span class="math inline">x = -1</span>). Same loop, new inline derivative:</p>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
+<div>
+<p><strong>R</strong></p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb223"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb223-1"><a href="#cb223-1" aria-hidden="true" tabindex="-1"></a>gamma <span class="ot">&lt;-</span> <span class="fl">0.05</span></span>
+<span id="cb223-2"><a href="#cb223-2" aria-hidden="true" tabindex="-1"></a>n_iter <span class="ot">&lt;-</span> <span class="dv">60</span></span>
+<span id="cb223-3"><a href="#cb223-3" aria-hidden="true" tabindex="-1"></a>x_path <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n_iter)</span>
+<span id="cb223-4"><a href="#cb223-4" aria-hidden="true" tabindex="-1"></a>x_path[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fl">1.5</span></span>
+<span id="cb223-5"><a href="#cb223-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb223-6"><a href="#cb223-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>n_iter) {</span>
+<span id="cb223-7"><a href="#cb223-7" aria-hidden="true" tabindex="-1"></a>  slope <span class="ot">&lt;-</span> <span class="dv">3</span> <span class="sc">*</span> x_path[k <span class="sc">-</span> <span class="dv">1</span>]<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> x_path[k <span class="sc">-</span> <span class="dv">1</span>] <span class="sc">-</span> <span class="dv">1</span>   <span class="co"># g'(x), inline</span></span>
+<span id="cb223-8"><a href="#cb223-8" aria-hidden="true" tabindex="-1"></a>  x_path[k] <span class="ot">&lt;-</span> x_path[k <span class="sc">-</span> <span class="dv">1</span>] <span class="sc">-</span> gamma <span class="sc">*</span> slope</span>
+<span id="cb223-9"><a href="#cb223-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb223-10"><a href="#cb223-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb223-11"><a href="#cb223-11" aria-hidden="true" tabindex="-1"></a>x_path[n_iter]   <span class="co"># should be near 1/3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.3333343</code></pre>
+</div>
+</div>
+</div>
+<div>
+<p><strong>Python</strong></p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb225"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb225-1"><a href="#cb225-1" aria-hidden="true" tabindex="-1"></a>gamma <span class="op">=</span> <span class="fl">0.05</span></span>
+<span id="cb225-2"><a href="#cb225-2" aria-hidden="true" tabindex="-1"></a>n_iter <span class="op">=</span> <span class="dv">60</span></span>
+<span id="cb225-3"><a href="#cb225-3" aria-hidden="true" tabindex="-1"></a>x_path <span class="op">=</span> np.zeros(n_iter)</span>
+<span id="cb225-4"><a href="#cb225-4" aria-hidden="true" tabindex="-1"></a>x_path[<span class="dv">0</span>] <span class="op">=</span> <span class="fl">1.5</span></span>
+<span id="cb225-5"><a href="#cb225-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb225-6"><a href="#cb225-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, n_iter):</span>
+<span id="cb225-7"><a href="#cb225-7" aria-hidden="true" tabindex="-1"></a>    slope <span class="op">=</span> <span class="dv">3</span> <span class="op">*</span> x_path[k <span class="op">-</span> <span class="dv">1</span>]<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> x_path[k <span class="op">-</span> <span class="dv">1</span>] <span class="op">-</span> <span class="dv">1</span>   <span class="co"># g'(x), inline</span></span>
+<span id="cb225-8"><a href="#cb225-8" aria-hidden="true" tabindex="-1"></a>    x_path[k] <span class="op">=</span> x_path[k <span class="op">-</span> <span class="dv">1</span>] <span class="op">-</span> gamma <span class="op">*</span> slope</span>
+<span id="cb225-9"><a href="#cb225-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb225-10"><a href="#cb225-10" aria-hidden="true" tabindex="-1"></a>x_path[n_iter <span class="op">-</span> <span class="dv">1</span>]   <span class="co"># should be near 1/3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>np.float64(0.3333343409933769)</code></pre>
+</div>
+</div>
+</div>
+</div>
+<p>(No randomness in this one: for once, the two columns agree to the last digit.) Plotting the iterates on the function itself shows the descent sliding into the valley and piling up at the minimum:</p>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
+<div>
+<p><strong>R</strong></p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb227"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb227-1"><a href="#cb227-1" aria-hidden="true" tabindex="-1"></a>xs <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="fl">1.9</span>, <span class="fl">1.6</span>, <span class="at">by =</span> <span class="fl">0.01</span>)</span>
+<span id="cb227-2"><a href="#cb227-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(xs, xs<span class="sc">^</span><span class="dv">3</span> <span class="sc">+</span> xs<span class="sc">^</span><span class="dv">2</span> <span class="sc">-</span> xs <span class="sc">-</span> <span class="dv">1</span>, <span class="at">type =</span> <span class="st">"l"</span>,</span>
+<span id="cb227-3"><a href="#cb227-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"x"</span>, <span class="at">ylab =</span> <span class="st">"g(x)"</span>)</span>
+<span id="cb227-4"><a href="#cb227-4" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(x_path, x_path<span class="sc">^</span><span class="dv">3</span> <span class="sc">+</span> x_path<span class="sc">^</span><span class="dv">2</span> <span class="sc">-</span> x_path <span class="sc">-</span> <span class="dv">1</span>, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">col =</span> <span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -1760,153 +1794,34 @@ m_{k+1} = m_k - \gamma \, L'(m_k),
 </div>
 </div>
 </div>
-</div>
-</section>
-<section id="the-step-size-is-a-dial-not-a-detail" class="level3" data-number="2.9.3">
-<h3 data-number="2.9.3" class="anchored" data-anchor-id="the-step-size-is-a-dial-not-a-detail"><span class="header-section-number">2.9.3</span> The step size is a dial, not a detail</h3>
-<p>Everything above used <span class="math inline">\gamma = 0.1</span>. That choice matters more than it looks:</p>
-<ul>
-<li><strong>Too small</strong> (<span class="math inline">\gamma = 0.005</span>, say): every step is a timid shuffle. The algorithm still converges, but might need thousands of iterations instead of sixty.</li>
-<li><strong>Too large</strong>: each step overshoots the minimum and lands on the far side, further up than where it started. The iterates bounce from side to side with growing amplitude — the algorithm <em>diverges</em>:</li>
-</ul>
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
-<div>
-<p><strong>R</strong></p>
-<div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb236"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb236-1"><a href="#cb236-1" aria-hidden="true" tabindex="-1"></a>gamma <span class="ot">&lt;-</span> <span class="fl">1.05</span>                      <span class="co"># too ambitious</span></span>
-<span id="cb236-2"><a href="#cb236-2" aria-hidden="true" tabindex="-1"></a>m_path <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n_iter)</span>
-<span id="cb236-3"><a href="#cb236-3" aria-hidden="true" tabindex="-1"></a>m_path[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="dv">10</span></span>
-<span id="cb236-4"><a href="#cb236-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>n_iter) {</span>
-<span id="cb236-5"><a href="#cb236-5" aria-hidden="true" tabindex="-1"></a>  slope <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">mean</span>(y <span class="sc">-</span> m_path[k <span class="sc">-</span> <span class="dv">1</span>])</span>
-<span id="cb236-6"><a href="#cb236-6" aria-hidden="true" tabindex="-1"></a>  m_path[k] <span class="ot">&lt;-</span> m_path[k <span class="sc">-</span> <span class="dv">1</span>] <span class="sc">-</span> gamma <span class="sc">*</span> slope</span>
-<span id="cb236-7"><a href="#cb236-7" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb236-8"><a href="#cb236-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(m_path, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">xlab =</span> <span class="st">"iteration k"</span>, <span class="at">ylab =</span> <span class="fu">expression</span>(m[k]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="02-week2_files/figure-html/unnamed-chunk-79-3.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></p>
-</figure>
-</div>
-</div>
-</div>
-</div>
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb237"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb237-1"><a href="#cb237-1" aria-hidden="true" tabindex="-1"></a>gamma <span class="op">=</span> <span class="fl">1.05</span>                       <span class="co"># too ambitious</span></span>
-<span id="cb237-2"><a href="#cb237-2" aria-hidden="true" tabindex="-1"></a>m_path <span class="op">=</span> np.zeros(n_iter)</span>
-<span id="cb237-3"><a href="#cb237-3" aria-hidden="true" tabindex="-1"></a>m_path[<span class="dv">0</span>] <span class="op">=</span> <span class="dv">10</span></span>
-<span id="cb237-4"><a href="#cb237-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, n_iter):</span>
-<span id="cb237-5"><a href="#cb237-5" aria-hidden="true" tabindex="-1"></a>    slope <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span> np.mean(y <span class="op">-</span> m_path[k <span class="op">-</span> <span class="dv">1</span>])</span>
-<span id="cb237-6"><a href="#cb237-6" aria-hidden="true" tabindex="-1"></a>    m_path[k] <span class="op">=</span> m_path[k <span class="op">-</span> <span class="dv">1</span>] <span class="op">-</span> gamma <span class="op">*</span> slope</span>
-<span id="cb237-7"><a href="#cb237-7" aria-hidden="true" tabindex="-1"></a>plt.plot(m_path, <span class="st">"o-"</span>)</span>
-<span id="cb237-8"><a href="#cb237-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"iteration k"</span>)</span>
-<span id="cb237-9"><a href="#cb237-9" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"$m_k$"</span>)</span>
-<span id="cb237-10"><a href="#cb237-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb228"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb228-1"><a href="#cb228-1" aria-hidden="true" tabindex="-1"></a>xs <span class="op">=</span> np.arange(<span class="op">-</span><span class="fl">1.9</span>, <span class="fl">1.61</span>, <span class="fl">0.01</span>)   <span class="co"># arange excludes the endpoint, hence 1.61</span></span>
+<span id="cb228-2"><a href="#cb228-2" aria-hidden="true" tabindex="-1"></a>plt.plot(xs, xs<span class="op">**</span><span class="dv">3</span> <span class="op">+</span> xs<span class="op">**</span><span class="dv">2</span> <span class="op">-</span> xs <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb228-3"><a href="#cb228-3" aria-hidden="true" tabindex="-1"></a>plt.scatter(x_path, x_path<span class="op">**</span><span class="dv">3</span> <span class="op">+</span> x_path<span class="op">**</span><span class="dv">2</span> <span class="op">-</span> x_path <span class="op">-</span> <span class="dv">1</span>, color<span class="op">=</span><span class="st">"red"</span>)</span>
+<span id="cb228-4"><a href="#cb228-4" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"x"</span>)</span>
+<span id="cb228-5"><a href="#cb228-5" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"g(x)"</span>)</span>
+<span id="cb228-6"><a href="#cb228-6" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="02-week2_files/figure-html/unnamed-chunk-80-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></p>
+<p><img src="02-week2_files/figure-html/unnamed-chunk-79-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></p>
 </figure>
 </div>
 </div>
 </div>
 </div>
 </div>
-<p>Every quantity in that plot is further from the answer than the terrible initial guess. Choosing <span class="math inline">\gamma</span> well — and adapting it on the fly — is a central theme of <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a>; for now, Exercise 2.9 lets you map out the dial yourself.</p>
-</section>
-<section id="beyond-the-quadratic" class="level3" data-number="2.9.4">
-<h3 data-number="2.9.4" class="anchored" data-anchor-id="beyond-the-quadratic"><span class="header-section-number">2.9.4</span> Beyond the quadratic</h3>
-<p>Nothing in the recipe used the fact that <span class="math inline">L</span> was a quadratic — only that we can evaluate a derivative. Take the cubic</p>
-<p><span class="math display">
-g(x) = x^3 + x^2 - x - 1, \qquad g'(x) = 3x^2 + 2x - 1,
-</span></p>
-<p>which has a local minimum at <span class="math inline">x = 1/3</span> (and a local maximum at <span class="math inline">x = -1</span>). Same loop, new inline derivative:</p>
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
-<div>
-<p><strong>R</strong></p>
-<div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb238"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb238-1"><a href="#cb238-1" aria-hidden="true" tabindex="-1"></a>gamma <span class="ot">&lt;-</span> <span class="fl">0.05</span></span>
-<span id="cb238-2"><a href="#cb238-2" aria-hidden="true" tabindex="-1"></a>n_iter <span class="ot">&lt;-</span> <span class="dv">60</span></span>
-<span id="cb238-3"><a href="#cb238-3" aria-hidden="true" tabindex="-1"></a>x_path <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n_iter)</span>
-<span id="cb238-4"><a href="#cb238-4" aria-hidden="true" tabindex="-1"></a>x_path[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fl">1.5</span></span>
-<span id="cb238-5"><a href="#cb238-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb238-6"><a href="#cb238-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>n_iter) {</span>
-<span id="cb238-7"><a href="#cb238-7" aria-hidden="true" tabindex="-1"></a>  slope <span class="ot">&lt;-</span> <span class="dv">3</span> <span class="sc">*</span> x_path[k <span class="sc">-</span> <span class="dv">1</span>]<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> x_path[k <span class="sc">-</span> <span class="dv">1</span>] <span class="sc">-</span> <span class="dv">1</span>   <span class="co"># g'(x), inline</span></span>
-<span id="cb238-8"><a href="#cb238-8" aria-hidden="true" tabindex="-1"></a>  x_path[k] <span class="ot">&lt;-</span> x_path[k <span class="sc">-</span> <span class="dv">1</span>] <span class="sc">-</span> gamma <span class="sc">*</span> slope</span>
-<span id="cb238-9"><a href="#cb238-9" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb238-10"><a href="#cb238-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb238-11"><a href="#cb238-11" aria-hidden="true" tabindex="-1"></a>x_path[n_iter]   <span class="co"># should be near 1/3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.3333343</code></pre>
-</div>
-</div>
-</div>
-<div>
-<p><strong>Python</strong></p>
-<div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb240"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb240-1"><a href="#cb240-1" aria-hidden="true" tabindex="-1"></a>gamma <span class="op">=</span> <span class="fl">0.05</span></span>
-<span id="cb240-2"><a href="#cb240-2" aria-hidden="true" tabindex="-1"></a>n_iter <span class="op">=</span> <span class="dv">60</span></span>
-<span id="cb240-3"><a href="#cb240-3" aria-hidden="true" tabindex="-1"></a>x_path <span class="op">=</span> np.zeros(n_iter)</span>
-<span id="cb240-4"><a href="#cb240-4" aria-hidden="true" tabindex="-1"></a>x_path[<span class="dv">0</span>] <span class="op">=</span> <span class="fl">1.5</span></span>
-<span id="cb240-5"><a href="#cb240-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb240-6"><a href="#cb240-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, n_iter):</span>
-<span id="cb240-7"><a href="#cb240-7" aria-hidden="true" tabindex="-1"></a>    slope <span class="op">=</span> <span class="dv">3</span> <span class="op">*</span> x_path[k <span class="op">-</span> <span class="dv">1</span>]<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> x_path[k <span class="op">-</span> <span class="dv">1</span>] <span class="op">-</span> <span class="dv">1</span>   <span class="co"># g'(x), inline</span></span>
-<span id="cb240-8"><a href="#cb240-8" aria-hidden="true" tabindex="-1"></a>    x_path[k] <span class="op">=</span> x_path[k <span class="op">-</span> <span class="dv">1</span>] <span class="op">-</span> gamma <span class="op">*</span> slope</span>
-<span id="cb240-9"><a href="#cb240-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb240-10"><a href="#cb240-10" aria-hidden="true" tabindex="-1"></a>x_path[n_iter <span class="op">-</span> <span class="dv">1</span>]   <span class="co"># should be near 1/3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>np.float64(0.3333343409933769)</code></pre>
-</div>
-</div>
-</div>
-</div>
-<p>(No randomness in this one — for once, the two columns agree to the last digit.) Plotting the iterates on the function itself shows the descent sliding into the valley and piling up at the minimum:</p>
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
-<div>
-<p><strong>R</strong></p>
-<div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb242"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb242-1"><a href="#cb242-1" aria-hidden="true" tabindex="-1"></a>xs <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="fl">1.9</span>, <span class="fl">1.6</span>, <span class="at">by =</span> <span class="fl">0.01</span>)</span>
-<span id="cb242-2"><a href="#cb242-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(xs, xs<span class="sc">^</span><span class="dv">3</span> <span class="sc">+</span> xs<span class="sc">^</span><span class="dv">2</span> <span class="sc">-</span> xs <span class="sc">-</span> <span class="dv">1</span>, <span class="at">type =</span> <span class="st">"l"</span>,</span>
-<span id="cb242-3"><a href="#cb242-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"x"</span>, <span class="at">ylab =</span> <span class="st">"g(x)"</span>)</span>
-<span id="cb242-4"><a href="#cb242-4" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(x_path, x_path<span class="sc">^</span><span class="dv">3</span> <span class="sc">+</span> x_path<span class="sc">^</span><span class="dv">2</span> <span class="sc">-</span> x_path <span class="sc">-</span> <span class="dv">1</span>, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">col =</span> <span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="02-week2_files/figure-html/unnamed-chunk-83-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></p>
-</figure>
-</div>
-</div>
-</div>
-</div>
-<div>
-<p><strong>Python</strong></p>
-<div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb243"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb243-1"><a href="#cb243-1" aria-hidden="true" tabindex="-1"></a>xs <span class="op">=</span> np.arange(<span class="op">-</span><span class="fl">1.9</span>, <span class="fl">1.61</span>, <span class="fl">0.01</span>)   <span class="co"># arange excludes the endpoint — hence 1.61</span></span>
-<span id="cb243-2"><a href="#cb243-2" aria-hidden="true" tabindex="-1"></a>plt.plot(xs, xs<span class="op">**</span><span class="dv">3</span> <span class="op">+</span> xs<span class="op">**</span><span class="dv">2</span> <span class="op">-</span> xs <span class="op">-</span> <span class="dv">1</span>)</span>
-<span id="cb243-3"><a href="#cb243-3" aria-hidden="true" tabindex="-1"></a>plt.scatter(x_path, x_path<span class="op">**</span><span class="dv">3</span> <span class="op">+</span> x_path<span class="op">**</span><span class="dv">2</span> <span class="op">-</span> x_path <span class="op">-</span> <span class="dv">1</span>, color<span class="op">=</span><span class="st">"red"</span>)</span>
-<span id="cb243-4"><a href="#cb243-4" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"x"</span>)</span>
-<span id="cb243-5"><a href="#cb243-5" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"g(x)"</span>)</span>
-<span id="cb243-6"><a href="#cb243-6" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="02-week2_files/figure-html/unnamed-chunk-84-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></p>
-</figure>
-</div>
-</div>
-</div>
-</div>
-</div>
-<p>One honest caveat: gradient descent only follows the slope it can feel, so it finds <em>local</em> minima. Start this example at <span class="math inline">x_1 = -2</span> — downhill now points left, and since <span class="math inline">g \to -\infty</span> there, the iterates march off to <span class="math inline">-\infty</span> without ever looking back. Try it.</p>
+<p>One honest caveat: gradient descent only follows the slope it can feel, so it finds <em>local</em> minima. Start this example at <span class="math inline">x_1 = -2</span>: downhill now points left, and since <span class="math inline">g \to -\infty</span> there, the iterates march off to <span class="math inline">-\infty</span> without ever looking back. Try it.</p>
 <p>You may have noticed we copy-pasted the same loop three times, editing the derivative by hand each time. That itch has a cure: next week (<a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a>) we wrap gradient descent into a reusable <em>function</em>, and by <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a> it will be fitting real statistical models.</p>
-<div class="callout callout-style-default callout-tip callout-titled" title="Exercise 2.9: Turning the step-size dial">
+<div class="callout callout-style-default callout-tip callout-titled" title="Exercise 2.8: Turning the step-size dial">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Exercise 2.9: Turning the step-size dial
+Exercise 2.8: Turning the step-size dial
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1914,14 +1829,14 @@ Exercise 2.9: Turning the step-size dial
 <ol type="a">
 <li>Plot all trajectories at once with <code>matplot(paths, type = "l", lty = 1)</code> (Python: <code>plt.plot(paths)</code> draws one line per column, just like <code>matplot</code>). If one trajectory squashes the rest flat, plot it separately and re-plot the others without it.</li>
 <li>Classify each <code>gamma</code>: smooth convergence, oscillating convergence, or divergence?</li>
-<li>Something special happens at <code>gamma = 0.5</code>. What, and — looking at the update formula with <span class="math inline">L'(m) = -2(\bar{y} - m)</span> — why?</li>
+<li>Something special happens at <code>gamma = 0.5</code>. What, and (looking at the update formula with <span class="math inline">L'(m) = -2(\bar{y} - m)</span>) why?</li>
 </ol>
 </div>
 </div>
 </section>
 </section>
-<section id="challenges" class="level2" data-number="2.10">
-<h2 data-number="2.10" class="anchored" data-anchor-id="challenges"><span class="header-section-number">2.10</span> Challenges</h2>
+<section id="challenges" class="level2" data-number="2.9">
+<h2 data-number="2.9" class="anchored" data-anchor-id="challenges"><span class="header-section-number">2.9</span> Challenges</h2>
 <p>Two optional problems for the fearless, drawing the week together.</p>
 <div class="callout callout-style-default callout-important callout-titled" title="Challenge 2.1: Gradient descent that knows when to stop">
 <div class="callout-header d-flex align-content-center">
@@ -1933,7 +1848,7 @@ Challenge 2.1: Gradient descent that knows when to stop
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Running a fixed 60 iterations is crude: wasteful when converged by iteration 10, insufficient if convergence needs 200. Rebuild the quadratic-loss gradient descent with a <code>while</code> loop that stops when the step just taken is smaller than <code>tol = 1e-8</code> in absolute value — but add a safety cap of <code>max_iter = 5000</code> iterations so a diverging run cannot loop forever (this is one of the rare places where <code>&amp;&amp;</code> earns its keep — in Python, plain <code>and</code>).</p>
+<p>Running a fixed 60 iterations is crude: wasteful when converged by iteration 10, insufficient if convergence needs 200. Rebuild the quadratic-loss gradient descent with a <code>while</code> loop that stops when the step just taken is smaller than <code>tol = 1e-8</code> in absolute value, but add a safety cap of <code>max_iter = 5000</code> iterations so a diverging run cannot loop forever (this is one of the rare places where <code>&amp;&amp;</code> earns its keep; in Python, plain <code>and</code>).</p>
 <p>Report the final <code>m</code> and the number of iterations used, for <code>gamma = 0.1</code>, <code>0.01</code> and <code>1.05</code>. For the last one, how does your code know it failed?</p>
 </div>
 </div>
@@ -1954,7 +1869,7 @@ Challenge 2.2: The hailstone numbers
 </ol>
 </div>
 </div>
-<p>That is the week: comparisons and logic to make decisions, loops to repeat them — and, stitched together, a first real algorithm. Next week (<a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a>) we stop copy-pasting the gradient-descent loop and wrap it into a <em>function</em> we can hand any problem we like.</p>
+<p>That is the week: comparisons and logic to make decisions, loops to repeat them, and, stitched together, a first real algorithm. Next week (<a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a>) we stop copy-pasting the gradient-descent loop and wrap it into a <em>function</em> we can hand any problem we like. Functions also unlock the one way of repeating that this week deliberately skipped: <em>recursion</em>, where a function calls itself (<a href="03-week3.html#sec-week3-recursion" class="quarto-xref"><span>Section 3.4</span></a>).</p>
 
 
 </section>

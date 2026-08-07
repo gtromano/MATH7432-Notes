@@ -292,14 +292,12 @@ window.Quarto = {
 </header>
 
 
-<p>Welcome to MATH7432! Over the next five weeks we will learn how to program — in R or in Python, your choice — and how to use it to build the computational tools that modern statistics runs on. By the end of the module you will have implemented, from scratch, algorithms that estimate statistical models — the same family of algorithms that trains neural networks. This week we start from zero: no programming background is assumed.</p>
-<p>Before the code, three definitions, compressed as much as academically acceptable. A <strong>computer</strong> is a device with a processor (which does arithmetic, very fast), memory (which holds the numbers the processor is currently working on) and storage (which holds files that survive a reboot). A <strong>program</strong> is a list of instructions for the processor. Processors only understand <em>machine code</em> — streams of 0s and 1s — which humans are famously bad at writing, so we write programs in a <strong>programming language</strong>: a formal language that is readable by humans and translated for the machine. R and Python — the two languages of this module — are both <em>high-level</em>, <em>interpreted</em> languages: high-level means they read almost like mathematics, and interpreted means each line is translated and executed on the spot, so you can have a live conversation with your computer — type a command, get an answer, type the next one. This makes them ideal for data analysis, where you rarely know step 10 before seeing the result of step 3.</p>
+<p>Welcome to MATH7432! Over the next five weeks we will learn how to program, in both R and Python, and how to use them to build the computational tools that modern statistics runs on. By the end of the module you will have implemented, from scratch, algorithms that estimate statistical models: the same family of algorithms that trains neural networks. This week we start from zero: no programming background is assumed.</p>
+<p>Before the code, three definitions, compressed as much as academically acceptable. A <strong>computer</strong> is a device with a processor (which does arithmetic, very fast), memory (which holds the numbers the processor is currently working on) and storage (which holds files that survive a reboot). A <strong>program</strong> is a list of instructions for the processor. Processors only understand <em>machine code</em> (streams of 0s and 1s), which humans are famously bad at writing, so we write programs in a <strong>programming language</strong>: a formal language that is readable by humans and translated for the machine. R and Python, the two languages of this module, are both <em>high-level</em>, <em>interpreted</em> languages: high-level means they read almost like mathematics, and interpreted means each line is translated and executed on the spot, so you can have a live conversation with your computer: type a command, get an answer, type the next one. This makes them ideal for data analysis, where you rarely know step 10 before seeing the result of step 3.</p>
 <p><strong>R</strong> was created in 1993 by Ross Ihaka and Robert Gentleman in Auckland as an open-source descendant of the S language, and it has since become the lingua franca of statistics: free, open source, with thousands of contributed packages covering essentially every statistical method ever published.</p>
-<p><strong>Python</strong> was created in 1991 by Guido van Rossum in the Netherlands, and is named after the comedy group Monty Python, not the snake. It is a free, open-source, general-purpose language with a philosophy of readability, and — through the libraries numpy and pandas, which we will lean on heavily — it has become the other lingua franca of scientific computing, and the language most machine learning is written in.</p>
-<p>A good statistician picks the right tool for the task, and today the tasks of statistics are done in these two. In this module you are expected to <em>learn one of them</em> — your pick, unless your programme has already picked for you. Every example in these notes appears in both languages, so whichever you choose, the notes double as a dictionary for reading the other.</p>
-<p>If you have ever felt that working with data means being trapped in a spreadsheet, dragging formulas across cells until the heat death of the universe:</p>
-<p><img src="images/chapter1/skyrim-finally-awake.jpg" class="img-fluid" alt="Skyrim meme: 'Hey you, you're finally awake.'" width="450"></p>
-<p>Throughout these notes you will meet chunks of code with their output printed underneath — <strong>side by side in the two languages, R always on the left, Python always on the right</strong> (on a narrow screen the columns stack, and the bold label above each chunk tells you which is which). Follow the column of the language you are learning; glancing at the other one occasionally is how you become bilingual for free:</p>
+<p><strong>Python</strong> was created in 1991 by Guido van Rossum in the Netherlands, and is named after the comedy group Monty Python, not the snake. It is a free, open-source, general-purpose language with a philosophy of readability. Through the libraries numpy and pandas, which we will lean on heavily, it has become the other lingua franca of scientific computing, and the language most machine learning is written in.</p>
+<p>A good statistician picks the right tool for the task, and today the tasks of statistics are done in these two: the modern statistician needs both in their toolset! So in this module you will learn <em>both of them</em>, side by side. Every example in these notes appears in both languages, translated line for line, and the translation is itself part of the course: hopping between the two until the crossing feels routine is exactly the skill we are after.</p>
+<p>Throughout these notes you will meet chunks of code with their output printed underneath: <strong>side by side in the two languages, R always on the left, Python always on the right</strong> (on a narrow screen the columns stack, and the bold label above each chunk tells you which is which). Both columns are for you: read them as a pair, and let each language sharpen the other. For the exercises, work in whichever language you know less well, alternating between the two if you know neither, and always check the solutions for both (the preface has the full strategy). Here is the layout in action:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -332,7 +330,7 @@ window.Quarto = {
 <li>the <strong>environment</strong> panel: lists the objects you have created so far;</li>
 <li>a miscellaneous panel showing files, plots and help pages.</li>
 </ul>
-<p><strong>Note for Python users:</strong> everything in this section applies to you too. RStudio speaks Python as well, and it is what we use in the labs for both languages: a Python script ends in <code>.py</code> instead of <code>.R</code>, the Python console prompt is <code>&gt;&gt;&gt;</code> rather than <code>&gt;</code>, and on your own laptop you will want Python from <a href="https://www.python.org">python.org</a> (the university machines have it already). Comments are <code>#</code> in Python too, so everything below about commenting transfers unchanged.</p>
+<p><strong>Note for Python:</strong> everything in this section applies on the Python side too. RStudio speaks Python as well, and it is what we use in the labs for both languages: a Python script ends in <code>.py</code> instead of <code>.R</code>, the Python console prompt is <code>&gt;&gt;&gt;</code> rather than <code>&gt;</code>, and on your own laptop you will want Python from <a href="https://www.python.org">python.org</a> (the university machines have it already). Comments are <code>#</code> in Python too, so everything below about commenting transfers unchanged.</p>
 <p>The console is for experiments; a <strong>script</strong> (a plain text file with extension <code>.R</code>, created via <em>File &gt; New File &gt; R Script</em>) is for anything you want to keep. The console forgets, a saved script does not. A good workflow, and the one to use in the labs, is: type your commands in a script, run them with <code>Ctrl + Enter</code>, and save the script as you go. Future you, who returns after a week and remembers nothing, will be grateful.</p>
 <p>Future you will be even more grateful for <strong>comments</strong>. Any text after a <code>#</code> on a line is ignored, in both languages, which makes it the place to explain <em>why</em> the code does what it does:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
@@ -360,7 +358,7 @@ window.Quarto = {
 <p>We comment code generously in these notes, and you should do the same in yours.</p>
 <section id="getting-help" class="level3" data-number="1.1.1">
 <h3 data-number="1.1.1" class="anchored" data-anchor-id="getting-help"><span class="header-section-number">1.1.1</span> Getting help</h3>
-<p>Every R function has a help page: <code>?seq</code> (or <code>help(seq)</code>) opens the documentation for <code>seq</code>. The <em>Description</em>, <em>Usage</em> and <em>Arguments</em> sections are the ones to read first, and the <em>Examples</em> at the bottom can be copy-pasted. Python’s equivalent is <code>help()</code> — e.g. <code>help(len)</code>, or <code>help(np.arange)</code> once numpy is loaded — and the online documentation for numpy and pandas is excellent. For anything the help pages cannot answer, the internet is full of people who had your exact error message before you — Stack Overflow in particular. Reading other people’s answers is a core programming skill, not cheating.</p>
+<p>Every R function has a help page: <code>?seq</code> (or <code>help(seq)</code>) opens the documentation for <code>seq</code>. The <em>Description</em>, <em>Usage</em> and <em>Arguments</em> sections are the ones to read first, and the <em>Examples</em> at the bottom can be copy-pasted. Python’s equivalent is <code>help()</code> (e.g. <code>help(len)</code>, or <code>help(np.arange)</code> once numpy is loaded), and the online documentation for numpy and pandas is excellent. For anything the help pages cannot answer, the internet is full of people who had your exact error message before you: Stack Overflow in particular. Reading other people’s answers is a core programming skill, not cheating.</p>
 </section>
 </section>
 <section id="r-as-a-glorified-calculator" class="level2" data-number="1.2">
@@ -428,7 +426,7 @@ window.Quarto = {
 </tr>
 </tbody>
 </table>
-<p><strong>Note for Python users:</strong> the <code>math.</code> prefix in the right-hand column means those functions live in the <strong>math</strong> <em>library</em>, which must be loaded — once, at the top of your script — with <code>import math</code>. That includes the constant <code>math.pi</code>, since bare <code>pi</code> does not exist in Python. Loading libraries is everyday Python life; numpy and pandas arrive later this chapter in exactly the same way. And one trap deserves its own sentence: <strong>the power operator in Python is <code>**</code></strong>, because <code>^</code> exists there too but means something entirely different (bitwise XOR) — <code>2^10</code> runs happily in Python and returns <code>8</code>. Ouch.</p>
+<p><strong>Note for Python:</strong> the <code>math.</code> prefix in the right-hand column means those functions live in the <strong>math</strong> <em>library</em>, which must be loaded (once, at the top of your script) with <code>import math</code>. That includes the constant <code>math.pi</code>, since bare <code>pi</code> does not exist in Python. Loading libraries is everyday Python life; numpy and pandas arrive later this chapter in exactly the same way. And one trap deserves its own sentence: <strong>the power operator in Python is <code>**</code></strong>, because <code>^</code> exists there too but means something entirely different (bitwise XOR): <code>2^10</code> runs happily in Python and returns <code>8</code>. Ouch.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -449,7 +447,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>In the R output, the <code>[1]</code> tells you that <code>13</code> is the first element of the answer — for now answers have only one element, but that changes very soon (Python just prints the bare number). Operations follow the usual algebraic precedence (powers, then multiplication and division, then addition and subtraction, left to right), and parentheses override it:</p>
+<p>In the R output, the <code>[1]</code> tells you that <code>13</code> is the first element of the answer: for now answers have only one element, but that changes very soon (Python just prints the bare number). Operations follow the usual algebraic precedence (powers, then multiplication and division, then addition and subtraction, left to right), and parentheses override it:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -478,7 +476,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>So any formula you can write on paper, you can type — for instance the one that circles your lecturer’s mind at 4am like a haunted seagull: <span class="math display">
+<p>So any formula you can write on paper, you can type. Take, for instance, the one that circles your lecturer’s mind at 4am like a haunted seagull: <span class="math display">
 \frac{\sqrt{3/4}}{\frac{1}{3} - \frac{2}{\pi^2}}.
 </span> Here you go, be free, little bird:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
@@ -517,7 +515,7 @@ Exercise 1.1: A glorified calculator
 <ol type="a">
 <li><span class="math inline">\dfrac{49^2 - 542}{42 + 63^2}</span></li>
 <li><span class="math inline">\sqrt{\pi^3} - \cos(2\pi)</span></li>
-<li>whether <span class="math inline">2026</span> is divisible by <span class="math inline">7</span>, and whether it is divisible by <span class="math inline">1013</span> (the <code>%%</code> operator — <code>%</code> in Python — is your friend: what should the remainder be?);</li>
+<li>whether <span class="math inline">2026</span> is divisible by <span class="math inline">7</span>, and whether it is divisible by <span class="math inline">1013</span> (the <code>%%</code> operator, <code>%</code> in Python, is your friend: what should the remainder be?);</li>
 <li>each person’s share when a £147.68 dinner bill is split among 7 people.</li>
 </ol>
 </div>
@@ -525,7 +523,7 @@ Exercise 1.1: A glorified calculator
 </section>
 <section id="variables-and-assignment" class="level2" data-number="1.3">
 <h2 data-number="1.3" class="anchored" data-anchor-id="variables-and-assignment"><span class="header-section-number">1.3</span> Variables and assignment</h2>
-<p>A calculator with no memory forces you to re-type intermediate results. Our languages instead let you store any result in a <strong>variable</strong> — a labelled box in memory — using the assignment operator: <code>&lt;-</code> in R (read it as “gets”), the plain <code>=</code> in Python:</p>
+<p>A calculator with no memory forces you to re-type intermediate results. Our languages instead let you store any result in a <strong>variable</strong> (a labelled box in memory) using the assignment operator: <code>&lt;-</code> in R (read it as “gets”), the plain <code>=</code> in Python:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -550,7 +548,7 @@ Exercise 1.1: A glorified calculator
 </div>
 </div>
 </div>
-<p><strong>Note on <code>&lt;-</code> vs <code>=</code>:</strong> R also accepts <code>=</code> for assignment, and Python users will type it on reflex — but the R community’s convention is <code>&lt;-</code>, and we follow it in these notes. Python offers no choice: assignment is <code>=</code>, and <code>&lt;-</code> is not assignment at all there — in Python <code>x &lt;- 3</code> parses as “<code>x</code> less than <code>-3</code>”, a comparison that quietly returns <code>True</code> or <code>False</code>. Beware when switching columns.</p>
+<p><strong>Note on <code>&lt;-</code> vs <code>=</code>:</strong> R also accepts <code>=</code> for assignment, and fingers fresh from the Python column will type it on reflex, but the R community’s convention is <code>&lt;-</code>, and we follow it in these notes. Python offers no choice: assignment is <code>=</code>, and <code>&lt;-</code> is not assignment at all there. In Python <code>x &lt;- 3</code> parses as “<code>x</code> less than <code>-3</code>”, a comparison that quietly returns <code>True</code> or <code>False</code>. Beware when switching columns.</p>
 <p>Typing a variable’s name prints its content, and the environment panel of RStudio lists everything you have created:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -601,7 +599,7 @@ Exercise 1.1: A glorified calculator
 </div>
 </div>
 </div>
-<p>Second, assigning to an existing variable silently overwrites it — neither language asks “are you sure?”:</p>
+<p>Second, assigning to an existing variable silently overwrites it; neither language asks “are you sure?”:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -673,7 +671,7 @@ Exercise 1.1: A glorified calculator
 </div>
 </div>
 </div>
-<p>Same result, but each piece now has a name, can be inspected separately, and can be reused. Name your variables like this — lowercase, words separated by <code>_</code>, meaning over brevity (a convention both language communities happen to agree on).</p>
+<p>Same result, but each piece now has a name, can be inspected separately, and can be reused. Name your variables like this: lowercase, words separated by <code>_</code>, meaning over brevity (a convention both language communities happen to agree on).</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Exercise 1.2: Compound interest, minimal effort">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -694,7 +692,7 @@ Exercise 1.2: Compound interest, minimal effort
 </div>
 <section id="types-briefly" class="level3" data-number="1.3.1">
 <h3 data-number="1.3.1" class="anchored" data-anchor-id="types-briefly"><span class="header-section-number">1.3.1</span> Types, briefly</h3>
-<p>Not everything in a variable is a number. Both languages distinguish several <strong>types</strong> of value, and R’s <code>class()</code> — Python’s <code>type()</code> — tells you which one you are holding:</p>
+<p>Not everything in a variable is a number. Both languages distinguish several <strong>types</strong> of value, and R’s <code>class()</code> (Python’s <code>type()</code>) tells you which one you are holding:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -731,14 +729,14 @@ Exercise 1.2: Compound interest, minimal effort
 </div>
 </div>
 </div>
-<p>Numbers you know. <strong>Character</strong> values (strings) are text wrapped in quotes — without the quotes, <code>statistics</code> would be the name of a variable. <strong>Logical</strong> values are the atoms of decision-making in a program; <a href="02-week2.html" class="quarto-xref"><span>Chapter 2</span></a> is largely about them, so we park them here.</p>
-<p><strong>Note for Python users:</strong> the type names differ — <code>float</code> for numeric, <code>str</code> for character, <code>bool</code> for logical — and so does the spelling of the logicals: R shouts <code>TRUE</code> and <code>FALSE</code> in full capitals, Python writes <code>True</code> and <code>False</code> with a capital initial only. Each language rejects the other’s spelling.</p>
+<p>Numbers you know. <strong>Character</strong> values (strings) are text wrapped in quotes: without the quotes, <code>statistics</code> would be the name of a variable. <strong>Logical</strong> values are the atoms of decision-making in a program; <a href="02-week2.html" class="quarto-xref"><span>Chapter 2</span></a> is largely about them, so we park them here.</p>
+<p><strong>Note for Python:</strong> the type names differ (<code>float</code> for numeric, <code>str</code> for character, <code>bool</code> for logical) and so does the spelling of the logicals: R shouts <code>TRUE</code> and <code>FALSE</code> in full capitals, Python writes <code>True</code> and <code>False</code> with a capital initial only. Each language rejects the other’s spelling.</p>
 </section>
 </section>
 <section id="sec-week1-vectors" class="level2" data-number="1.4">
 <h2 data-number="1.4" class="anchored" data-anchor-id="sec-week1-vectors"><span class="header-section-number">1.4</span> Vectors</h2>
-<p>Statistics is not done one number at a time: you have <span class="math inline">n</span> observations, and you want to act on all of them at once. R’s fundamental data structure, the <strong>vector</strong>, is exactly that — an ordered collection of values of the same type. The workhorse for creating one is <code>c()</code>, short for <em>combine</em>.</p>
-<p><strong>Note for Python users:</strong> plain Python has <em>lists</em> — <code>[1.62, 1.85]</code>, square brackets — but the object that matches R’s vector, elementwise mathematics included, is the <strong>array</strong> from the <strong>numpy</strong> library, the foundation of all scientific Python. Load it once per script with <code>import numpy as np</code>; everything in it is then available as <code>np.something</code>, and <code>np.array([...])</code> is your <code>c()</code>. Every vector and matrix in these notes goes through numpy.</p>
+<p>Statistics is not done one number at a time: you have <span class="math inline">n</span> observations, and you want to act on all of them at once. R’s fundamental data structure, the <strong>vector</strong>, is exactly that: an ordered collection of values of the same type. The workhorse for creating one is <code>c()</code>, short for <em>combine</em>.</p>
+<p><strong>Note for Python:</strong> plain Python has <em>lists</em> (<code>[1.62, 1.85]</code>, square brackets), but the object that matches R’s vector, elementwise mathematics included, is the <strong>array</strong> from the <strong>numpy</strong> library, the foundation of all scientific Python. Load it once per script with <code>import numpy as np</code>; everything in it is then available as <code>np.something</code>, and <code>np.array([...])</code> is your <code>c()</code>. Every vector and matrix in these notes goes through numpy.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -771,7 +769,7 @@ Exercise 1.2: Compound interest, minimal effort
 </div>
 </div>
 </div>
-<p>Vectors of text work the same way (<code>c("Ada", "Bea", "Cal")</code>), but one vector cannot mix types: if you try <code>c(1, "two")</code>, R silently converts everything to character — worth knowing before it surprises you. (numpy plays it exactly the same: <code>np.array([1, "two"])</code> comes back as two strings.)</p>
+<p>Vectors of text work the same way (<code>c("Ada", "Bea", "Cal")</code>), but one vector cannot mix types: if you try <code>c(1, "two")</code>, R silently converts everything to character, worth knowing before it surprises you. (numpy plays it exactly the same: <code>np.array([1, "two"])</code> comes back as two strings.)</p>
 <section id="sequences-and-repetitions" class="level3" data-number="1.4.1">
 <h3 data-number="1.4.1" class="anchored" data-anchor-id="sequences-and-repetitions"><span class="header-section-number">1.4.1</span> Sequences and repetitions</h3>
 <p>Typing long vectors by hand does not scale, so both languages give you generators. In R the colon operator builds integer sequences, <code>seq()</code> builds general ones, and <code>rep()</code> repeats; numpy’s counterparts are <code>np.arange</code>, <code>np.linspace</code>, <code>np.tile</code> and <code>np.repeat</code>:</p>
@@ -835,8 +833,8 @@ Exercise 1.2: Compound interest, minimal effort
 </div>
 </div>
 </div>
-<p><strong>Note for Python users:</strong> <code>np.arange(a, b)</code> stops <em>one step before</em> <code>b</code> — the end point is excluded, which is why the integers 1 to 10 take <code>np.arange(1, 11)</code>. This end-exclusion habit runs right through Python (it returns in slicing, below), so burn it in now.</p>
-<p><code>seq()</code> is our first function with named arguments: <code>from</code>, <code>to</code>, <code>by</code>, <code>length.out</code>. Naming the arguments (rather than relying on their order) keeps calls readable — check <code>?seq</code> for the full story. Python has named (<em>keyword</em>) arguments too: <code>np.linspace(start = 0, stop = 1, num = 5)</code> reads just as well.</p>
+<p><strong>Note for Python:</strong> <code>np.arange(a, b)</code> stops <em>one step before</em> <code>b</code>: the end point is excluded, which is why the integers 1 to 10 take <code>np.arange(1, 11)</code>. This end-exclusion habit runs right through Python (it returns in slicing, below), so burn it in now.</p>
+<p><code>seq()</code> is our first function with named arguments: <code>from</code>, <code>to</code>, <code>by</code>, <code>length.out</code>. Naming the arguments (rather than relying on their order) keeps calls readable; check <code>?seq</code> for the full story. Python has named (<em>keyword</em>) arguments too: <code>np.linspace(start = 0, stop = 1, num = 5)</code> reads just as well.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Exercise 1.3: Sequence like you mean it">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -959,7 +957,7 @@ Exercise 1.3: Sequence like you mean it
 </div>
 </div>
 </div>
-<p>This style — one expression acting on <span class="math inline">n</span> numbers at once — is called <strong>vectorised</strong> code. It is how R — and numpy, which exists for precisely this — wants to be written: compact, close to the mathematical notation, and (as we will measure in <a href="02-week2.html" class="quarto-xref"><span>Chapter 2</span></a>) much faster than handling elements one at a time.</p>
+<p>This style, one expression acting on <span class="math inline">n</span> numbers at once, is called <strong>vectorised</strong> code. It is how R (and numpy, which exists for precisely this) wants to be written: compact, close to the mathematical notation, and (as we will measure in <a href="02-week2.html" class="quarto-xref"><span>Chapter 2</span></a>) much faster than handling elements one at a time.</p>
 <p>Some functions instead <em>summarise</em> a whole vector into one number, which covers a good share of day-one statistics:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -1013,7 +1011,7 @@ Exercise 1.3: Sequence like you mean it
 </div>
 </div>
 </div>
-<p>(numpy also offers these as <em>methods</em> attached to the array itself — <code>heights.mean()</code> — a spelling you will meet everywhere in the wild; the function form keeps our columns aligned. And yes, <code>which.max</code> and <code>np.argmax</code> just disagreed by one about the same element — the next-but-one section explains why.)</p>
+<p>(numpy also offers these as <em>methods</em> attached to the array itself, <code>heights.mean()</code>, a spelling you will meet everywhere in the wild; the function form keeps our columns aligned. And yes, <code>which.max</code> and <code>np.argmax</code> just disagreed by one about the same element: the next-but-one section explains why.)</p>
 </section>
 <section id="recycling-and-its-footgun" class="level3" data-number="1.4.3">
 <h3 data-number="1.4.3" class="anchored" data-anchor-id="recycling-and-its-footgun"><span class="header-section-number">1.4.3</span> Recycling, and its footgun</h3>
@@ -1046,8 +1044,8 @@ Exercise 1.3: Sequence like you mean it
 </div>
 </div>
 </div>
-<p><strong>Note for Python users — recycling vs broadcasting:</strong> numpy does <em>not</em> recycle. Its rule, called <strong>broadcasting</strong>, only stretches a scalar (or, once we reach matrices, a length-1 axis) to fit; two vectors of lengths 6 and 2 simply refuse to combine, with an error, not a warning. That is why the Python column above repeats the short array explicitly with <code>np.tile</code>. You lose a convenience and dodge a footgun — many would call that a win.</p>
-<p>R only complains when the longer length is not a multiple of the shorter — and even then it is a <em>warning</em>, not an error, and you still get an answer. numpy, meanwhile, refuses outright and names the two shapes it could not reconcile:</p>
+<p><strong>Note for Python (recycling vs broadcasting):</strong> numpy does <em>not</em> recycle. Its rule, called <strong>broadcasting</strong>, only stretches a scalar (or, once we reach matrices, a length-1 axis) to fit; two vectors of lengths 6 and 2 simply refuse to combine, with an error, not a warning. That is why the Python column above repeats the short array explicitly with <code>np.tile</code>. You lose a convenience and dodge a footgun; many would call that a win.</p>
+<p>R only complains when the longer length is not a multiple of the shorter, and even then it is a <em>warning</em>, not an error, and you still get an answer. numpy, meanwhile, refuses outright and names the two shapes it could not reconcile:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1072,7 +1070,7 @@ shorter object length</code></pre>
 </div>
 </div>
 </div>
-<p>This is the footgun: if your two vectors were <em>supposed</em> to be the same length and are not — say a typo dropped an observation — R may silently recycle and hand you plausible-looking garbage. When a warning like the one above appears, treat it as an error until proven innocent, and check your <code>length()</code>s. (<strong>Note for Python users:</strong> this footgun is R-only — numpy’s refusal to broadcast mismatched lengths turns the silent bug into an immediate, honest error.)</p>
+<p>This is the footgun: if your two vectors were <em>supposed</em> to be the same length and are not (say a typo dropped an observation), R may silently recycle and hand you plausible-looking garbage. When a warning like the one above appears, treat it as an error until proven innocent, and check your <code>length()</code>s. (<strong>Note for Python:</strong> this footgun is R-only; numpy’s refusal to broadcast mismatched lengths turns the silent bug into an immediate, honest error.)</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Exercise 1.4: The recycling plant">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1090,13 +1088,13 @@ Exercise 1.4: The recycling plant
 <li><code>1:8 / c(1, 2, 4, 8)</code></li>
 <li><code>(1:3)^(1:6)</code></li>
 </ol>
-<p><em>Python users:</em> translate each expression into numpy (<code>np.arange</code>, <code>np.array</code>) and predict instead whether numpy <em>runs it or raises an error</em> — and, for those that refuse, reproduce R’s answer with an explicit <code>np.tile</code>.</p>
+<p>On the Python side, translate each expression into numpy (<code>np.arange</code>, <code>np.array</code>) and predict instead whether numpy <em>runs it or raises an error</em>; for those that refuse, reproduce R’s answer with an explicit <code>np.tile</code>.</p>
 </div>
 </div>
 </section>
 <section id="indexing-getting-elements-out" class="level3" data-number="1.4.4">
 <h3 data-number="1.4.4" class="anchored" data-anchor-id="indexing-getting-elements-out"><span class="header-section-number">1.4.4</span> Indexing: getting elements out</h3>
-<p>Every element of a vector has a position — and here the two languages part ways in the most consequential fashion of the whole module: R counts positions from 1, like humans and mathematicians; Python counts from 0. Square brackets extract elements by position:</p>
+<p>Every element of a vector has a position, and here the two languages part ways in the most consequential fashion of the whole module: R counts positions from 1, like humans and mathematicians; Python counts from 0. Square brackets extract elements by position:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1146,7 +1144,7 @@ Exercise 1.4: The recycling plant
 </div>
 <div class="callout-body-container callout-body">
 <p>R counts positions <strong>from 1</strong>, Python <strong>from 0</strong>: the first element is <code>x[1]</code> in R but <code>x[0]</code> in Python, and the element in position <span class="math inline">k</span> of your maths is <code>x[k]</code> in R but <code>x[k - 1]</code> in Python.</p>
-<p>Negative indices are worse than different — they are <em>false friends</em>. In R, <code>x[-1]</code> means “everything <strong>except</strong> the first element”. In Python, <code>x[-1]</code> means “count <strong>from the end</strong>”: it <em>is</em> the last element (a beloved idiom — no <code>len(x) - 1</code> needed). The same characters, two entirely different results, and no error message to warn you. More translation bugs are born on this line than anywhere else: when in doubt, print and check.</p>
+<p>Negative indices are worse than different: they are <em>false friends</em>. In R, <code>x[-1]</code> means “everything <strong>except</strong> the first element”. In Python, <code>x[-1]</code> means “count <strong>from the end</strong>”: it <em>is</em> the last element (a beloved idiom, no <code>len(x) - 1</code> needed). The same characters, two entirely different results, and no error message to warn you. More translation bugs are born on this line than anywhere else: when in doubt, print and check.</p>
 </div>
 </div>
 <p>The index can itself be a vector, which lets you take slices, cherry-pick, or reorder:</p>
@@ -1186,8 +1184,8 @@ Exercise 1.4: The recycling plant
 </div>
 </div>
 </div>
-<p>(There is the end-exclusion again: Python’s slice <code>a:b</code> runs from index <code>a</code> up to, but not including, index <code>b</code> — just like <code>np.arange</code>.)</p>
-<p>A <strong>negative</strong> index means “everything except” in R — and something else entirely in Python:</p>
+<p>(There is the end-exclusion again: Python’s slice <code>a:b</code> runs from index <code>a</code> up to, but not including, index <code>b</code>, just like <code>np.arange</code>.)</p>
+<p>A <strong>negative</strong> index means “everything except” in R, and something else entirely in Python:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1253,7 +1251,7 @@ Exercise 1.4: The recycling plant
 </div>
 </div>
 </div>
-<p>One teaser before we move on: in both languages, brackets also accept conditions, so <code>x[x &gt; 50]</code> returns the elements larger than 50. How and why that works is the business of <a href="02-week2.html" class="quarto-xref"><span>Chapter 2</span></a> — resist the urge for one more week.</p>
+<p>One teaser before we move on: in both languages, brackets also accept conditions, so <code>x[x &gt; 50]</code> returns the elements larger than 50. How and why that works is the business of <a href="02-week2.html" class="quarto-xref"><span>Chapter 2</span></a>: resist the urge for one more week.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Exercise 1.5: Marking spree">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1281,7 +1279,7 @@ Exercise 1.5: Marking spree
 </div>
 <ol type="a">
 <li>Compute the mean mark and the range (maximum minus minimum).</li>
-<li>Which student (i.e.&nbsp;which <em>position</em>) got the top mark? Extract their mark using that position — in one command, without typing the position yourself.</li>
+<li>Which student (i.e.&nbsp;which <em>position</em>) got the top mark? Extract their mark using that position (in one command, without typing the position yourself).</li>
 <li>Extract the marks of students 2, 5 and 9 in a single command.</li>
 <li>Extract everyone <em>except</em> student 4, who has an exceptional-circumstances claim pending.</li>
 <li>The lecturer, feeling generous, adds 3 marks to everyone. Compute the new vector and its mean. How does the new mean relate to the old one, and why did that not require any statistics?</li>
@@ -1327,12 +1325,12 @@ Exercise 1.5: Marking spree
 </div>
 </div>
 </div>
-<p>That is genuinely all it takes to graph a function. (One asymmetry: base R plots points unless you ask for a line with <code>type = "l"</code>; matplotlib’s <code>plt.plot</code> draws a line unless you ask otherwise — <code>plt.scatter</code> is its point-plotter.) We will keep using quick one-liners like this as visual checks, and do plotting <em>properly</em> — labels, colours, themes, publication quality — in <a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>.</p>
+<p>That is genuinely all it takes to graph a function. (One asymmetry: base R plots points unless you ask for a line with <code>type = "l"</code>; matplotlib’s <code>plt.plot</code> draws a line unless you ask otherwise; <code>plt.scatter</code> is its point-plotter.) We will keep using quick one-liners like this as visual checks, and do plotting <em>properly</em> (labels, colours, themes, publication quality) in <a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>.</p>
 </section>
 </section>
 <section id="saving-your-work-csv-files-and-the-working-directory" class="level2" data-number="1.5">
 <h2 data-number="1.5" class="anchored" data-anchor-id="saving-your-work-csv-files-and-the-working-directory"><span class="header-section-number">1.5</span> Saving your work: csv files and the working directory</h2>
-<p>Variables live in memory, and memory is wiped when your session closes. To keep results — or to share them with anyone who is not inside your session — you write them to a file on disk. The standard exchange format for data is the <strong>csv</strong> (comma-separated values) file, a plain text table that every spreadsheet and statistics package can read:</p>
+<p>Variables live in memory, and memory is wiped when your session closes. To keep results, or to share them with anyone who is not inside your session, you write them to a file on disk. The standard exchange format for data is the <strong>csv</strong> (comma-separated values) file, a plain text table that every spreadsheet and statistics package can read:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1351,7 +1349,7 @@ Exercise 1.5: Marking spree
 </div>
 </div>
 </div>
-<p><strong>Note for Python users:</strong> csv duty falls to <strong>pandas</strong>, Python’s data-frame library (imported as <code>pd</code> by near-universal convention). pandas thinks in tables, so the array is wrapped in a <code>DataFrame</code> on its way to disk, and <code>index=False</code> is the counterpart of R’s <code>row.names = FALSE</code>. The Python column writes to <code>week1_rain_py.csv</code> — a different file name from the R column, so the two languages never overwrite each other’s work.</p>
+<p><strong>Note for Python:</strong> csv duty falls to <strong>pandas</strong>, Python’s data-frame library (imported as <code>pd</code> by near-universal convention). pandas thinks in tables, so the array is wrapped in a <code>DataFrame</code> on its way to disk, and <code>index=False</code> is the counterpart of R’s <code>row.names = FALSE</code>. The Python column writes to <code>week1_rain_py.csv</code>: a different file name from the R column, so the two languages never overwrite each other’s work.</p>
 <p>But <em>where</em> did that file go? Into your <strong>working directory</strong>: the folder on disk where your session currently “stands”. Any file name without a folder in front of it is read from, or written to, this directory.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -1385,7 +1383,7 @@ Exercise 1.5: Marking spree
 </div>
 </div>
 </div>
-<p>Rather than hard-coding long paths like <code>"C:/Users/you/Desktop/stuff/..."</code> (which break the moment the script moves to another machine), the sane workflow is to keep your scripts and data in one folder and make that the working directory — in RStudio: <em>Session &gt; Set Working Directory &gt; To Source File Location</em>.</p>
+<p>Rather than hard-coding long paths like <code>"C:/Users/you/Desktop/stuff/..."</code> (which break the moment the script moves to another machine), the sane workflow is to keep your scripts and data in one folder and make that the working directory (in RStudio: <em>Session &gt; Set Working Directory &gt; To Source File Location</em>).</p>
 <p>Reading the file back in is the mirror image:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -1419,7 +1417,7 @@ Exercise 1.5: Marking spree
 </div>
 </div>
 </div>
-<p>The printout looks slightly different from a vector: it has a column name (<code>x</code> in R; pandas defaults to <code>0</code>) and numbered rows (from 0 in Python, naturally). That is because <code>read.csv()</code> — and equally pandas’ <code>read_csv()</code> — returns a <strong>data frame</strong>: the table-shaped cousin of the vector, and the single most important object in applied statistics. It gets the star treatment in <a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>; for now, csv out and csv in is all we need.</p>
+<p>The printout looks slightly different from a vector: it has a column name (<code>x</code> in R; pandas defaults to <code>0</code>) and numbered rows (from 0 in Python, naturally). That is because <code>read.csv()</code> (and equally pandas’ <code>read_csv()</code>) returns a <strong>data frame</strong>: the table-shaped cousin of the vector, and the single most important object in applied statistics. It gets the star treatment in <a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>; for now, csv out and csv in is all we need.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Exercise 1.6: There and back again (a csv's tale)">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1432,8 +1430,8 @@ Exercise 1.6: There and back again (a csv’s tale)
 <div class="callout-body-container callout-body">
 <ol type="a">
 <li>Create a vector <code>temps</code> with the daily maximum temperatures <span class="math inline">4.2, 6.8, 7.5, 3.1, 5.0, 8.4, 6.9</span> (°C, a week in a Lancaster spring).</li>
-<li>Write it to a file called <code>week1_temps.csv</code> (Python users: <code>week1_temps_py.csv</code>, so the two languages stay out of each other’s way), without row names (pandas: without the index).</li>
-<li>Find the file on disk and open it with a plain text editor (Notepad, TextEdit) — <em>not</em> Excel. Describe what you see: how are the values laid out?</li>
+<li>Write it to a file called <code>week1_temps.csv</code> (Python: <code>week1_temps_py.csv</code>, so the two languages stay out of each other’s way), without row names (pandas: without the index).</li>
+<li>Find the file on disk and open it with a plain text editor (Notepad, TextEdit), <em>not</em> Excel. Describe what you see: how are the values laid out?</li>
 <li>Read the file back into a new variable and check the values survived the round trip.</li>
 <li>What does the file look like if you forget <code>row.names = FALSE</code> (<code>index=False</code>) in part (b)?</li>
 </ol>
@@ -1442,7 +1440,7 @@ Exercise 1.6: There and back again (a csv’s tale)
 </section>
 <section id="sec-week1-matrices" class="level2" data-number="1.6">
 <h2 data-number="1.6" class="anchored" data-anchor-id="sec-week1-matrices"><span class="header-section-number">1.6</span> Matrices and a taste of linear algebra</h2>
-<p>You know matrices from linear algebra; both our languages know them too, and — R being built by statisticians, numpy by numerical scientists — they are very good at them. A matrix in R is a vector wrapped onto rows and columns by <code>matrix()</code>; in numpy, a matrix is simply a 2-D array:</p>
+<p>You know matrices from linear algebra; both our languages know them too, and (R being built by statisticians, numpy by numerical scientists) they are very good at them. A matrix in R is a vector wrapped onto rows and columns by <code>matrix()</code>; in numpy, a matrix is simply a 2-D array:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1495,7 +1493,7 @@ Exercise 1.6: There and back again (a csv’s tale)
 </div>
 </div>
 </div>
-<p><strong>Note for Python users:</strong> numpy’s own filling order is the opposite of R’s — row by row (“C order”); the <code>order="F"</code> above (“Fortran order”, the column-major convention R inherited) was only there to imitate R’s default. The idiomatic numpy build is the second chunk’s: hand <code>np.array</code> a list of rows and no reshaping is needed — the code looks like the matrix.</p>
+<p><strong>Note for Python:</strong> numpy’s own filling order is the opposite of R’s: row by row (“C order”); the <code>order="F"</code> above (“Fortran order”, the column-major convention R inherited) was only there to imitate R’s default. The idiomatic numpy build is the second chunk’s: hand <code>np.array</code> a list of rows and no reshaping is needed, so the code looks like the matrix.</p>
 <p>The dimensions are always rows first, columns second:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -1533,7 +1531,7 @@ Exercise 1.6: There and back again (a csv’s tale)
 </div>
 </div>
 </div>
-<p>You can also build matrices by gluing vectors together: <code>cbind()</code> (numpy: <code>np.column_stack</code>) binds them as columns, <code>rbind()</code> (<code>np.vstack</code>) as rows — remember the column one, it earns its keep in the challenge at the end of this chapter.</p>
+<p>You can also build matrices by gluing vectors together: <code>cbind()</code> (numpy: <code>np.column_stack</code>) binds them as columns, <code>rbind()</code> (<code>np.vstack</code>) as rows. Remember the column one: it earns its keep in the challenge at the end of this chapter.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1618,7 +1616,7 @@ Exercise 1.6: There and back again (a csv’s tale)
 </div>
 </div>
 </div>
-<p>And <code>t()</code> — in numpy the <code>.T</code> attribute — transposes:</p>
+<p>And <code>t()</code> (in numpy the <code>.T</code> attribute) transposes:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1647,7 +1645,7 @@ Exercise 1.6: There and back again (a csv’s tale)
 </section>
 <section id="matrix-arithmetic-is-not-what-you-think" class="level3" data-number="1.6.2">
 <h3 data-number="1.6.2" class="anchored" data-anchor-id="matrix-arithmetic-is-not-what-you-think"><span class="header-section-number">1.6.2</span> Matrix arithmetic: <code>*</code> is not what you think</h3>
-<p>Here is the classic trap — and it is the same trap in both languages. The ordinary arithmetic operators work on matrices exactly as they do on vectors — <strong>elementwise</strong>:</p>
+<p>Here is the classic trap, and it is the same trap in both languages. The ordinary arithmetic operators work on matrices exactly as they do on vectors, <strong>elementwise</strong>:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1686,8 +1684,8 @@ Exercise 1.6: There and back again (a csv’s tale)
 </div>
 </div>
 </div>
-<p>The actual matrix product — rows times columns, as in <span class="math inline">\left(BC\right)_{ij} = \sum_k B_{ik}
-C_{kj}</span> — has its own operator: <code>%*%</code> in R, <code>@</code> in Python:</p>
+<p>The actual matrix product (rows times columns, as in <span class="math inline">\left(BC\right)_{ij} = \sum_k B_{ik}
+C_{kj}</span>) has its own operator: <code>%*%</code> in R, <code>@</code> in Python:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1711,7 +1709,7 @@ C_{kj}</span> — has its own operator: <code>%*%</code> in R, <code>@</code> in
 </div>
 </div>
 </div>
-<p>The usual conformity rule applies: an <span class="math inline">(n \times k)</span> matrix can only <code>%*%</code> a <span class="math inline">(k \times m)</span> one. Writing <code>*</code> where you meant <code>%*%</code> (or <code>@</code>) is a rite of passage in either language; the resulting bug is nasty precisely because both versions run without error and return a matrix of the same size. Check a small case by hand when in doubt — which is, conveniently, the next exercise.</p>
+<p>The usual conformity rule applies: an <span class="math inline">(n \times k)</span> matrix can only <code>%*%</code> a <span class="math inline">(k \times m)</span> one. Writing <code>*</code> where you meant <code>%*%</code> (or <code>@</code>) is a rite of passage in either language; the resulting bug is nasty precisely because both versions run without error and return a matrix of the same size. Check a small case by hand when in doubt: that is, conveniently, the next exercise.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Exercise 1.7: Matrix products, by hand and by machine">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1774,8 +1772,8 @@ B = \begin{pmatrix} 1 &amp; 4 \\ 2 &amp; 5 \end{pmatrix}.
 </div>
 </div>
 </div>
-<p><strong>Note for Python users:</strong> numpy files all of linear algebra under <code>np.linalg</code>, and names things honestly: <code>np.linalg.inv</code> inverts, <code>np.linalg.solve</code> (coming below) solves systems, <code>np.linalg.det</code> takes determinants. R’s <code>solve()</code> carries the misleading-name burden alone.</p>
-<p>(The <code>round()</code> is there because floating-point arithmetic leaves microscopic dust like <code>2.2e-16</code> where exact zeros should be — more on that in <a href="02-week2.html" class="quarto-xref"><span>Chapter 2</span></a>.) The identity matrix itself, should you need one, is <code>diag(2)</code> in R, <code>np.eye(2)</code> in Python.</p>
+<p><strong>Note for Python:</strong> numpy files all of linear algebra under <code>np.linalg</code>, and names things honestly: <code>np.linalg.inv</code> inverts, <code>np.linalg.solve</code> (coming below) solves systems, <code>np.linalg.det</code> takes determinants. R’s <code>solve()</code> carries the misleading-name burden alone.</p>
+<p>(The <code>round()</code> is there because floating-point arithmetic leaves microscopic dust like <code>2.2e-16</code> where exact zeros should be; more on that in <a href="02-week2.html" class="quarto-xref"><span>Chapter 2</span></a>.) The identity matrix itself, should you need one, is <code>diag(2)</code> in R, <code>np.eye(2)</code> in Python.</p>
 <p>A matrix is invertible if and only if its determinant is non-zero, and <code>det()</code> (<code>np.linalg.det</code>) will tell you:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -1807,7 +1805,7 @@ B = \begin{pmatrix} 1 &amp; 4 \\ 2 &amp; 5 \end{pmatrix}.
 </div>
 </div>
 </div>
-<p>Asking for the inverse of a singular matrix fails loudly in both languages (an <em>error</em>, not a warning — priorities in the right place):</p>
+<p>Asking for the inverse of a singular matrix fails loudly in both languages (an <em>error</em>, not a warning: priorities in the right place):</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1863,7 +1861,7 @@ x + 2y &amp;= 5 \\
 </div>
 </div>
 </div>
-<p>Mathematically this is <span class="math inline">\mathbf{x} = A^{-1}\mathbf{b}</span>, and <code>solve(A) %*% b</code> (Python: <code>np.linalg.inv(A) @ b</code>) gives the same answer — but the two-argument <code>solve(A, b)</code> / <code>np.linalg.solve(A, b)</code> never forms the inverse explicitly, which is both faster and numerically more stable. Statistics is full of linear systems (you are about to meet the most famous one in Challenge 1.1), so this one-liner will follow you for the rest of your career.</p>
+<p>Mathematically this is <span class="math inline">\mathbf{x} = A^{-1}\mathbf{b}</span>, and <code>solve(A) %*% b</code> (Python: <code>np.linalg.inv(A) @ b</code>) gives the same answer, but the two-argument <code>solve(A, b)</code> / <code>np.linalg.solve(A, b)</code> never forms the inverse explicitly, which is both faster and numerically more stable. Statistics is full of linear systems (you are about to meet the most famous one in Challenge 1.1), so this one-liner will follow you for the rest of your career.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Exercise 1.8: Three equations, three unknowns">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1927,8 +1925,8 @@ $vectors
 </div>
 </div>
 </div>
-<p><strong>Note for Python users:</strong> <code>np.linalg.eig</code> hands back a <em>pair</em> — eigenvalues, eigenvectors — rather than R’s single object, and unlike R it makes no promise about their order (here it happens to match R’s largest-first). For symmetric matrices — and covariance matrices always are — the specialised <code>np.linalg.eigh</code> is faster, more accurate, and sorts eigenvalues in <em>ascending</em> order, so the “top” eigenvalue comes last.</p>
-<p>The eigenvector with the largest eigenvalue points in the direction along which the data varies most, and the eigenvalues split the total variance across those directions — this single idea is principal component analysis, the workhorse of dimension reduction. Eigenvalues will also quietly reappear in <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a>, where they govern how fast our optimisation algorithms converge. For now: <code>eigen()</code> (and <code>np.linalg.eig</code>) exists, and Challenge 1.2 lets you poke at it.</p>
+<p><strong>Note for Python:</strong> <code>np.linalg.eig</code> hands back a <em>pair</em> (eigenvalues, eigenvectors) rather than R’s single object, and unlike R it makes no promise about their order (here it happens to match R’s largest-first). For symmetric matrices, and covariance matrices always are, the specialised <code>np.linalg.eigh</code> is faster, more accurate, and sorts eigenvalues in <em>ascending</em> order, so the “top” eigenvalue comes last.</p>
+<p>The eigenvector with the largest eigenvalue points in the direction along which the data varies most, and the eigenvalues split the total variance across those directions. This single idea is principal component analysis, the workhorse of dimension reduction. Eigenvalues will also quietly reappear in <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a>, where they govern how fast our optimisation algorithms converge. For now: <code>eigen()</code> (and <code>np.linalg.eig</code>) exists, and Challenge 1.2 lets you poke at it.</p>
 <div class="callout callout-style-default callout-important callout-titled" title="Challenge 1.1: Least squares, a sneak preview">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1960,11 +1958,11 @@ Challenge 1.1: Least squares, a sneak preview
 \boldsymbol{\hat\beta} = (X^\top X)^{-1} X^\top \mathbf{y},
 </span> where <span class="math inline">X</span> is the matrix whose first column is all 1s and whose second column is <span class="math inline">x</span>.</p>
 <ol type="a">
-<li>Build <span class="math inline">X</span> with <code>cbind()</code> (a neat trick: <code>cbind(1, x)</code> recycles the 1). In Python — no recycling there — build the column of ones explicitly: <code>np.column_stack([np.ones(len(x)), x])</code>.</li>
-<li>Compute <span class="math inline">\boldsymbol{\hat\beta}</span> with <code>t()</code>, <code>%*%</code> and <code>solve()</code> (Python: <code>.T</code>, <code>@</code> and <code>np.linalg.inv</code> — or better, <code>np.linalg.solve</code>).</li>
+<li>Build <span class="math inline">X</span> with <code>cbind()</code> (a neat trick: <code>cbind(1, x)</code> recycles the 1). In Python, where there is no recycling, build the column of ones explicitly: <code>np.column_stack([np.ones(len(x)), x])</code>.</li>
+<li>Compute <span class="math inline">\boldsymbol{\hat\beta}</span> with <code>t()</code>, <code>%*%</code> and <code>solve()</code> (Python: <code>.T</code>, <code>@</code> and <code>np.linalg.inv</code>, or better, <code>np.linalg.solve</code>).</li>
 <li>Plot the data with <code>plot(x, y)</code> and overlay your line with <code>abline(a = beta[1], b = beta[2])</code>. (matplotlib has no <code>abline</code>: use <code>plt.scatter(x, y)</code>, then draw the line yourself with <code>plt.plot(x, beta[0] + beta[1] * x)</code>.) Admire.</li>
 </ol>
-<p>You have just fitted your first regression, with your bare hands, using only week-1 material. In <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a> we will fit models like this by <em>optimisation</em> — and see exactly where this magic formula comes from.</p>
+<p>You have just fitted your first regression, with your bare hands, using only week-1 material. In <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a> we will fit models like this by <em>optimisation</em>, and see exactly where this magic formula comes from.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-important callout-titled" title="Challenge 1.2: Dissecting a covariance matrix">
@@ -1997,12 +1995,12 @@ Challenge 1.2: Dissecting a covariance matrix
 <section id="what-you-can-do-now" class="level2" data-number="1.7">
 <h2 data-number="1.7" class="anchored" data-anchor-id="what-you-can-do-now"><span class="header-section-number">1.7</span> What you can do now</h2>
 <ul>
-<li>Use R or Python as a calculator, keep results in variables, and organise it all in commented scripts.</li>
-<li>Build vectors with <code>c()</code>, <code>seq()</code> and <code>rep()</code> (numpy: <code>np.array</code>, <code>np.arange</code>/<code>np.linspace</code>, <code>np.tile</code>/<code>np.repeat</code>), slice them by position — minding who counts from 1 and who from 0 — and act on all elements at once with vectorised arithmetic; recycling (R) and broadcasting (numpy) warning bells installed.</li>
+<li>Use both R and Python as calculators, keep results in variables, and organise it all in commented scripts.</li>
+<li>Build vectors with <code>c()</code>, <code>seq()</code> and <code>rep()</code> (numpy: <code>np.array</code>, <code>np.arange</code>/<code>np.linspace</code>, <code>np.tile</code>/<code>np.repeat</code>), slice them by position (minding who counts from 1 and who from 0) and act on all elements at once with vectorised arithmetic; recycling (R) and broadcasting (numpy) warning bells installed.</li>
 <li>Round-trip your data to disk as csv files (<code>write.csv</code>/<code>read.csv</code>; pandas’ <code>to_csv</code>/<code>read_csv</code>), and know where your session put them.</li>
 <li>Do real linear algebra: <code>%*%</code> (<code>@</code>), <code>t()</code> (<code>.T</code>), <code>det()</code>, <code>solve()</code> for inverses and systems (<code>np.linalg</code>’s <code>det</code>, <code>inv</code> and <code>solve</code>), and a first taste of <code>eigen()</code> (<code>np.linalg.eig</code>).</li>
 </ul>
-<p>Next week, in <a href="02-week2.html" class="quarto-xref"><span>Chapter 2</span></a>, we teach the machine to make decisions: <code>TRUE</code> and <code>FALSE</code> (<code>True</code> and <code>False</code>) in earnest, <code>if</code> and <code>else</code>, loops — and with them our first proper algorithm, gradient descent, which will carry us all the way to <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a>.</p>
+<p>Next week, in <a href="02-week2.html" class="quarto-xref"><span>Chapter 2</span></a>, we teach the machine to make decisions: <code>TRUE</code> and <code>FALSE</code> (<code>True</code> and <code>False</code>) in earnest, <code>if</code> and <code>else</code>, loops, and with them our first proper algorithm, gradient descent, which will carry us all the way to <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a>.</p>
 
 
 </section>

@@ -1,4 +1,13 @@
+---
+nocite: |
+  @*
+---
+
 # References {.unnumbered}
+
+The books below go deeper than these notes do: @wickham2019advanced on the R language
+itself, @wickham2023r4ds and @mckinney2022python on data analysis in each of our two
+languages, and @nocedal2006numerical for the optimisation theory behind week 5.
 
 ::: {#refs}
 :::

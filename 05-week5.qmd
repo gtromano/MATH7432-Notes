@@ -21,12 +21,12 @@ work on the problem that underlies an enormous amount of modern statistics:
 
 > **Fitting a model is minimising a function.**
 
-Maximum likelihood, least squares, penalised regression, neural networks — behind each
+Maximum likelihood, least squares, penalised regression, neural networks: behind each
 of them sits an optimisation problem, and behind most of the algorithms that solve
 those problems sits some descendant of gradient descent. By the end of this chapter you
 will have met the whole family: plain gradient descent, its stochastic cousin, momentum,
 preconditioning, and the quasi-Newton method BFGS that the built-in optimisers of both
-languages — R's `optim()` and Python's `scipy.optimize.minimize()` — use in practice.
+languages (R's `optim()` and Python's `scipy.optimize.minimize()`) use in practice.
 
 ## Gradient descent, again {#sec-week5-gd}
 
@@ -40,7 +40,7 @@ $$
 
 where $\gamma > 0$ is the **step size** (machine learning people say *learning rate*).
 In @sec-week3 we packaged this into `grad_descent(f, grad, x0, gamma, n)`. Here it is
-again — chapters are self-contained — with one upgrade: instead of returning only the
+again (chapters are self-contained) with one upgrade: instead of returning only the
 final point, it records the whole trajectory, because this week we want to *watch*
 the algorithm work.
 
@@ -92,9 +92,9 @@ def grad_descent(f, grad, x0, gamma, n):
 </div>
 :::
 
-**Note for Python users:** the R loop runs `i = 1, ..., n` and fills rows
-`2, ..., n + 1`; the Python loop runs `i = 0, ..., n - 1` and fills rows `1, ..., n`
-— the same trajectory, one index base apart (@sec-week1's indexing note at work).
+**Note for Python:** the R loop runs `i = 1, ..., n` and fills rows
+`2, ..., n + 1`; the Python loop runs `i = 0, ..., n - 1` and fills rows `1, ..., n`:
+the same trajectory, one index base apart (@sec-week1's indexing note at work).
 
 Note the functional style from @sec-week3: `f` and `grad` are *arguments*. The same
 dozen lines will minimise a toy parabola now and a logistic regression likelihood
@@ -141,14 +141,14 @@ path_bowl.tail(3).round(5)
 :::
 
 Sixty steps and we are sitting on the minimum. To *see* the descent we plot the
-function as a **contour plot**: evaluate $f$ on a grid — `expand.grid()` in R,
-`np.meshgrid()` in Python — then hand the grid to `geom_contour()`. Since we will
+function as a **contour plot**: evaluate $f$ on a grid (`expand.grid()` in R,
+`np.meshgrid()` in Python), then hand the grid to `geom_contour()`. Since we will
 draw many of these, we write two small helper functions (again: @sec-week3 habits
 paying rent).
 
-**Note for Python users:** plotnine, ggplot2's Python twin from @sec-week4, has no
+**Note for Python:** plotnine, ggplot2's Python twin from @sec-week4, has no
 `geom_contour()`. Every contour figure this week therefore falls back on matplotlib's
-`plt.contour()` — same pictures, different engine — and the faceted contour figures
+`plt.contour()` (same pictures, different engine), and the faceted contour figures
 become `plt.subplots()` panels.
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
@@ -222,7 +222,7 @@ The path marches straight into the bowl. Lovely. Time to break it.
 ## Why the step size is hard {#sec-week5-stepsize}
 
 The step size $\gamma$ is doing a lot of quiet work. To expose it, we use a function
-that is deliberately *ill-conditioned* — much steeper in one direction than the other:
+that is deliberately *ill-conditioned* (much steeper in one direction than the other):
 
 $$
 f(x_1, x_2) = \frac{x_1^2}{2} + \frac{10\, x_2^2}{2},
@@ -305,7 +305,7 @@ Three step sizes, three personalities:
 - **Too small** ($\gamma = 0.01$): every step is safe and almost useless. After 60
   iterations we have barely moved along the valley.
 - **Near the limit** ($\gamma = 0.18$): the steep $x_2$ direction overshoots and
-  bounces from one wall of the valley to the other — the famous **zig-zag** — while
+  bounces from one wall of the valley to the other (the famous **zig-zag**) while
   slowly drifting towards the minimum.
 - **Too big** ($\gamma = 0.25$): each bounce is *bigger* than the last. The iterates
   diverge. (The panel is clipped; the true trajectory left the building.)
@@ -315,7 +315,7 @@ Three step sizes, three personalities:
 There is a clean piece of intuition behind this. For a quadratic, gradient descent in
 each coordinate multiplies the error by $(1 - \gamma \lambda)$ per step, where
 $\lambda$ is the curvature in that direction. (These directional curvatures are
-exactly the *eigenvalues* of the Hessian of $f$ — the `eigen()` from @sec-week1,
+exactly the *eigenvalues* of the Hessian of $f$: the `eigen()` from @sec-week1,
 quietly reappearing as promised.) Stability requires
 $|1 - \gamma \lambda| < 1$ for *every* direction, i.e.
 
@@ -323,7 +323,7 @@ $$
 \gamma < \frac{2}{L}, \qquad L = \text{largest curvature},
 $$
 
-which for our valley means $\gamma < 2/10 = 0.2$ — exactly why $0.18$ scraped through
+which for our valley means $\gamma < 2/10 = 0.2$: exactly why $0.18$ scraped through
 and $0.25$ exploded. But *progress* in the flattest direction is governed by the
 smallest curvature $\mu$: per step the error shrinks by $(1 - \gamma\mu)$, at best
 about $(1 - \mu/L)$. The ratio
@@ -333,8 +333,8 @@ $$
 $$
 
 controls how many iterations you need: as $\kappa$ grows, the iteration count grows
-in proportion. Our valley has $\kappa = 10$ and is already annoying. Real statistical problems —
-say a regression with one covariate measured in grams and another in tonnes — can have
+in proportion. Our valley has $\kappa = 10$ and is already annoying. Real statistical problems
+(say a regression with one covariate measured in grams and another in tonnes) can have
 $\kappa$ in the millions, and plain gradient descent simply stops being a usable tool.
 Hold that thought; it is the villain for the rest of the chapter.
 
@@ -432,11 +432,11 @@ L(\boldsymbol\beta) = \frac{1}{n}\sum_{i=1}^n
 \nabla L(\boldsymbol\beta) = \frac{1}{n} X^\top\big(\sigma(X\boldsymbol\beta) - \mathbf{y}\big),
 $$
 
-with $\sigma$ applied elementwise. No closed-form minimiser exists here — you *must*
+with $\sigma$ applied elementwise. No closed-form minimiser exists here: you *must*
 optimise numerically. This is the everyday reality of maximum likelihood.
 
-Let us simulate one dataset for each. We fix the random seed first — `set.seed()` in
-R, a seeded generator `np.random.default_rng()` in Python — so that you get the same
+Let us simulate one dataset for each. We fix the random seed first (`set.seed()` in
+R, a seeded generator `np.random.default_rng()` in Python) so that you get the same
 data, plots and fitted values as these notes.
 
 **Note:** the two languages cannot share a random stream. The R and Python columns
@@ -519,14 +519,14 @@ def nll_grad(b):
 </div>
 :::
 
-**Note for Python users:** a `lambda` holds a single expression only, so the
-multi-line R lambdas become small `def`s — the same first-class function objects
+**Note for Python:** a `lambda` holds a single expression only, so the
+multi-line R lambdas become small `def`s: the same first-class function objects
 either way (@sec-week3).
 
 For linear regression we do not actually *need* an iterative method: setting
 $\nabla L = 0$ gives the normal equations
-$X^\top X \boldsymbol\beta = X^\top \mathbf{y}$, which `solve()` — `np.linalg.solve()`
-in Python — dispatches in one line, the very linear algebra you did in @sec-week1:
+$X^\top X \boldsymbol\beta = X^\top \mathbf{y}$, which `solve()` (`np.linalg.solve()`
+in Python) dispatches in one line, the very linear algebra you did in @sec-week1:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -552,7 +552,7 @@ beta_ols
 </div>
 :::
 
-(In real life R's `lm()` — or `np.linalg.lstsq()` in Python — does this for you, more
+(In real life R's `lm()`, or `np.linalg.lstsq()` in Python, does this for you, more
 carefully.) The closed form gives us a gold standard to check gradient descent against:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
@@ -584,7 +584,7 @@ pd.DataFrame([beta_ols, path_mse.iloc[-1, :2].to_numpy()],
 :::
 
 Identical to working precision, in about fifty effective steps. And because the loss
-has two parameters, we can watch the descent over the loss surface itself — the
+has two parameters, we can watch the descent over the loss surface itself: the
 contours below are contours of $L(\beta_0, \beta_1)$, a picture worth keeping in mind
 every time you fit *any* model:
 
@@ -619,7 +619,7 @@ plt.show()
 
 The cross marks $\hat{\boldsymbol\beta}_{\text{OLS}}$. Gradient descent walks straight
 to the same place the algebra pointed to. For logistic regression there is no cross to
-draw in advance — the iterative method is the only game in town. We will fit it in
+draw in advance: the iterative method is the only game in town. We will fit it in
 @sec-week5-bfgs.
 
 ## Stochastic gradient descent {#sec-week5-sgd}
@@ -636,7 +636,7 @@ costs a full pass over a dataset that may not even fit in memory. The sum struct
 suggests a cheeky fix: *don't compute the whole sum*. Pick one index $I$ uniformly at
 random and use $\nabla \ell_I(\theta)$ as a stand-in for $\nabla L(\theta)$. It is a
 noisy stand-in, but it is **unbiased**:
-$\mathbb{E}\big[\nabla \ell_I(\theta)\big] = \nabla L(\theta)$ — on average, it is the
+$\mathbb{E}\big[\nabla \ell_I(\theta)\big] = \nabla L(\theta)$. On average, it is the
 right direction. The update
 
 $$
@@ -709,8 +709,8 @@ mse_grad_i = lambda b, i: -X[i] * (y[i] - X[i] @ b)
 </div>
 :::
 
-**Note for Python users:** `sample(n_data, 1)` draws from $\{1, \dots, n\}$;
-`rng.integers(n_data)` draws from $\{0, \dots, n-1\}$ — each exactly the right range
+**Note for Python:** `sample(n_data, 1)` draws from $\{1, \dots, n\}$;
+`rng.integers(n_data)` draws from $\{0, \dots, n-1\}$: each exactly the right range
 for its language's indexing. And where R's `sample()` quietly uses the global RNG
 state, the Python column leans on the global `rng` object in the same way.
 
@@ -773,7 +773,7 @@ plt.show()
 </div>
 :::
 
-Both trajectories are drunk versions of the gradient descent path — that is the noise
+Both trajectories are drunk versions of the gradient descent path: that is the noise
 of estimating the gradient from one observation. But the endgames differ:
 
 - With a **constant** step the iterates never settle: they reach the neighbourhood of
@@ -782,7 +782,7 @@ of estimating the gradient from one observation. But the endgames differ:
 - With a **decaying** step the early iterations still move fast, while the shrinking
   steps gradually strangle the noise, and the trajectory funnels into the minimum.
 
-How fast should $\gamma_t$ decay? The classical answer (Robbins and Monro, 1951 —
+How fast should $\gamma_t$ decay? The classical answer (Robbins and Monro, 1951:
 this algorithm is older than the computer you are running it on) is, informally:
 
 $$
@@ -791,7 +791,7 @@ $$
 \sum_{t=1}^{\infty} \gamma_t^2 < \infty.
 $$
 
-The first condition says the steps must add up to infinity — otherwise the algorithm
+The first condition says the steps must add up to infinity: otherwise the algorithm
 can run out of fuel before reaching the minimum, however far away it started. The
 second says they must shrink fast enough that the noise averages out. Schedules like
 $\gamma_t = a/(b + t)$ satisfy both, which is why you keep seeing that shape.
@@ -858,22 +858,22 @@ cost_df = cost_df[cost_df["evals"] > 0]
 </div>
 :::
 
-**Note for Python users:** pandas has no `bind_rows()` or `filter()` verbs —
-`pd.concat()` plus a boolean mask do the same job (@sec-week4) — and plotnine still
+**Note for Python:** pandas has no `bind_rows()` or `filter()` verbs;
+`pd.concat()` plus a boolean mask do the same job (@sec-week4). And plotnine still
 calls the line-width aesthetic `size`, which ggplot2 has since renamed `linewidth`.
 
 By the time GD has finished its *first* step (200 evaluations), SGD has already
 collapsed most of the loss. Read the other end honestly too: GD then converges to the
 exact minimiser, while SGD closes in more slowly and less precisely. For small $n$ and
 high accuracy, GD (or better, @sec-week5-bfgs) wins; for enormous $n$ and
-statistical-scale accuracy — remember the estimate itself has sampling error of order
-$1/\sqrt{n}$, so chasing the tenth decimal of the minimiser is vanity — SGD is the
+statistical-scale accuracy (remember the estimate itself has sampling error of order
+$1/\sqrt{n}$, so chasing the tenth decimal of the minimiser is vanity), SGD is the
 only affordable option. It is the workhorse that trains essentially every neural
 network.
 
 :::: {.callout-tip title="Exercise 5.2: Mini-batch SGD"}
 Fill in the blanks to turn `sgd()` into mini-batch SGD, then run it on the regression
-loss. The batch gradient function is given — note (on the R side) the `drop = FALSE`:
+loss. The batch gradient function is given. Note (on the R side) the `drop = FALSE`:
 when the batch holds a single index, `X[idx, ]` would silently collapse the one-row
 matrix to a plain vector, and `drop = FALSE` keeps the matrix shape so the algebra
 survives `batch = 1`:
@@ -930,15 +930,15 @@ def sgd_batch(grad_batch, x0, gamma, n_steps, n_data, batch=10):
 </div>
 :::
 
-**Note for Python users:** numpy dodges the `drop = FALSE` trap — indexing with an
+**Note for Python:** numpy dodges the `drop = FALSE` trap: indexing with an
 index *array* (`X[idx]`) always keeps the 2-D shape; only a bare scalar index drops
-the dimension. The trap on your side is `rng.choice()`, which samples **with**
+the dimension. The trap on the Python side is `rng.choice()`, which samples **with**
 replacement unless told `replace=False`, whereas R's `sample()` is without
 replacement by default.
 
 Run 2000 steps with constant `gamma = \(t) 0.1` (`lambda t: 0.1`) for batch sizes 1,
 10 and 50, and compare the wobble of the final 500 iterates (e.g. via `sd()` of each
-coordinate — `.std()` in Python — or just by plotting the paths). What does the batch
+coordinate, `.std()` in Python, or just by plotting the paths). What does the batch
 size buy you, and what does it cost?
 ::::
 
@@ -949,7 +949,7 @@ steep direction, progress was throttled along the flat one, and the trajectory w
 its energy bouncing between walls. Physics suggests a fix. Imagine the iterate is not
 a point teleporting around, but a **heavy ball rolling on the surface of $f$, with
 friction**. A ball entering a narrow valley rattles briefly between the walls, the
-rattling cancels itself out, and the ball settles into rolling *along* the valley —
+rattling cancels itself out, and the ball settles into rolling *along* the valley,
 gathering speed in any direction the slope keeps pushing.
 
 To simulate that, give the iterate a velocity $\mathbf{v}$ that accumulates gradients
@@ -964,13 +964,13 @@ $$
 with $\beta \in [0, 1)$. This is the **heavy-ball method**, or gradient descent with
 **momentum**. The coefficient $\beta$ is the memory of the ball: each step the old
 velocity is kept, scaled by $\beta$, so $1 - \beta$ acts as friction. $\beta = 0$ is
-plain gradient descent (total friction — all velocity lost each step); $\beta \to 1$ is a frictionless
+plain gradient descent (total friction: all velocity lost each step); $\beta \to 1$ is a frictionless
 ball that overshoots and oscillates forever. In between, something useful happens:
 
 - in the **zig-zag direction** the gradient flips sign every step, so successive
-  contributions to $\mathbf{v}$ *cancel* — the oscillation damps itself;
+  contributions to $\mathbf{v}$ *cancel*: the oscillation damps itself;
 - in the **consistent downhill direction** the contributions all point the same way
-  and *accumulate* — the ball accelerates along the valley floor.
+  and *accumulate*: the ball accelerates along the valley floor.
 
 In code, two lines change:
 
@@ -1097,7 +1097,7 @@ c(plain    = steps_to_tol(grad_descent(f_ill, grad_ill, c(-9, 1.5), 0.18, 3000),
 :::
 
 The orange path shakes off the zig-zag within a few bounces and cruises down the
-valley, reaching tolerance in half the iterations — and the gap widens as $\kappa$
+valley, reaching tolerance in half the iterations, and the gap widens as $\kappa$
 grows. In practice $\beta$ is a tuning knob like $\gamma$: values around $0.9$ are
 the folklore default in machine learning, but on a nearly-quadratic problem like this
 a smaller $\beta$ damps faster (try $0.9$ here and watch it overshoot the minimum and
@@ -1105,7 +1105,7 @@ loop back).
 
 ### Stochastic momentum
 
-Momentum drops straight into SGD — replace the full gradient with the single-sample
+Momentum drops straight into SGD. Replace the full gradient with the single-sample
 one:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
@@ -1156,7 +1156,7 @@ def sgd_mom(grad_i, x0, gamma, n_steps, n_data, beta=0.9):
 Now $\mathbf{v}$ is a running average of *noisy* gradients, so momentum also acts as a
 noise filter: individual samples may point sideways, but their average points
 downhill. One honest subtlety: with memory $\beta$, the steps effectively add up to
-$\gamma/(1-\beta)$ worth of gradient — with $\beta = 0.9$ that is a factor of 10 — so
+$\gamma/(1-\beta)$ worth of gradient (with $\beta = 0.9$ that is a factor of 10), so
 shrink $\gamma$ accordingly when you switch momentum on.
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
@@ -1216,7 +1216,7 @@ plt.show()
 </div>
 :::
 
-Both end up at the same place, but the momentum path is visibly smoother — it turns
+Both end up at the same place, but the momentum path is visibly smoother: it turns
 gently where plain SGD staggers. SGD-plus-momentum, with mini-batches, is more or less
 *the* algorithm that trains deep neural networks.
 
@@ -1288,7 +1288,7 @@ def grad_descent_pre(f, grad, x0, gamma, n, P):
 What is the *ideal* $P$? Our valley has Hessian (matrix of second derivatives)
 $H = \mathrm{diag}(1, 10)$: curvature 1 along $x_1$, 10 along $x_2$. Choosing
 $P = H^{-1} = \mathrm{diag}(1, 1/10)$ divides each direction by its own curvature, so
-*every* direction behaves like curvature 1 — the valley becomes a perfectly round
+*every* direction behaves like curvature 1: the valley becomes a perfectly round
 bowl, $\kappa = 1$. With $\gamma = 1$:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
@@ -1317,7 +1317,7 @@ path_pre.round(10)
 </div>
 :::
 
-One step. Not "converges quickly" — *lands exactly on the minimum in one step*.
+One step. Not "converges quickly": *lands exactly on the minimum in one step*.
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -1373,7 +1373,7 @@ doubles per iteration). So why isn't Newton the end of the chapter?
   engineering.
 
 Cheap compromises are everywhere in statistics and machine learning: use only the
-*diagonal* of the Hessian (exactly our $P$ above — for axis-aligned problems it is the
+*diagonal* of the Hessian (exactly our $P$ above: for axis-aligned problems it is the
 whole story, and in general it is a decent approximation); or simply **standardise
 your covariates**, which is preconditioning by a diagonal matrix before the algorithm
 even starts. If you remember one practical trick from this section: *rescale your
@@ -1392,7 +1392,7 @@ H \, (\mathbf{x}_{k+1} - \mathbf{x}_k),
 $$
 
 so each step tells us how the gradient *changed* when we moved in one particular
-direction — one slice of the Hessian, for free. Quasi-Newton methods maintain a
+direction: one slice of the Hessian, for free. Quasi-Newton methods maintain a
 running approximation $B_k \approx H^{-1}$ and require it to explain the most recent
 step exactly, the **secant condition**:
 
@@ -1401,12 +1401,12 @@ B_{k+1} \, \underbrace{\big(\nabla f_{k+1} - \nabla f_k\big)}_{\mathbf{y}_k}
 = \underbrace{\mathbf{x}_{k+1} - \mathbf{x}_k}_{\mathbf{s}_k}.
 $$
 
-**BFGS** (Broyden–Fletcher–Goldfarb–Shanno, 1970 — four people found it independently
+**BFGS** (Broyden–Fletcher–Goldfarb–Shanno, 1970: four people found it independently
 in the same year) updates $B_k$ by the smallest symmetric modification that satisfies
-the secant condition — a *rank-two update*: cheap matrix–vector algebra, no matrix
+the secant condition, a *rank-two update*: cheap matrix–vector algebra, no matrix
 inversion, and $B_k$ stays positive definite so the step $-B_k \nabla f_k$ always
 points downhill (provided each step actually observes positive curvature,
-$\mathbf{y}_k^\top \mathbf{s}_k > 0$ — the line search inside `optim()` and
+$\mathbf{y}_k^\top \mathbf{s}_k > 0$: the line search inside `optim()` and
 `minimize()` sees to this). For the curious, the update is
 
 $$
@@ -1416,13 +1416,13 @@ B_{k+1} = \big(I - \rho_k \mathbf{s}_k \mathbf{y}_k^\top\big) B_k
 \qquad \rho_k = \frac{1}{\mathbf{y}_k^\top \mathbf{s}_k},
 $$
 
-and we will not derive it — the point to retain is the *idea*: start with $B_0 = I$
+and we will not derive it. The point to retain is the *idea*: start with $B_0 = I$
 (plain gradient descent), and let each observed gradient difference teach the
 algorithm a bit more of the local geometry. After a handful of steps BFGS is taking
 nearly Newton-quality steps while having only ever evaluated $f$ and $\nabla f$.
 
-You will never implement BFGS yourself, because both languages ship it — R as
-`optim()`, Python inside `scipy.optimize.minimize()`:
+You will never implement BFGS yourself, because both languages ship it (R as
+`optim()`, Python inside `scipy.optimize.minimize()`):
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -1447,7 +1447,7 @@ sp.optimize.minimize(fun, x0, jac=grad, method="BFGS")
 :::
 
 with `par`/`x0` the starting point, `fn`/`fun` the function to minimise and
-`gr`/`jac` its gradient — the same ingredients our `grad_descent()` takes (this is
+`gr`/`jac` its gradient: the same ingredients our `grad_descent()` takes (this is
 why we wrote everything functional-style: the interfaces match). Time to fit the
 logistic regression from @sec-week5-losses, which has been waiting patiently for a
 competent optimiser:
@@ -1484,16 +1484,16 @@ fit_bfgs.success      # True means success
 </div>
 :::
 
-**Note for Python users:** the report fields differ in name and convention: `$par`,
+**Note for Python:** the report fields differ in name and convention: `$par`,
 `$value`, `$counts` and `$convergence` become `.x`, `.fun`, `.nfev`/`.njev` and
-`.success` — and R signals success with `convergence == 0`, scipy with
+`.success`. And R signals success with `convergence == 0`, scipy with
 `success == True`. Always check it, whatever it is called.
 
 About fifteen gradient evaluations in the R run (a dozen in the Python run, on its
-own draw of the data). Let us line it up against our own algorithms — and against a
+own draw of the data). Let us line it up against our own algorithms, and against a
 reference fit: `glm()`, R's official logistic regression fitter, on the left; on the
 right, since Python has no built-in `glm()` (the usual tools live in the
-`statsmodels` package), BFGS rerun with a very strict tolerance — measuring cost in
+`statsmodels` package), BFGS rerun with a very strict tolerance, measuring cost in
 observation-gradients touched, as in @sec-week5-sgd:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
@@ -1563,17 +1563,17 @@ results
 :::
 
 Read the table slowly: it summarises the whole chapter. (The two columns fit two
-different draws of the data, so the loss values differ between languages — the
+different draws of the data, so the loss values differ between languages: the
 *pattern* is the same.)
 
-- **BFGS matches the reference fit — `glm()` in R — to six decimals** at the cost of
-  a few thousand observation-gradients, with *no tuning at all* — no $\gamma$, no
+- **BFGS matches the reference fit (`glm()` in R) to six decimals** at the cost of
+  a few thousand observation-gradients, with *no tuning at all*: no $\gamma$, no
   schedule, no $\beta$. The curvature information it accumulates replaces all the
   knobs we spent this chapter turning by hand.
 - **GD gets there too**, but only after we hand-tuned $\gamma$, and at over ten
   times the cost. On an ill-conditioned problem (Exercise 5.4) the gap becomes a
   chasm.
-- **SGD is nearly as accurate here at a fraction of the cost** — and its cost would
+- **SGD is nearly as accurate here at a fraction of the cost**, and its cost would
   be *unchanged* if $n$ were $10^8$, which is the regime it is built for.
 
 Two closing remarks on `optim()` and `minimize()`. For problems with many parameters
@@ -1581,7 +1581,7 @@ there is `method = "L-BFGS-B"` (same name in both), a low-memory variant that st
 only the last few $(\mathbf{s}_k, \mathbf{y}_k)$ pairs instead of the full
 $d \times d$ matrix (and accepts box constraints on the parameters). And practically:
 **`optim()` with BFGS is what you reach for** when fitting a model by maximum
-likelihood in R (`minimize()` in Python) — countless packages are, under the hood,
+likelihood in R (`minimize()` in Python): countless packages are, under the hood,
 exactly `optim(par, nll, gr, method = "BFGS")` wearing a nice interface.
 
 :::: {.callout-tip title="Exercise 5.4: optim in the wild"}
@@ -1638,7 +1638,7 @@ def nll_cars_grad(b):
 
 a. Fit with `optim(c(0, 0, 0), nll_cars, nll_cars_grad, method = "BFGS")` and compare
    the NLL at the optimum with `glm(am ~ hp + wt, data = mtcars, family = binomial)`
-   (compute `nll_cars(coef(...))`). Check `$convergence` — if it is not `0`, look up
+   (compute `nll_cars(coef(...))`). Check `$convergence`: if it is not `0`, look up
    what that means in `?optim` and fix it via the `control` argument.
 b. Now try your own `grad_descent()` with `gamma = 1e-3`, then with `gamma = 1e-4`
    and `n = 20000`. Describe what happens in each case.
@@ -1646,7 +1646,7 @@ c. Explain (b) in one or two sentences using @sec-week5-conditioning. Hint: look
    the scales of the columns of `X_cars`. Which section of this chapter offers a fix
    that would let gradient descent compete?
 
-**Note for Python users:** the fit in (a) is
+**Note for Python:** the fit in (a) is
 `sp.optimize.minimize(nll_cars, np.zeros(3), jac=nll_cars_grad, method="BFGS")`; the
 fields to check are `.success` and `.message`, and options such as iteration caps go
 in `options = {"maxiter": 500}`. With no `glm()` in Python, compare against a
@@ -1662,7 +1662,7 @@ all over statistics and machine learning:
 - **Maximum likelihood, everywhere.** Almost every model you will fit from now on is
   fitted by numerically minimising a negative log-likelihood. Sometimes the optimiser
   is visible (`optim()` or `minimize()` in a package's source code), sometimes hidden
-  (R's `glm()` uses iteratively reweighted least squares — a Newton variant), but it
+  (R's `glm()` uses iteratively reweighted least squares, a Newton variant), but it
   is always there, and now you know what its knobs mean and what its failure modes
   look like. When a model "fails to converge", you have seen the picture: a too-large
   step diverging, or an ill-conditioned likelihood crawling.

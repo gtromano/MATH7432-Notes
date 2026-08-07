@@ -293,12 +293,12 @@ window.Quarto = {
 </header>
 
 
-<p>Three weeks of machinery: vectors and matrices (<a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>), loops (<a href="02-week2.html" class="quarto-xref"><span>Chapter 2</span></a>), functions (<a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a>). This week we point all of it at what statisticians actually spend their days on: tables of data. We will learn how to store data in <em>data frames</em>, manipulate them with <code>dplyr</code> (in Python: <code>pandas</code>), and — at last — plot them properly with <code>ggplot2</code> (in Python: <code>plotnine</code>). The quick-and-dirty <code>plot()</code> and <code>plt.plot()</code> calls from the previous weeks retire this week.</p>
+<p>Three weeks of machinery: vectors and matrices (<a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>), loops (<a href="02-week2.html" class="quarto-xref"><span>Chapter 2</span></a>), functions (<a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a>). This week we point all of it at what statisticians actually spend their days on: tables of data. We will learn how to store data in <em>data frames</em>, manipulate them with <code>dplyr</code> (in Python: <code>pandas</code>), and, at last, plot them properly with <code>ggplot2</code> (in Python: <code>plotnine</code>). The quick-and-dirty <code>plot()</code> and <code>plt.plot()</code> calls from the previous weeks retire this week.</p>
 <section id="the-tidyverse" class="level2" data-number="4.1">
 <h2 data-number="4.1" class="anchored" data-anchor-id="the-tidyverse"><span class="header-section-number">4.1</span> The tidyverse</h2>
 <p>Modern data work in R happens largely inside the <strong>tidyverse</strong>, a collection of packages that share a common design: <code>dplyr</code> for manipulation, <code>readr</code> for import/export, <code>tibble</code> for nicer data frames, <code>ggplot2</code> for graphics, and <code>purrr</code>, which you already met in <a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a>.</p>
-<p><strong>Note for Python users:</strong> Python spreads the same jobs over separate packages: <code>pandas</code> covers what <code>dplyr</code>, <code>readr</code> and <code>tibble</code> do, and <code>plotnine</code> is a deliberate port of <code>ggplot2</code> — same grammar, nearly the same code. Together with <code>numpy</code> they are this week’s toolkit, installed and imported alongside the R column below.</p>
-<p>Install it once (already done on university machines):</p>
+<p><strong>Note for Python:</strong> Python spreads the same jobs over separate packages: <code>pandas</code> covers what <code>dplyr</code>, <code>readr</code> and <code>tibble</code> do, and <code>plotnine</code> is a deliberate port of <code>ggplot2</code> (same grammar, nearly the same code). Together with <code>numpy</code> they are this week’s toolkit, installed and imported alongside the R column below.</p>
+<p>Install it once (already done on university machines). The R line runs in the R console; the Python line is a shell command, so it runs in a terminal, not in the Python console:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -309,7 +309,7 @@ window.Quarto = {
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>python <span class="op">-</span>m pip install pandas plotnine</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>python <span class="op">-</span>m pip install pandas plotnine</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
@@ -324,7 +324,7 @@ window.Quarto = {
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># several packages instead of one — import them together, at the top</span></span>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># several packages instead of one: import them together, at the top</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> plotnine <span class="im">import</span> (</span>
@@ -334,7 +334,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>Installing happens once per computer; loading happens once per session — a distinction everyone mixes up exactly once.</p>
+<p>Installing happens once per computer; loading happens once per session: a distinction everyone mixes up exactly once.</p>
 </section>
 <section id="sec-week4-df" class="level2" data-number="4.2">
 <h2 data-number="4.2" class="anchored" data-anchor-id="sec-week4-df"><span class="header-section-number">4.2</span> Data frames</h2>
@@ -393,7 +393,7 @@ window.Quarto = {
 </tr>
 </tbody>
 </table>
-<p>Note the <code>NA</code>s: real data is rarely complete, and R has a dedicated value for “not available” (in Python, <code>pandas</code> marks missing numbers with the floating-point <code>NaN</code>, written <code>np.nan</code>). We build the data frame column by column with <code>data.frame()</code> — in Python, from a dictionary mapping column names to lists:</p>
+<p>Note the <code>NA</code>s: real data is rarely complete, and R has a dedicated value for “not available” (in Python, <code>pandas</code> marks missing numbers with the floating-point <code>NaN</code>, written <code>np.nan</code>). We build the data frame column by column with <code>data.frame()</code> (in Python, from a dictionary mapping column names to lists):</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -470,7 +470,7 @@ Name: calories, dtype: int64</code></pre>
 </div>
 </div>
 </div>
-<p>In R, square brackets with a column name return instead a <em>smaller data frame</em> — pandas does the same when you double the brackets:</p>
+<p>In R, square brackets with a column name return instead a <em>smaller data frame</em>. pandas does the same when you double the brackets:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -515,7 +515,7 @@ Name: calories, dtype: int64</code></pre>
 </div>
 </div>
 </div>
-<p><strong>Note for Python users:</strong> the single/double bracket split is worth committing to memory: <code>milk["calories"]</code> is a <code>Series</code> (the vector-like object), <code>milk[["calories"]]</code> is a one-column <code>DataFrame</code>. The attribute shorthand <code>milk.calories</code> also works, but only for names that are valid Python identifiers — brackets are the safe habit.</p>
+<p><strong>Note for Python:</strong> the single/double bracket split is worth committing to memory: <code>milk["calories"]</code> is a <code>Series</code> (the vector-like object), <code>milk[["calories"]]</code> is a one-column <code>DataFrame</code>. The attribute shorthand <code>milk.calories</code> also works, but only for names that are valid Python identifiers. Brackets are the safe habit.</p>
 <p>For rows (and row/column combinations) we index in two dimensions, exactly as we did with matrices: <code>df[rows, columns]</code>, with an empty slot meaning “everything”:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -537,7 +537,7 @@ Name: calories, dtype: int64</code></pre>
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>milk.iloc[[<span class="dv">1</span>]]                       <span class="co"># second row: position 1 — Python counts from 0!</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>milk.iloc[[<span class="dv">1</span>]]                       <span class="co"># second row: position 1 (Python counts from 0!)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  type  calories  protein  fibre  carbs  sugars  fat
 1  Soy       100        7    2.0     10     NaN  4.0</code></pre>
@@ -551,8 +551,8 @@ Name: calories, dtype: int64</code></pre>
 </div>
 </div>
 </div>
-<p><strong>Note for Python users:</strong> pandas splits two-dimensional indexing over two <em>indexers</em>: <code>.iloc</code> takes integer <strong>positions</strong> (0-based, end excluded — the rules of <a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>), while <code>.loc</code> takes <strong>labels</strong> — here the row labels happen to be the integers 0, 1, 2, … — and includes <em>both</em> ends, which is why <code>0:1</code> above returns two rows. Also, <code>milk.iloc[1]</code> without the inner brackets squeezes the row into a <code>Series</code>; the doubled brackets keep it a one-row <code>DataFrame</code>.</p>
-<p>The comparison operators of <a href="02-week2.html" class="quarto-xref"><span>Chapter 2</span></a> work here too — a logical vector selects rows:</p>
+<p><strong>Note for Python:</strong> pandas splits two-dimensional indexing over two <em>indexers</em>: <code>.iloc</code> takes integer <strong>positions</strong> (0-based, end excluded: the rules of <a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>), while <code>.loc</code> takes <strong>labels</strong> (here the row labels happen to be the integers 0, 1, 2, …) and includes <em>both</em> ends, which is why <code>0:1</code> above returns two rows. Also, <code>milk.iloc[1]</code> without the inner brackets squeezes the row into a <code>Series</code>; the doubled brackets keep it a one-row <code>DataFrame</code>.</p>
+<p>The comparison operators of <a href="02-week2.html" class="quarto-xref"><span>Chapter 2</span></a> work here too. A logical vector selects rows:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -709,7 +709,7 @@ max    130.000000  7.000000  2.000000  25.000000  19.000000  4.000    0.950000</
 </div>
 </div>
 </div>
-<p><code>summary()</code> counts the <code>NA</code>s for us — and those <code>NA</code>s are contagious. Any computation touching a missing value returns <code>NA</code>, unless you explicitly ask R to drop them:</p>
+<p><code>summary()</code> counts the <code>NA</code>s for us, and those <code>NA</code>s are contagious. Any computation touching a missing value returns <code>NA</code>, unless you explicitly ask R to drop them:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -738,7 +738,7 @@ max    130.000000  7.000000  2.000000  25.000000  19.000000  4.000    0.950000</
 </div>
 </div>
 </div>
-<p><strong>Note for Python users:</strong> the two languages picked <em>opposite</em> defaults: R propagates <code>NA</code> until you say <code>na.rm = TRUE</code>; pandas silently skips <code>NaN</code> until you say <code>skipna=False</code>. Neither is wrong, but know which one you are getting — a summary that quietly ignores missing values can hide a data problem R would have shouted about.</p>
+<p><strong>Note for Python:</strong> the two languages picked <em>opposite</em> defaults: R propagates <code>NA</code> until you say <code>na.rm = TRUE</code>; pandas silently skips <code>NaN</code> until you say <code>skipna=False</code>. Neither is wrong, but know which one you are getting: a summary that quietly ignores missing values can hide a data problem R would have shouted about.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Exercise 4.1: A data frame of distributions">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -758,8 +758,8 @@ Exercise 4.1: A data frame of distributions
 <p>Then:</p>
 <ol type="a">
 <li>Extract the <code>name</code> column as a vector.</li>
-<li>Using logical indexing, extract the rows of the discrete distributions. (Hint: <code>discrete</code> is already a logical vector — no comparison needed.)</li>
-<li>Add a logical column <code>symmetric</code> using the dollar syntax (Python: bracket assignment) — only the Gaussian and the Uniform are symmetric.</li>
+<li>Using logical indexing, extract the rows of the discrete distributions. (Hint: <code>discrete</code> is already a logical vector, so no comparison is needed.)</li>
+<li>Add a logical column <code>symmetric</code> using the dollar syntax (Python: bracket assignment). Only the Gaussian and the Uniform are symmetric.</li>
 <li>Check your work with <code>str()</code> and <code>dim()</code> (Python: <code>.info()</code> and <code>.shape</code>).</li>
 </ol>
 </div>
@@ -768,7 +768,7 @@ Exercise 4.1: A data frame of distributions
 </section>
 <section id="sec-week4-tibbles" class="level2" data-number="4.3">
 <h2 data-number="4.3" class="anchored" data-anchor-id="sec-week4-tibbles"><span class="header-section-number">4.3</span> Tibbles</h2>
-<p>The tidyverse ships a modernised data frame called a <strong>tibble</strong>. It <em>is</em> a data frame — everything above applies — with two behavioural upgrades. First, printing: a tibble shows ten rows, only the columns that fit, and the type of each. A classic data frame would happily dump every last row of a 50,000-row dataset into your console. Second, no partial matching. Watch this data.frame quirk:</p>
+<p>The tidyverse ships a modernised data frame called a <strong>tibble</strong>. It <em>is</em> a data frame (everything above applies) with two behavioural upgrades. First, printing: a tibble shows ten rows, only the columns that fit, and the type of each. A classic data frame would happily dump every last row of a 50,000-row dataset into your console. Second, no partial matching. Watch this data.frame quirk:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -789,7 +789,7 @@ Exercise 4.1: A data frame of distributions
 </div>
 </div>
 </div>
-<p>That is a bug waiting to happen — mistype a column name and R may “helpfully” return a different column. A tibble warns you and returns <code>NULL</code>:</p>
+<p>That is a bug waiting to happen: mistype a column name and R may “helpfully” return a different column. A tibble warns you and returns <code>NULL</code>:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -813,8 +813,8 @@ Exercise 4.1: A data frame of distributions
 </div>
 </div>
 </div>
-<p><strong>Note for Python users:</strong> there is no tibble to reach for because there is no quirk to fix — pandas has exactly <strong>one</strong> table type, the <code>DataFrame</code> you have been using all along, and it never partial-matches (as the <code>KeyError</code> above shows; <code>.get()</code> is the polite version). The genuinely new thing to watch is the <strong>index</strong>: every <code>DataFrame</code> carries row labels — the unnamed left column in the printouts — which stick to their rows through filtering and sorting. It is pandas’ (heavily used) version of R’s (rarely used) row names; when it gets in your way, <code>.reset_index()</code> demotes it to an ordinary column, and <code>index=False</code> keeps it out of your CSV files. Both will appear below.</p>
-<p>You create tibbles directly with <code>tibble()</code> (same syntax as <code>data.frame()</code>, with the bonus that later columns can use earlier ones), or convert with <code>as_tibble()</code>. From now on we work with tibbles, and we need a bigger dataset to play with: <code>mtcars</code>, a built-in table of 32 cars from a 1974 issue of <em>Motor Trend</em> (in Python it ships with plotnine, as <code>plotnine.data.mtcars</code>). The variables we will use most: <code>mpg</code> (miles per gallon — higher means more fuel-efficient), <code>cyl</code> (cylinders), <code>hp</code> (horsepower), <code>wt</code> (weight, 1000 lbs), <code>qsec</code> (quarter-mile time in seconds), <code>am</code> (transmission: 0 automatic, 1 manual).</p>
+<p><strong>Note for Python:</strong> there is no tibble to reach for because there is no quirk to fix: pandas has exactly <strong>one</strong> table type, the <code>DataFrame</code> you have been using all along, and it never partial-matches (as the <code>KeyError</code> above shows; <code>.get()</code> is the polite version). The genuinely new thing to watch is the <strong>index</strong>: every <code>DataFrame</code> carries row labels (the unnamed left column in the printouts), which stick to their rows through filtering and sorting. It is pandas’ (heavily used) version of R’s (rarely used) row names; when it gets in your way, <code>.reset_index()</code> demotes it to an ordinary column, and <code>index=False</code> keeps it out of your CSV files. Both will appear below.</p>
+<p>You create tibbles directly with <code>tibble()</code> (same syntax as <code>data.frame()</code>, with the bonus that later columns can use earlier ones), or convert with <code>as_tibble()</code>. From now on we work with tibbles, and we need a bigger dataset to play with: <code>mtcars</code>, a built-in table of 32 cars from a 1974 issue of <em>Motor Trend</em> (in Python it ships with plotnine, as <code>plotnine.data.mtcars</code>). The variables we will use most: <code>mpg</code> (miles per gallon; higher means more fuel-efficient), <code>cyl</code> (cylinders), <code>hp</code> (horsepower), <code>wt</code> (weight, 1000 lbs), <code>qsec</code> (quarter-mile time in seconds), <code>am</code> (transmission: 0 automatic, 1 manual).</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -913,7 +913,7 @@ Datsun 710    22.8   4  108  93 3.85 2.320 18.61  1  1    4    1</code></pre>
 </div>
 </div>
 </div>
-<p><strong>Note for Python users:</strong> pandas’ index (see the note above) is exactly the row-names idea, and <code>mtcars.set_index("name")</code> would recreate R’s original layout — but, as in R, the tidy habit is to keep data in ordinary columns.</p>
+<p><strong>Note for Python:</strong> pandas’ index (see the note above) is exactly the row-names idea, and <code>mtcars.set_index("name")</code> would recreate R’s original layout. But, as in R, the tidy habit is to keep data in ordinary columns.</p>
 </section>
 <section id="sec-week4-io" class="level2" data-number="4.4">
 <h2 data-number="4.4" class="anchored" data-anchor-id="sec-week4-io"><span class="header-section-number">4.4</span> Reading and writing data</h2>
@@ -968,8 +968,8 @@ dbl (7): calories, protein, fibre, carbs, sugars, fat, sugar_frac
 </div>
 </div>
 </div>
-<p><code>read_csv()</code> reads the file, guesses each column’s type (it prints its guesses — read them, they catch import bugs early), and returns a tibble. Base R has <code>read.csv()</code> — dot, not underscore — which does the same job into a plain data frame, more slowly on large files. Recall from <a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a> that a bare filename like <code>"week4_milk.csv"</code> is relative to your working directory — if the file cannot be found, <code>getwd()</code> (Python: <code>os.getcwd()</code>) is the first thing to check.</p>
-<p><strong>Note for Python users:</strong> two things in the chunk above. First, the filename: throughout these notes the Python column writes <code>_py</code> files (<code>week4_milk_py.csv</code>) so the two languages never overwrite each other’s output. Second, <code>index=False</code>: without it pandas saves the index as an anonymous extra column, which comes back to haunt you at reading time. <code>pd.read_csv()</code> guesses column types just like <code>readr</code> — but silently; run <code>.info()</code> on an import when it matters.</p>
+<p><code>read_csv()</code> reads the file, guesses each column’s type (it prints its guesses: read them, they catch import bugs early), and returns a tibble. Base R has <code>read.csv()</code> (dot, not underscore), which does the same job into a plain data frame, more slowly on large files. Recall from <a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a> that a bare filename like <code>"week4_milk.csv"</code> is relative to your working directory: if the file cannot be found, <code>getwd()</code> (Python: <code>os.getcwd()</code>) is the first thing to check.</p>
+<p><strong>Note for Python:</strong> two things in the chunk above. First, the filename: throughout these notes the Python column writes <code>_py</code> files (<code>week4_milk_py.csv</code>) so the two languages never overwrite each other’s output. Second, <code>index=False</code>: without it pandas saves the index as an anonymous extra column, which comes back to haunt you at reading time. <code>pd.read_csv()</code> guesses column types just like <code>readr</code>, but silently; run <code>.info()</code> on an import when it matters.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Exercise 4.2: A CSV round trip">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -985,14 +985,14 @@ Exercise 4.2: A CSV round trip
 <li>Write it to <code>"week4_dists.csv"</code> with <code>write_csv()</code> (Python: to <code>"week4_dists_py.csv"</code> with <code>.to_csv(..., index=False)</code>).</li>
 <li>Find the file and open it with a text editor (or click it in the RStudio Files pane and choose <em>View File</em>). What does the raw format look like?</li>
 <li>Read it back with <code>read_csv()</code> (Python: <code>pd.read_csv()</code>) and compare <code>str()</code> (Python: <code>.info()</code>) of the original and the copy. Did the logical column survive the trip?</li>
-<li>Read it once more with base <code>read.csv()</code>. What differs? (<strong>R only</strong> — Python has just the one CSV reader.)</li>
+<li>Read it once more with base <code>read.csv()</code>. What differs? (R only: Python has just the one CSV reader.)</li>
 </ol>
 </div>
 </div>
 </section>
 <section id="sec-week4-pipe" class="level2" data-number="4.5">
 <h2 data-number="4.5" class="anchored" data-anchor-id="sec-week4-pipe"><span class="header-section-number">4.5</span> The pipe <code>|&gt;</code></h2>
-<p>Data analysis is a sequence of steps, and code reads best when it is written in the order the steps happen. The <strong>pipe</strong> operator <code>|&gt;</code> takes the value on its left and passes it as the <em>first argument</em> of the function on its right — programming’s version of function composition <span class="math inline">(f_2 \circ f_1)(x)</span>, which we met in <a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a>. So to compute <span class="math inline">\ln(1 + 2 + \dots + 10)</span>:</p>
+<p>Data analysis is a sequence of steps, and code reads best when it is written in the order the steps happen. The <strong>pipe</strong> operator <code>|&gt;</code> takes the value on its left and passes it as the <em>first argument</em> of the function on its right: programming’s version of function composition <span class="math inline">(f_2 \circ f_1)(x)</span>, which we met in <a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a>. So to compute <span class="math inline">\ln(1 + 2 + \dots + 10)</span>:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1036,9 +1036,9 @@ Exercise 4.2: A CSV round trip
 </div>
 </div>
 </div>
-<p>In the wild you will also meet <code>%&gt;%</code>, the older pipe from the <code>magrittr</code> package — for our purposes it does the same thing, but write the native <code>|&gt;</code>.</p>
+<p>In the wild you will also meet <code>%&gt;%</code>, the older pipe from the <code>magrittr</code> package. For our purposes it does the same thing, but write the native <code>|&gt;</code>.</p>
 <p>The pipe matters this week because every <code>dplyr</code> verb takes a data frame as its first argument and returns a data frame: they are <em>built</em> to be piped.</p>
-<p><strong>Note for Python users:</strong> Python has no pipe operator; the idiom that plays its role is <strong>method chaining</strong>. Every pandas verb below is a <em>method</em> that returns a new <code>DataFrame</code>, so a pipeline reads left to right as <code>cars.query(...).assign(...).sort_values(...)</code> — dots instead of pipes. Wrap a chain in parentheses to split it over several lines, one verb per line; you will see that layout constantly from here on.</p>
+<p><strong>Note for Python:</strong> Python has no pipe operator; the idiom that plays its role is <strong>method chaining</strong>. Every pandas verb below is a <em>method</em> that returns a new <code>DataFrame</code>, so a pipeline reads left to right as <code>cars.query(...).assign(...).sort_values(...)</code>: dots instead of pipes. Wrap a chain in parentheses to split it over several lines, one verb per line; you will see that layout constantly from here on.</p>
 </section>
 <section id="sec-week4-dplyr" class="level2" data-number="4.6">
 <h2 data-number="4.6" class="anchored" data-anchor-id="sec-week4-dplyr"><span class="header-section-number">4.6</span> Data manipulation with dplyr (and pandas)</h2>
@@ -1084,8 +1084,8 @@ Exercise 4.2: A CSV round trip
 </tr>
 </tbody>
 </table>
-<p>Inside a verb you refer to columns by bare name — no <code>cars$</code> prefix needed; <code>dplyr</code> knows to look inside the data frame first. (One side effect of loading the tidyverse: its <code>filter()</code> masks the base function of the same name. If <code>filter()</code> ever behaves strangely, be explicit and call <code>dplyr::filter()</code>.)</p>
-<p><strong>Note for Python users:</strong> pandas gives you the bare-name comfort only inside <code>.query()</code>, whose condition is a <em>string</em> evaluated inside the data frame. Elsewhere columns are spelled <code>cars["mpg"]</code> — and inside a chain, where the intermediate data frame has no name, <code>.assign()</code> accepts functions of it (<code>lambda df: ...</code>). Both appear below.</p>
+<p>Inside a verb you refer to columns by bare name (no <code>cars$</code> prefix needed); <code>dplyr</code> knows to look inside the data frame first. (One side effect of loading the tidyverse: its <code>filter()</code> masks the base function of the same name. If <code>filter()</code> ever behaves strangely, be explicit and call <code>dplyr::filter()</code>.)</p>
+<p><strong>Note for Python:</strong> pandas gives you the bare-name comfort only inside <code>.query()</code>, whose condition is a <em>string</em> evaluated inside the data frame. Elsewhere columns are spelled <code>cars["mpg"]</code>. Inside a chain, where the intermediate data frame has no name, <code>.assign()</code> accepts functions of it (<code>lambda df: ...</code>). Both appear below.</p>
 <section id="filter-and-select" class="level3" data-number="4.6.1">
 <h3 data-number="4.6.1" class="anchored" data-anchor-id="filter-and-select"><span class="header-section-number">4.6.1</span> filter and select</h3>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
@@ -1203,7 +1203,7 @@ Exercise 4.2: A CSV round trip
 </section>
 <section id="mutate-and-arrange" class="level3" data-number="4.6.2">
 <h3 data-number="4.6.2" class="anchored" data-anchor-id="mutate-and-arrange"><span class="header-section-number">4.6.2</span> mutate and arrange</h3>
-<p><code>mutate()</code> adds columns. Let’s add fuel efficiency in sensible units, and — while we are at it — turn the 0/1 codes into labelled categorical variables. R’s type for categorical data is the <strong>factor</strong>: a vector with a fixed set of levels and readable labels, which <code>summary()</code> and <code>ggplot2</code> treat as labelled groups — discrete colour scales, one box or line per level — rather than as numbers on a continuous axis.</p>
+<p><code>mutate()</code> adds columns. Let’s add fuel efficiency in sensible units, and, while we are at it, turn the 0/1 codes into labelled categorical variables. R’s type for categorical data is the <strong>factor</strong>: a vector with a fixed set of levels and readable labels, which <code>summary()</code> and <code>ggplot2</code> treat as labelled groups (discrete colour scales, one box or line per level) rather than as numbers on a continuous axis.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1227,7 +1227,7 @@ Exercise 4.2: A CSV round trip
 </div>
 </div>
 </div>
-<p><strong>Note for Python users:</strong> the factor’s pandas counterpart is the <strong>categorical</strong> dtype: <code>.map()</code> swaps the 0/1 codes for readable labels, and <code>pd.Categorical()</code> marks the result as categorical, which plotnine then treats exactly as ggplot2 treats factors — discrete colour scales, one box or line per level.</p>
+<p><strong>Note for Python:</strong> the factor’s pandas counterpart is the <strong>categorical</strong> dtype: <code>.map()</code> swaps the 0/1 codes for readable labels, and <code>pd.Categorical()</code> marks the result as categorical, which plotnine then treats exactly as ggplot2 treats factors: discrete colour scales, one box or line per level.</p>
 <p><code>arrange()</code> sorts rows, ascending by default, descending inside <code>desc()</code> (pandas: <code>ascending=False</code>). And because every verb pipes into the next, a whole analysis becomes one readable chain:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -1291,7 +1291,7 @@ Exercise 4.3: dplyr drills
 </section>
 <section id="sec-week4-groupby" class="level3" data-number="4.6.3">
 <h3 data-number="4.6.3" class="anchored" data-anchor-id="sec-week4-groupby"><span class="header-section-number">4.6.3</span> group_by and summarise</h3>
-<p><code>summarise()</code> collapses a data frame to summary statistics — <code>n()</code> counts the rows, and any vector-to-number function (<code>mean</code>, <code>sd</code>, <code>median</code>, <code>min</code>, …) works:</p>
+<p><code>summarise()</code> collapses a data frame to summary statistics: <code>n()</code> counts the rows, and any vector-to-number function (<code>mean</code>, <code>sd</code>, <code>median</code>, <code>min</code>, …) works:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1355,7 +1355,7 @@ Name: mpg, dtype: float64</code></pre>
 </div>
 </div>
 </div>
-<p>Manual cars in this dataset do, on average, about 7 more miles per gallon — though with 1974 technology, the causal story is mostly “small cheap cars had manual gearboxes”. Grouping by two variables gives one row per combination:</p>
+<p>Manual cars in this dataset do, on average, about 7 more miles per gallon, though with 1974 technology, the causal story is mostly “small cheap cars had manual gearboxes”. Grouping by two variables gives one row per combination:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1398,7 +1398,7 @@ Name: mpg, dtype: float64</code></pre>
 </div>
 </div>
 </div>
-<p><strong>Note for Python users:</strong> each <code>.agg()</code> pair reads <code>new_column = (column, function)</code> — the counterpart of <code>summarise()</code>’s <code>new_column = f(column)</code>. <code>groupby()</code> moves the grouping values into the index, so we finish with <code>.reset_index()</code> to get ordinary columns back; and <code>observed=True</code> keeps only group combinations that actually occur, which is what <code>summarise()</code> does (it also silences a pandas warning about its changing default).</p>
+<p><strong>Note for Python:</strong> each <code>.agg()</code> pair reads <code>new_column = (column, function)</code>: the counterpart of <code>summarise()</code>’s <code>new_column = f(column)</code>. <code>groupby()</code> moves the grouping values into the index, so we finish with <code>.reset_index()</code> to get ordinary columns back; and <code>observed=True</code> keeps only group combinations that actually occur, which is what <code>summarise()</code> does (it also silences a pandas warning about its changing default).</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Exercise 4.4: Group statistics on mtcars">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1460,7 +1460,7 @@ Exercise 4.4: Group statistics on mtcars
 </div>
 </div>
 </div>
-<p><code>left_join()</code> keeps every row of its first argument and attaches the matching information from the second; rows with no match (poor Rice) get <code>NA</code>. There is a whole family — <code>full_join()</code>, <code>inner_join()</code>, <code>right_join()</code> — differing only in which unmatched rows survive. (pandas folds the whole family into <code>.merge()</code>’s <code>how</code> argument: <code>"left"</code>, <code>"outer"</code>, <code>"inner"</code>, <code>"right"</code>.)</p>
+<p><code>left_join()</code> keeps every row of its first argument and attaches the matching information from the second; rows with no match (poor Rice) get <code>NA</code>. There is a whole family (<code>full_join()</code>, <code>inner_join()</code>, <code>right_join()</code>) differing only in which unmatched rows survive. (pandas folds the whole family into <code>.merge()</code>’s <code>how</code> argument: <code>"left"</code>, <code>"outer"</code>, <code>"inner"</code>, <code>"right"</code>.)</p>
 </section>
 </section>
 <section id="sec-week4-ggplot" class="level2" data-number="4.7">
@@ -1468,11 +1468,11 @@ Exercise 4.4: Group statistics on mtcars
 <p><code>ggplot2</code> implements the <strong>grammar of graphics</strong>: instead of memorising one function per chart type, you describe a plot with three ingredients:</p>
 <ul>
 <li>the <strong>data</strong>: a data frame;</li>
-<li>the <strong>aesthetic mapping</strong> <code>aes()</code>: which variables map to which visual channels — x-position, y-position, colour, fill, shape;</li>
-<li>the <strong>geometries</strong> <code>geom_*()</code>: how the mapped data is drawn — points, lines, bars, boxes.</li>
+<li>the <strong>aesthetic mapping</strong> <code>aes()</code>: which variables map to which visual channels (x-position, y-position, colour, fill, shape);</li>
+<li>the <strong>geometries</strong> <code>geom_*()</code>: how the mapped data is drawn (points, lines, bars, boxes).</li>
 </ul>
 <p>Layers are glued together with <code>+</code> (a historical quirk: ggplot2 predates the pipe). Swap the geometry and the same data-to-aesthetics mapping becomes a different plot; that is the whole grammar. Easier done than said:</p>
-<p><strong>Note for Python users:</strong> <code>plotnine</code> is a faithful port of <code>ggplot2</code>: same grammar, same function names, same <code>+</code>. Two mechanical differences only: column names inside <code>aes()</code> are quoted strings — <code>aes(x="wt", y="mpg")</code> — and a plot spread over several lines needs wrapping parentheses (plus <code>.show()</code> to display it from a script). Both spellings of <code>colour</code>/<code>color</code> work, in either language.</p>
+<p><strong>Note for Python:</strong> <code>plotnine</code> is a faithful port of <code>ggplot2</code>: same grammar, same function names, same <code>+</code>. Two mechanical differences only: column names inside <code>aes()</code> are quoted strings (<code>aes(x="wt", y="mpg")</code>) and a plot spread over several lines needs wrapping parentheses (plus <code>.show()</code> to display it from a script). Both spellings of <code>colour</code>/<code>color</code> work, in either language.</p>
 <section id="scatter-plots" class="level3" data-number="4.7.1">
 <h3 data-number="4.7.1" class="anchored" data-anchor-id="scatter-plots"><span class="header-section-number">4.7.1</span> Scatter plots</h3>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
@@ -1507,7 +1507,7 @@ Exercise 4.4: Group statistics on mtcars
 </div>
 </div>
 </div>
-<p>Dissecting it: <code>ggplot(cars, ...)</code> starts a plot from the <code>cars</code> data; <code>aes(x = wt, y = mpg)</code> maps weight to the x-axis and fuel consumption to the y-axis; <code>+ geom_point()</code> draws one point per row. Heavier cars burn more fuel — a relationship crying out for a line through it:</p>
+<p>Dissecting it: <code>ggplot(cars, ...)</code> starts a plot from the <code>cars</code> data; <code>aes(x = wt, y = mpg)</code> maps weight to the x-axis and fuel consumption to the y-axis; <code>+ geom_point()</code> draws one point per row. Heavier cars burn more fuel, a relationship crying out for a line through it:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1542,7 +1542,7 @@ Exercise 4.4: Group statistics on mtcars
 </div>
 </div>
 </div>
-<p><code>geom_smooth(method = "lm")</code> overlays the least-squares regression line — the line minimising the sum of squared vertical distances to the points, the same fit you would get from R’s <code>lm(mpg ~ wt, data = cars)</code> (in Python, from <code>statsmodels</code>, which is exactly what plotnine’s <code>method="lm"</code> calls under the hood). Fitting models by minimising a loss is precisely the business of <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a>.</p>
+<p><code>geom_smooth(method = "lm")</code> overlays the least-squares regression line: the line minimising the sum of squared vertical distances to the points, the same fit you would get from R’s <code>lm(mpg ~ wt, data = cars)</code> (in Python, from <code>statsmodels</code>, which is exactly what plotnine’s <code>method="lm"</code> calls under the hood). Fitting models by minimising a loss is precisely the business of <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a>.</p>
 <p>To bring in a third variable, map it to a third aesthetic:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -1585,7 +1585,7 @@ Exercise 4.4: Group statistics on mtcars
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb136"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb136-1"><a href="#cb136-1" aria-hidden="true" tabindex="-1"></a><span class="co"># setting: every point steelblue, no legend — a constant, so OUTSIDE aes()</span></span>
+<div class="sourceCode cell-code" id="cb136"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb136-1"><a href="#cb136-1" aria-hidden="true" tabindex="-1"></a><span class="co"># setting: every point steelblue, no legend (a constant, so OUTSIDE aes())</span></span>
 <span id="cb136-2"><a href="#cb136-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(cars, <span class="fu">aes</span>(<span class="at">x =</span> wt, <span class="at">y =</span> mpg)) <span class="sc">+</span></span>
 <span id="cb136-3"><a href="#cb136-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">colour =</span> <span class="st">"steelblue"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
@@ -1600,7 +1600,7 @@ Exercise 4.4: Group statistics on mtcars
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb137"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb137-1"><a href="#cb137-1" aria-hidden="true" tabindex="-1"></a><span class="co"># setting: every point steelblue, no legend — a constant, so OUTSIDE aes()</span></span>
+<div class="sourceCode cell-code" id="cb137"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb137-1"><a href="#cb137-1" aria-hidden="true" tabindex="-1"></a><span class="co"># setting: every point steelblue, no legend (a constant, so OUTSIDE aes())</span></span>
 <span id="cb137-2"><a href="#cb137-2" aria-hidden="true" tabindex="-1"></a>(</span>
 <span id="cb137-3"><a href="#cb137-3" aria-hidden="true" tabindex="-1"></a>  ggplot(cars, aes(x<span class="op">=</span><span class="st">"wt"</span>, y<span class="op">=</span><span class="st">"mpg"</span>)) <span class="op">+</span></span>
 <span id="cb137-4"><a href="#cb137-4" aria-hidden="true" tabindex="-1"></a>  geom_point(colour<span class="op">=</span><span class="st">"steelblue"</span>)</span>
@@ -1615,7 +1615,7 @@ Exercise 4.4: Group statistics on mtcars
 </div>
 </div>
 </div>
-<p>Put a constant <em>inside</em> <code>aes()</code> and ggplot does something legal but absurd: it invents a variable whose every value is the string <code>"blue"</code>, and dutifully assigns it the first default colour — which is red:</p>
+<p>Put a constant <em>inside</em> <code>aes()</code> and ggplot does something legal but absurd: it invents a variable whose every value is the string <code>"blue"</code>, and dutifully assigns it the first default colour, which is red:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1651,7 +1651,7 @@ Exercise 4.4: Group statistics on mtcars
 </div>
 </div>
 <p>If your plot sports a legend titled <code>"blue"</code> full of red points, you now know why.</p>
-<p><strong>Note for Python users:</strong> mind the doubled quotes in <code>aes(colour='"blue"')</code>. plotnine evaluates <code>aes()</code> strings as expressions, so the inner quotes are what make <code>"blue"</code> a constant string — a plain <code>aes(colour="blue")</code> would go looking for a <em>column</em> called <code>blue</code> and raise an error instead of drawing red points. Different failure, same moral: constants do not belong in <code>aes()</code>.</p>
+<p><strong>Note for Python:</strong> mind the doubled quotes in <code>aes(colour='"blue"')</code>. plotnine evaluates <code>aes()</code> strings as expressions, so the inner quotes are what make <code>"blue"</code> a constant string: a plain <code>aes(colour="blue")</code> would go looking for a <em>column</em> called <code>blue</code> and raise an error instead of drawing red points. Different failure, same moral: constants do not belong in <code>aes()</code>.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Exercise 4.5: Reproduce this scatter plot">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1662,7 +1662,7 @@ Exercise 4.5: Reproduce this scatter plot
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Build, from <code>cars</code>, the following plot (described in words — your job is to translate it into one ggplot call):</p>
+<p>Build, from <code>cars</code>, the following plot (described in words: your job is to translate it into one ggplot call):</p>
 <ul>
 <li>a scatter plot with gross horsepower <code>hp</code> on the x-axis and quarter-mile time <code>qsec</code> on the y-axis;</li>
 <li>points coloured by transmission (<code>am</code>);</li>
@@ -1707,7 +1707,7 @@ Exercise 4.5: Reproduce this scatter plot
 </div>
 </div>
 </div>
-<p>The <code>binwidth</code> is your choice, and an important one — too narrow is noise, too wide smooths away every feature. Always try a few values.</p>
+<p>The <code>binwidth</code> is your choice, and an important one: too narrow is noise, too wide smooths away every feature. Always try a few values.</p>
 <p>For comparing a distribution <em>across groups</em>, the boxplot is the tool: a box from the first to the third quartile with the median inside, whiskers spanning the rest of the data, and any outliers as lone points. Map the group to <code>x</code> and the variable to <code>y</code>; boxes and bars are filled shapes, so their interior colour is the <code>fill</code> aesthetic (<code>colour</code> is just the outline):</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -1741,7 +1741,7 @@ Exercise 4.5: Reproduce this scatter plot
 </div>
 </div>
 </div>
-<p>The medians echo our <code>group_by()</code> summary — manual cars sit visibly higher — but the boxplot also shows the overlap and spread that a table of means quietly hides.</p>
+<p>The medians echo our <code>group_by()</code> summary (manual cars sit visibly higher), but the boxplot also shows the overlap and spread that a table of means quietly hides.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Exercise 4.6: Petal boxplots">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1752,7 +1752,7 @@ Exercise 4.6: Petal boxplots
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The built-in <code>iris</code> data frame records sepal and petal measurements for 150 flowers of three species. (<strong>Python users:</strong> <code>iris</code> ships with R, not Python — download <code>iris.csv</code> from Moodle into your working directory and load it with <code>iris = pd.read_csv("iris.csv")</code>; the R-style column names such as <code>Petal.Length</code> carry over, and plotnine accepts them.)</p>
+<p>The built-in <code>iris</code> data frame records sepal and petal measurements for 150 flowers of three species. (Python: <code>iris</code> ships with R, not Python. Download <code>iris.csv</code> from Moodle into your working directory and load it with <code>iris = pd.read_csv("iris.csv")</code>; the R-style column names such as <code>Petal.Length</code> carry over, and plotnine accepts them.)</p>
 <ol type="a">
 <li>Draw boxplots of <code>Petal.Length</code> by <code>Species</code>, with each box filled in a different colour.</li>
 <li>Which species is clearly separated from the others? Would a single overall histogram of <code>Petal.Length</code> have shown you this?</li>
@@ -1763,7 +1763,7 @@ Exercise 4.6: Petal boxplots
 </section>
 <section id="line-plots" class="level3" data-number="4.7.4">
 <h3 data-number="4.7.4" class="anchored" data-anchor-id="line-plots"><span class="header-section-number">4.7.4</span> Line plots</h3>
-<p><code>geom_line()</code> connects observations in x-order — the right geometry when x is time, iteration count, or anything sequential. Let’s watch the law of large numbers in action: simulate 10000 fair-coin flips (<code>rbinom(10000, size = 1, prob = 0.5)</code> in R, <code>rng.binomial(1, 0.5, size=10000)</code> in Python — both draw 10000 independent 0/1 values) and plot the running proportion of heads. Since randomness is involved, we set the seed so that each “random” figure is exactly reproducible — though not the <em>same</em> figure: R’s and numpy’s generators produce different streams, so the two columns show two different, equally fair, coin sequences:</p>
+<p><code>geom_line()</code> connects observations in x-order: the right geometry when x is time, iteration count, or anything sequential. Let’s watch the law of large numbers in action: simulate 10000 fair-coin flips (<code>rbinom(10000, size = 1, prob = 0.5)</code> in R, <code>rng.binomial(1, 0.5, size=10000)</code> in Python; both draw 10000 independent 0/1 values) and plot the running proportion of heads. Since randomness is involved, we set the seed so that each “random” figure is exactly reproducible, though not the <em>same</em> figure: R’s and numpy’s generators produce different streams, so the two columns show two different, equally fair, coin sequences:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1811,8 +1811,8 @@ Exercise 4.6: Petal boxplots
 </div>
 </div>
 </div>
-<p>In both runs the wild early swings settle onto the dashed line at <span class="math inline">1/2</span>: the sample mean converging to the expectation — slowly, as the fluctuations only shrink like <span class="math inline">1/\sqrt{n}</span>. (<code>geom_hline()</code> draws a horizontal reference line; note how it stacks onto the plot as just another layer.) In <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a> the very same plot template — value against iteration — will track optimisation algorithms as they converge.</p>
-<p><strong>Note for Python users:</strong> watch the argument names — they swap roles across the languages. R’s <code>rbinom(10000, size = 1, prob = 0.5)</code> asks for 10000 draws of <code>size = 1</code> trial each; numpy’s <code>rng.binomial(1, 0.5, size=10000)</code> says the same thing, but now <code>size</code> counts the <em>draws</em>. Copying arguments across languages by name, without reading, is how “10000 flips of one coin” silently becomes “one flip of 10000 coins”.</p>
+<p>In both runs the wild early swings settle onto the dashed line at <span class="math inline">1/2</span>: the sample mean converging to the expectation, slowly, as the fluctuations only shrink like <span class="math inline">1/\sqrt{n}</span>. (<code>geom_hline()</code> draws a horizontal reference line; note how it stacks onto the plot as just another layer.) In <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a> the very same plot template (value against iteration) will track optimisation algorithms as they converge.</p>
+<p><strong>Note for Python:</strong> watch the argument names: they swap roles across the languages. R’s <code>rbinom(10000, size = 1, prob = 0.5)</code> asks for 10000 draws of <code>size = 1</code> trial each; numpy’s <code>rng.binomial(1, 0.5, size=10000)</code> says the same thing, but now <code>size</code> counts the <em>draws</em>. Copying arguments across languages by name, without reading, is how “10000 flips of one coin” silently becomes “one flip of 10000 coins”.</p>
 </section>
 <section id="facets" class="level3" data-number="4.7.5">
 <h3 data-number="4.7.5" class="anchored" data-anchor-id="facets"><span class="header-section-number">4.7.5</span> Facets</h3>
@@ -1851,8 +1851,8 @@ Exercise 4.6: Petal boxplots
 </div>
 </div>
 </div>
-<p><code>facet_wrap(~ cyl)</code> means “one panel per value of <code>cyl</code>” (the <code>~</code> is R’s formula syntax — you will meet it again in regression). Arrange the panels with <code>nrow</code> or <code>ncol</code>, e.g. <code>facet_wrap(~ cyl, ncol = 1)</code> stacks them vertically, which is ideal for comparing distributions along a shared x-axis.</p>
-<p><strong>Note for Python users:</strong> plotnine takes the formula as a string — <code>facet_wrap("~cyl")</code>, or just <code>facet_wrap("cyl")</code> — with the same <code>nrow</code>/<code>ncol</code> arguments.</p>
+<p><code>facet_wrap(~ cyl)</code> means “one panel per value of <code>cyl</code>” (the <code>~</code> is R’s formula syntax; you will meet it again in regression). Arrange the panels with <code>nrow</code> or <code>ncol</code>, e.g. <code>facet_wrap(~ cyl, ncol = 1)</code> stacks them vertically, which is ideal for comparing distributions along a shared x-axis.</p>
+<p><strong>Note for Python:</strong> plotnine takes the formula as a string (<code>facet_wrap("~cyl")</code>, or just <code>facet_wrap("cyl")</code>), with the same <code>nrow</code>/<code>ncol</code> arguments.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Exercise 4.7: Facet the histograms">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1869,7 +1869,7 @@ Exercise 4.7: Facet the histograms
 </section>
 <section id="labels-themes-and-saving" class="level3" data-number="4.7.6">
 <h3 data-number="4.7.6" class="anchored" data-anchor-id="labels-themes-and-saving"><span class="header-section-number">4.7.6</span> Labels, themes and saving</h3>
-<p>Everything so far was exploratory: quick plots for you. A figure for a report needs proper labels — nobody downstream knows what <code>wt</code> means — and a cleaner look. <code>labs()</code> names every mapped aesthetic plus the title, and <code>theme_minimal()</code> swaps the grey default for something publication-friendly (we will use it from now on):</p>
+<p>Everything so far was exploratory: quick plots for you. A figure for a report needs proper labels (nobody downstream knows what <code>wt</code> means) and a cleaner look. <code>labs()</code> names every mapped aesthetic plus the title, and <code>theme_minimal()</code> swaps the grey default for something publication-friendly (we will use it from now on):</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1918,7 +1918,7 @@ Exercise 4.7: Facet the histograms
 </div>
 </div>
 </div>
-<p>Note we stored the plot in a variable — plots are ordinary objects in both languages, so you can print them, add more layers later (<code>p + facet_wrap(~ cyl)</code>), or save them to a file with <code>ggsave()</code> (in plotnine, the plot’s <code>.save()</code> method):</p>
+<p>Note we stored the plot in a variable: plots are ordinary objects in both languages, so you can print them, add more layers later (<code>p + facet_wrap(~ cyl)</code>), or save them to a file with <code>ggsave()</code> (in plotnine, the plot’s <code>.save()</code> method):</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1933,7 +1933,7 @@ Exercise 4.7: Facet the histograms
 </div>
 </div>
 </div>
-<p>Change the extension to get a different format (<code>.pdf</code> scales beautifully in documents). If a figure looks wrong in your report, resize it here, in code — never by dragging its corner in a word processor.</p>
+<p>Change the extension to get a different format (<code>.pdf</code> scales beautifully in documents). If a figure looks wrong in your report, resize it here, in code, never by dragging its corner in a word processor.</p>
 </section>
 </section>
 <section id="challenges" class="level2" data-number="4.8">
@@ -2011,11 +2011,11 @@ Challenge 4.2: Waves, functionally
 </div>
 </div>
 </div>
-<p>That is six curves — <span class="math inline">\sin(fx)</span> and <span class="math inline">\cos(fx)</span> for frequencies <span class="math inline">f \in \{0.5, 1, 2\}</span> over <span class="math inline">x \in [0, 10]</span> — in one data frame with columns <code>x</code>, <code>y</code>, <code>func</code> and <code>freq</code>, plotted with colour mapped to the function and one facet per frequency (<code>labeller = label_both</code> prints <code>freq: 0.5</code> etc. in the panel strips).</p>
+<p>That is six curves (<span class="math inline">\sin(fx)</span> and <span class="math inline">\cos(fx)</span> for frequencies <span class="math inline">f \in \{0.5, 1, 2\}</span> over <span class="math inline">x \in [0, 10]</span>) in one data frame with columns <code>x</code>, <code>y</code>, <code>func</code> and <code>freq</code>, plotted with colour mapped to the function and one facet per frequency (<code>labeller = label_both</code> prints <code>freq: 0.5</code> etc. in the panel strips).</p>
 <p>The rules: no copy-pasting six blocks of data-frame code, and no <code>for</code> loops. Write a lambda that builds the data frame for one frequency, <code>map()</code> it over the three frequencies (Python: a list comprehension does the same job), and stitch the results with <code>bind_rows()</code> (Python: <code>pd.concat()</code>), both of which happily accept a list of data frames.</p>
 </div>
 </div>
-<p>That completes the toolbox: data structures, control flow, functions, and now data wrangling and graphics. Next week (<a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a>) we put everything to work on the central computational problem of statistics — optimisation.</p>
+<p>That completes the toolbox: data structures, control flow, functions, and now data wrangling and graphics. Next week (<a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a>) we put everything to work on the central computational problem of statistics: optimisation.</p>
 
 
 </section>

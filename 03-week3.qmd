@@ -9,14 +9,16 @@ knitr::opts_chunk$set(fig.width = 6, fig.height = 4, out.width = "70%", fig.alig
 ```{python}
 #| include: false
 import numpy as np
+import matplotlib
+matplotlib.rcParams["figure.figsize"] = (6, 4)
 rng = np.random.default_rng(7432)
 ```
 
-Last week ended with us descending a hill by repeating `x <- x - gamma * slope` (`x = x - gamma * slope` in Python) inside a `for` loop, with the derivative hard-coded inline (@sec-week2-gd). It worked, but every new function to minimise meant rewriting the loop. This week we fix that properly. First we learn to write our own functions; then we go one step further and treat functions themselves as data — passing them around, building them on the fly, mapping them over collections. By the end of the chapter our gradient descent will take *any* function you throw at it, which is exactly the tool @sec-week5 is built on.
+Last week ended with us descending a hill by repeating `x <- x - gamma * slope` (`x = x - gamma * slope` in Python) inside a `for` loop, with the derivative hard-coded inline (@sec-week2-gd). It worked, but every new function to minimise meant rewriting the loop. This week we fix that properly. First we learn to write our own functions, and collect the repetition tool that had to wait for them: *recursion*, a function calling itself. Then we go one step further and treat functions themselves as data: passing them around, building them on the fly, mapping them over collections. By the end of the chapter our gradient descent will take *any* function you throw at it, which is exactly the tool @sec-week5 is built on.
 
 ## Writing your own functions {#sec-week3-functions}
 
-We have been using functions since minute one: `sqrt()`, `length()`, `mean()`, `seq()` — or, on the Python side, `np.sqrt()`, `len()`, `np.mean()`, `np.arange()`. Each takes an input, does its job, and hands back an output. The real power move is writing your own. The rule of thumb: if you find yourself copy-pasting the same code a third time, stop and write a function. In coding, laziness done right is a virtue.
+We have been using functions since minute one: `sqrt()`, `length()`, `mean()`, `seq()`; or, on the Python side, `np.sqrt()`, `len()`, `np.mean()`, `np.arange()`. Each takes an input, does its job, and hands back an output. The real power move is writing your own. The rule of thumb: if you find yourself copy-pasting the same code a third time, stop and write a function. In coding, laziness done right is a virtue.
 
 Let's write a function that converts pounds to grams, using $g = 453.5924 \cdot \text{lbs}$:
 
@@ -52,9 +54,9 @@ Anatomy of the R snippet:
 -   `function(lbs)` creates a new function whose argument is called `lbs`;
 -   the body between `{ }` is the code that runs on every call;
 -   `return(grams)` says what comes out;
--   the whole thing is assigned to the name `lbs_to_grams` with `<-`, exactly like any other variable. Keep that thought — it becomes important later in the chapter.
+-   the whole thing is assigned to the name `lbs_to_grams` with `<-`, exactly like any other variable. Keep that thought: it becomes important later in the chapter.
 
-**Note for Python users:** the anatomy differs in the details. `def lbs_to_grams(lbs):` both *names* the function and lists its arguments in one go — no separate assignment step; the body is marked by indentation rather than `{ }` (four spaces, consistently); and `return grams` needs no parentheses.
+**Note for Python:** the anatomy differs in the details. `def lbs_to_grams(lbs):` both *names* the function and lists its arguments in one go, with no separate assignment step; the body is marked by indentation rather than `{ }` (four spaces, consistently); and `return grams` needs no parentheses.
 
 Calling it works as you would expect:
 
@@ -109,7 +111,7 @@ lbs_to_grams(np.array([1, 2, 3]))
 </div>
 :::
 
-**Note for Python users:** hand it a numpy array, not a plain list — `453.5924 * [1, 2, 3]` is an error (and `3 * [1, 2]` would *repeat* the list, not multiply it).
+**Note for Python:** hand it a numpy array, not a plain list: `453.5924 * [1, 2, 3]` is an error (and `3 * [1, 2]` would *repeat* the list, not multiply it).
 
 A few naming guidelines: lowercase, words separated by `_`, concise but meaningful, and avoid clobbering existing names like `mean` or `c` in R, or `len`, `sum` and `list` in Python (both languages will let you; your future self will not forgive you).
 
@@ -151,7 +153,7 @@ lbs_to_ml(2, 0.92)   # oil
 </div>
 :::
 
-Note that `lbs_to_ml` calls the function we wrote earlier — functions building on functions is the normal way programs grow.
+Note that `lbs_to_ml` calls the function we wrote earlier: functions building on functions is the normal way programs grow.
 
 If 90% of our conversions are for water, typing `1` every time gets old. We can make the argument optional by giving it a **default value**:
 
@@ -191,9 +193,9 @@ lbs_to_ml(2, specific_mass=0.92)    # named -- same thing, more readable
 </div>
 :::
 
-Arguments are matched by position first, and by name when you spell the name out. With many arguments, naming the non-obvious ones makes code much easier to read — compare `rnorm(10, 5, 2)` with `rnorm(10, mean = 5, sd = 2)`. The same positional/keyword rules hold in Python: compare `rng.normal(5, 2, 10)` with `rng.normal(loc=5, scale=2, size=10)`.
+Arguments are matched by position first, and by name when you spell the name out. With many arguments, naming the non-obvious ones makes code much easier to read: compare `rnorm(10, 5, 2)` with `rnorm(10, mean = 5, sd = 2)`. The same positional/keyword rules hold in Python: compare `rng.normal(5, 2, 10)` with `rng.normal(loc=5, scale=2, size=10)`.
 
-**Note for Python users:** default values are evaluated **once**, when the `def` statement runs — not afresh at each call, as in R. With immutable defaults like `1` you will never notice the difference. With a mutable default you will: in `def add_entry(x, log=[])`, every call shares the *same* list, which quietly accumulates entries across calls. The standard idiom is a `None` default plus `if log is None: log = []` inside the body.
+**Note for Python:** default values are evaluated **once**, when the `def` statement runs, not afresh at each call as in R. With immutable defaults like `1` you will never notice the difference. With a mutable default you will: in `def add_entry(x, log=[])`, every call shares the *same* list, which quietly accumulates entries across calls. The standard idiom is a `None` default plus `if log is None: log = []` inside the body.
 
 ::: {.callout-tip title="Exercise 3.1: Cooking for Remy"}
 A small French rat with a strong culinary vision (title omitted for copyright reasons) has moved to the US, where recipes measure everything in *cups*. He has hired you to sort out the conversions.
@@ -214,14 +216,14 @@ Write `standardise(x, center = TRUE, scale = TRUE)` which takes a numeric vector
 -   divides by `sd(x)` (Python: `np.std(x, ddof=1)`) if `scale` is `TRUE`;
 -   returns the transformed vector.
 
-Test all four combinations of `center` and `scale` on `x <- c(2, 4, 6, 8, 100)` (Python: `x = np.array([2, 4, 6, 8, 100])`). Then check the full standardisation with `mean(standardise(x))` and `sd(standardise(x))`. In the R run the mean will print as something like `1e-17` rather than exactly `0` (numpy users may see an exact `0.0` — a lucky cancellation, not a guarantee) — recall the floating-point discussion in @sec-week2, and confirm with `all.equal(mean(standardise(x)), 0)` (Python: `np.isclose(...)`).
+Test all four combinations of `center` and `scale` on `x <- c(2, 4, 6, 8, 100)` (Python: `x = np.array([2, 4, 6, 8, 100])`). Then check the full standardisation with `mean(standardise(x))` and `sd(standardise(x))`. In the R run the mean will print as something like `1e-17` rather than exactly `0` (the numpy run may print an exact `0.0`: a lucky cancellation, not a guarantee). Recall the floating-point discussion in @sec-week2, and confirm with `all.equal(mean(standardise(x)), 0)` (Python: `np.isclose(...)`).
 :::
 
 ### Return values
 
 Three things worth knowing about what comes out of a function.
 
-**Implicit return.** If R reaches the end of the body, the value of the *last expression* is returned automatically — no `return()` needed:
+**Implicit return.** If R reaches the end of the body, the value of the *last expression* is returned automatically, no `return()` needed:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -253,7 +255,7 @@ lbs_to_grams(2)
 
 This is idiomatic R; most functions in the wild are written this way, and we will mostly drop `return()` from here on.
 
-**Note for Python users:** there is no implicit return. A function that reaches the end of its body without hitting `return` hands back `None` — silently. Keep writing `return`; the R habit of leaving the last expression bare does not travel.
+**Note for Python:** there is no implicit return. A function that reaches the end of its body without hitting `return` hands back `None`, silently. Keep writing `return`; the R habit of leaving the last expression bare does not travel.
 
 **Early return.** `return()` exits the function *immediately*, which is handy for bailing out of bad inputs before they cause trouble:
 
@@ -331,7 +333,7 @@ y
 
 You have met this behaviour already: `library()` and most plotting functions return invisibly. That is all you need to know about it for now.
 
-**Note for Python users:** `invisible()` has no counterpart. At the console Python prints the value of every bare expression *unless it is `None`* — so the nearest thing to an invisible return is returning `None`, which is exactly what a function without a `return` does, but then there is no value to keep. Nothing to do here except know the difference.
+**Note for Python:** `invisible()` has no counterpart. At the console Python prints the value of every bare expression *unless it is `None`*, so the nearest thing to an invisible return is returning `None`, which is exactly what a function without a `return` does, but then there is no value to keep. Nothing to do here except know the difference.
 
 ## Scoping: where variables live {#sec-week3-scope}
 
@@ -373,7 +375,7 @@ grams    # does not exist out here
 </div>
 :::
 
-The reverse direction, however, *does* work: if R cannot find a name inside the function, it looks in the environment where the function was *defined* — for a function typed at the top level of a script, that is the **global environment** (where your script-level variables live). That sounds convenient. It is also a classic source of silent bugs. Watch:
+The reverse direction, however, *does* work: if R cannot find a name inside the function, it looks in the environment where the function was *defined*: for a function typed at the top level of a script, that is the **global environment** (where your script-level variables live). That sounds convenient. It is also a classic source of silent bugs. Watch:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -415,11 +417,11 @@ bug_lbs_to_grams(100)   # same answer, whatever we feed it!
 </div>
 :::
 
-No error, no warning: R quietly grabbed the global `lbs` and returned $453.5924 \times 3$ forever. The input is ignored completely. The moral is short and worth memorising: **everything a function needs should arrive through its arguments**. A function that only reads its arguments and only communicates through its return value is called *pure*, and pure functions are dramatically easier to test, reuse and debug — this idea is the backbone of the second half of this chapter.
+No error, no warning: R quietly grabbed the global `lbs` and returned $453.5924 \times 3$ forever. The input is ignored completely. The moral is short and worth memorising: **everything a function needs should arrive through its arguments**. A function that only reads its arguments and only communicates through its return value is called *pure*, and pure functions are dramatically easier to test, reuse and debug; this idea is the backbone of the second half of this chapter.
 
-**Note for Python users:** same lookup, same trap. Python's rule is called **LEGB** — Local, Enclosing, Global, Built-ins, searched in that order — which for our purposes is R's lexical scoping by another name. One genuine difference: *reading* a global from inside a function just works (as the bug shows), but *assigning* to one requires the `global` keyword — a plain `lbs = ...` inside a function always creates a local variable.
+**Note for Python:** same lookup, same trap. Python's rule is called **LEGB** (Local, Enclosing, Global, Built-ins, searched in that order), which for our purposes is R's lexical scoping by another name. One genuine difference: *reading* a global from inside a function just works (as the bug shows), but *assigning* to one requires the `global` keyword: a plain `lbs = ...` inside a function always creates a local variable.
 
-**Note for Python users:** one more difference lives here, and it matters. R behaves *as if* every object passed to a function were copied: modify an argument inside a function and the caller's object is untouched (*copy-on-modify*). Python passes references instead: **rebinding** a name (`x = x + 1`) is local and safe, but **mutating** a mutable object in place (`x.append(3)`, or `x[0] = 99` on a list or numpy array) changes the caller's object too. A function that mutates its arguments is not pure — in Python, purity takes discipline that R's semantics give you for free.
+**Note for Python:** one more difference lives here, and it matters. R behaves *as if* every object passed to a function were copied: modify an argument inside a function and the caller's object is untouched (*copy-on-modify*). Python passes references instead: **rebinding** a name (`x = x + 1`) is local and safe, but **mutating** a mutable object in place (`x.append(3)`, or `x[0] = 99` on a list or numpy array) changes the caller's object too. A function that mutates its arguments is not pure; in Python, purity takes discipline that R's semantics give you for free.
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -546,17 +548,119 @@ summary_stats(heights, where=~np.isnan(heights))   # `where` travels through **k
 </div>
 :::
 
-We did not have to declare `na.rm` ourselves: whatever extras arrive get forwarded wholesale. Use it sparingly — it is wonderful for forwarding options, and terrible for hiding what a function actually depends on.
+We did not have to declare `na.rm` ourselves: whatever extras arrive get forwarded wholesale. Use it sparingly: it is wonderful for forwarding options, and terrible for hiding what a function actually depends on.
 
-**Note for Python users:** the Python spelling is `*args` / `**kwargs`: one star scoops extra *positional* arguments into a tuple, two stars scoop extra *keyword* arguments into a dict, and `np.mean(x, **kwargs)` unpacks them again on the way out. (numpy has no `na.rm`; the `where` mask above is the closest kwarg-shaped idiom, and `np.nanmean`/`np.nanstd` exist for exactly this job.)
+**Note for Python:** the Python spelling is `*args` / `**kwargs`: one star scoops extra *positional* arguments into a tuple, two stars scoop extra *keyword* arguments into a dict, and `np.mean(x, **kwargs)` unpacks them again on the way out. (numpy has no `na.rm`; the `where` mask above is the closest kwarg-shaped idiom, and `np.nanmean`/`np.nanstd` exist for exactly this job.)
+
+## A brief look at recursion {#sec-week3-recursion}
+
+Loops are not the only way to repeat. A **recursive** definition solves a problem in terms of smaller instances of itself, plus a *base case* to stop the descent. That is exactly how we first wrote Fibonacci mathematically in @sec-week2-for: $r_i = r_{i-1} + r_{i-2}$, with $r_1 = r_2 = 1$ as the base. Back then we had to translate the recurrence into a loop. Now that we can write functions, we can translate it *directly*, because a function is allowed to call itself:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+fib_rec <- function(n) {
+  if (n <= 2) 1 else fib_rec(n - 1) + fib_rec(n - 2)
+}
+
+fib_rec(10)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+def fib_rec(n):
+    return 1 if n <= 2 else fib_rec(n - 1) + fib_rec(n - 2)
+
+
+fib_rec(10)
+```
+
+</div>
+:::
+
+The definition *is* the recurrence: `fib_rec` calls itself on smaller inputs until it hits the base case. (In R, `if` is an expression that returns a value, which is why the body fits on a single line; Python's counterpart is the *conditional expression* `value_if_true if condition else value_if_false`, where the value comes first.)
+
+Elegant, and here catastrophically inefficient. Each call spawns *two* more calls, so the total number of calls grows exponentially in `n`, and the same values get recomputed over and over. Watch the time explode as `n` creeps up (R's `elapsed` is the wall-clock time in seconds; the Python column hands the code to `timeit.timeit(..., number=1)` as a string, which runs it once and returns seconds directly, with `globals=globals()` letting the timed code see our function):
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+system.time(fib_rec(20))
+system.time(fib_rec(30))
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+import timeit
+
+timeit.timeit("fib_rec(20)", globals=globals(), number=1)
+timeit.timeit("fib_rec(30)", globals=globals(), number=1)
+```
+
+</div>
+:::
+
+Ten more terms, roughly a hundred times slower, while the humble preallocated loop of @sec-week2 filled 10,000 slots in milliseconds. Recursion also has a hard depth limit: every nested call sits on a stack waiting for its sub-calls, and R gives up beyond a few thousand levels. Python is stricter still, with a default cap of 1,000 frames; inspect or change it with `sys.getrecursionlimit()` / `sys.setrecursionlimit()`, though wanting to raise it is usually a hint that a loop would serve better. Forget the base case and you hit the limit immediately:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+#| error: true
+broken <- function(n) broken(n - 1)   # no base case!
+broken(1)
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+#| error: true
+def broken(n):
+    return broken(n - 1)   # no base case!
+
+broken(1)
+```
+
+</div>
+:::
+
+Verdict: recursion is a beautiful way to *think*, and for divide-and-conquer algorithms it can be genuinely efficient, but for simple sequences, in either language, the loop wins.
+
+::: {.callout-tip title="Exercise 3.4: Recursive factorial"}
+a.  Write a recursive function `fact_rec` for $n! = n \times (n-1)!$ with base case $0! = 1$, mimicking `fib_rec` above.
+b.  Check `fact_rec(10)` against R's built-in `factorial(10)` (Python: `math.factorial(10)`).
+c.  Try `fact_rec(10000)`. What happens, and why? Would a loop version have the same problem?
+:::
 
 ## Functions are values {#sec-week3-fp}
 
-Time for the second act. R is, at heart, a **functional programming** language: functions are *first-class* values. You have already seen the evidence — we create functions with `function()` and assign them with `<-`, like any number or vector. It follows that we can also store them, pass them to other functions as arguments, and even return them from functions. The same holds in Python: `def` and `lambda` both produce ordinary objects that can be assigned, stored and passed around.
+Time for the second act. R is, at heart, a **functional programming** language: functions are *first-class* values. You have already seen the evidence: we create functions with `function()` and assign them with `<-`, like any number or vector. It follows that we can also store them, pass them to other functions as arguments, and even return them from functions. The same holds in Python: `def` and `lambda` both produce ordinary objects that can be assigned, stored and passed around.
 
-Storing them takes a container more permissive than the atomic vector, so meet the **list**: built with `list()`, it holds elements of *any* type — numbers, strings, vectors of different lengths, other lists, and yes, functions. Name the elements when you build it, then extract one with `$name` or with double brackets `[[ ]]` (by position or by name). Data frames, the stars of @sec-week4, are secretly lists of columns, so the `$` will look familiar there.
+Storing them takes a container more permissive than the atomic vector, so meet the **list**: built with `list()`, it holds elements of *any* type (numbers, strings, vectors of different lengths, other lists, and yes, functions). Name the elements when you build it, then extract one with `$name` or with double brackets `[[ ]]` (by position or by name). Data frames, the stars of @sec-week4, are secretly lists of columns, so the `$` will look familiar there.
 
-**Note for Python users:** Python splits the job of R's list between two containers: the **list** `[...]` (ordered, extracted by position) and the **dict** `{"name": value}` (extracted by name). Both hold elements of any type, functions included. Where R writes `funs$root` or `funs[["root"]]`, Python writes `funs["root"]` — and pandas data frames (@sec-week4) are dict-like collections of columns in just the way R data frames are lists of columns.
+**Note for Python:** Python splits the job of R's list between two containers: the **list** `[...]` (ordered, extracted by position) and the **dict** `{"name": value}` (extracted by name). Both hold elements of any type, functions included. Where R writes `funs$root` or `funs[["root"]]`, Python writes `funs["root"]`; and pandas data frames (@sec-week4) are dict-like collections of columns in just the way R data frames are lists of columns.
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -627,7 +731,7 @@ add(1, 2)
 
 We will use `\(x)` for one-liners and anonymous functions, and keep the long form `function(x)` for anything with a multi-line body. They are the same thing; the backslash just saves seven keystrokes.
 
-**Note for Python users:** a `lambda` body must be a **single expression** — no statements, no assignments, no multi-line logic; the expression's value is returned automatically. R's `\(x)` carries no such restriction (it is literally `function(x)` respelled). The moment a Python function needs more than one expression, switch to `def`. Style guides also frown on *assigning* a lambda to a name as we just did — `def` is the official way — but for throwaway one-liners in these notes we allow ourselves the shorthand.
+**Note for Python:** a `lambda` body must be a **single expression**: no statements, no assignments, no multi-line logic; the expression's value is returned automatically. R's `\(x)` carries no such restriction (it is literally `function(x)` respelled). The moment a Python function needs more than one expression, switch to `def`. Style guides also frown on *assigning* a lambda to a name as we just did (`def` is the official way), but for throwaway one-liners in these notes we allow ourselves the shorthand.
 
 ### Function factories and currying {#sec-week3-factories}
 
@@ -671,9 +775,9 @@ to_the_tenth(2)
 </div>
 :::
 
-Note the small miracle: `cube` still knows that `exponent` is 3, long after the call to `make_power` finished. The returned function carries its birth environment with it (the technical name is a *closure*) — and this works identically in both languages.
+Note the small miracle: `cube` still knows that `exponent` is 3, long after the call to `make_power` finished. The returned function carries its birth environment with it (the technical name is a *closure*), and this works identically in both languages.
 
-Turning a function of several arguments into a chain of single-argument functions like this is called **currying** (after the logician Haskell Curry — the food connection is, sadly, coincidental). It shines when you fix some arguments once and vary the others a lot. A situation you will meet constantly in numerical work: evaluating a function on grids of different resolutions. Take this slightly unhinged function,
+Turning a function of several arguments into a chain of single-argument functions like this is called **currying** (after the logician Haskell Curry; the food connection is, sadly, coincidental). It shines when you fix some arguments once and vary the others a lot. A situation you will meet constantly in numerical work: evaluating a function on grids of different resolutions. Take this slightly unhinged function,
 
 $$
 f(x) = x^2 + x \sin(x - 1.5\,x^2),
@@ -794,9 +898,9 @@ max_over_grid(f2, fine, 4)
 </div>
 :::
 
-One generic `max_over_grid`, any function, any grid resolution. This pattern — machinery that accepts the mathematical object as an argument — is exactly how we will package gradient descent at the end of the chapter.
+One generic `max_over_grid`, any function, any grid resolution. This pattern (machinery that accepts the mathematical object as an argument) is exactly how we will package gradient descent at the end of the chapter.
 
-::: {.callout-tip title="Exercise 3.4: A density factory"}
+::: {.callout-tip title="Exercise 3.5: A density factory"}
 The density of a $N(\mu, \sigma^2)$ distribution is
 
 $$
@@ -811,7 +915,7 @@ d.  Quick base-plot sanity check: plot `standard` over $[-6, 6]$ with `type = "l
 
 ### map: one function, every element {#sec-week3-map}
 
-Vectorised arithmetic (@sec-week1) covers a lot of ground, but it works on atomic vectors. The moment your data lives in a list — samples of different sizes, say — `mean(samples)` is meaningless and a `for` loop feels like heavy machinery for such a small job. The functional answer is `map`: apply a function to every element of a collection, collect the results. It lives in the `purrr` package (part of the tidyverse, which we meet properly in @sec-week4); Python has its counterparts built in:
+Vectorised arithmetic (@sec-week1) covers a lot of ground, but it works on atomic vectors. The moment your data lives in a list (samples of different sizes, say), `mean(samples)` is meaningless and a `for` loop feels like heavy machinery for such a small job. The functional answer is `map`: apply a function to every element of a collection, collect the results. It lives in the `purrr` package (part of the tidyverse, which we meet properly in @sec-week4); Python has its counterparts built in:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -857,11 +961,11 @@ list(map(np.mean, samples.values()))                 # map(): a plain list, name
 </div>
 :::
 
-`map()` always returns a list, because *a priori* it cannot know what your function outputs. When you know the common type, the suffixed versions `map_dbl`, `map_int`, `map_chr`, `map_lgl` return an atomic vector of that type — and fail loudly if any result does not fit, which is exactly the kind of failure you want. (One current exception: `map_chr` handed a number coerces it with a deprecation warning rather than an error — purrr would rather you called `as.character()` yourself.)
+`map()` always returns a list, because *a priori* it cannot know what your function outputs. When you know the common type, the suffixed versions `map_dbl`, `map_int`, `map_chr`, `map_lgl` return an atomic vector of that type, and fail loudly if any result does not fit, which is exactly the kind of failure you want. (One current exception: `map_chr` handed a number coerces it with a deprecation warning rather than an error; purrr would rather you called `as.character()` yourself.)
 
-**Note for Python users:** `map(f, xs)` is built in and *lazy* — it returns an iterator that computes nothing until asked, hence the `list(...)` wrapper to see the results at once. The more idiomatic tool is the **comprehension**: `[f(x) for x in xs]` for lists, `{k: f(v) for k, v in d.items()}` for dicts (our named lists). There are no type-suffixed variants and no type checking — a comprehension happily builds a list of mixed types, so the discipline `map_dbl` enforces is on you.
+**Note for Python:** `map(f, xs)` is built in and *lazy*: it returns an iterator that computes nothing until asked, hence the `list(...)` wrapper to see the results at once. The more idiomatic tool is the **comprehension**: `[f(x) for x in xs]` for lists, `{k: f(v) for k, v in d.items()}` for dicts (our named lists). There are no type-suffixed variants and no type checking: a comprehension happily builds a list of mixed types, so the discipline `map_dbl` enforces is on you.
 
-A word on the randomness: `set.seed(7432)` and `np.random.default_rng(7432)` each fix their own language's stream, so re-running reproduces the same numbers *within* a language — but the two generators are unrelated, so the R and Python columns print different samples. Nothing is wrong.
+A word on the randomness: `set.seed(7432)` and `np.random.default_rng(7432)` each fix their own language's stream, so re-running reproduces the same numbers *within* a language, but the two generators are unrelated, so the R and Python columns print different samples. Nothing is wrong.
 
 Lambdas slot in perfectly as the function argument:
 
@@ -921,7 +1025,7 @@ trims = [0, 0.1, 0.2]
 
 There is also `pmap` for three-or-more inputs, same idea. One line of caution: the collections passed to `map2` should have the same length.
 
-**Note for Python users:** `zip` pairs the collections up (and `map()` itself takes several iterables: `map(f, xs, ys)`); both stop silently at the *shortest* input rather than complaining, so check your lengths yourself.
+**Note for Python:** `zip` pairs the collections up (and `map()` itself takes several iterables: `map(f, xs, ys)`); both stop silently at the *shortest* input rather than complaining, so check your lengths yourself.
 
 **Base R has this too.** The `apply` family predates purrr and you will see it everywhere: `lapply(x, f)` is essentially `map`, `sapply(x, f)` is `map` that then *simplifies* to a vector when it can (convenient interactively, mildly hair-raising in scripts, since the output type depends on the data), `vapply` is the type-safe version, and `apply(M, margin, f)` sweeps a function over the rows (`margin = 1`) or columns (`margin = 2`) of a matrix. We use purrr in these notes for its consistent naming and type-stable returns, but the two families are interchangeable for everything we do:
 
@@ -948,7 +1052,7 @@ sapply(samples, mean)   # base R equivalent of map_dbl(samples, mean)
 </div>
 :::
 
-::: {.callout-tip title="Exercise 3.5: Mapping the lab marks"}
+::: {.callout-tip title="Exercise 3.6: Mapping the lab marks"}
 Three lab groups sat a test:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
@@ -986,11 +1090,11 @@ marks = {
 a.  Use `map_dbl` (Python: a dict comprehension) to get each group's average mark.
 b.  Use `map_int` (or `map_dbl`) with `length` (Python: `len`) to get each group's size.
 c.  Use `map_dbl` with a lambda to compute each group's mark *range* (max minus min).
-d.  Use `map` with `sort` (Python: `sorted`) — why would `map_dbl` be the wrong tool here (what *shape* does each result have)?
+d.  Use `map` with `sort` (Python: `sorted`). Why would `map_dbl` be the wrong tool here (what *shape* does each result have)?
 e.  Which group did best on average? Answer in code with `which.max` (Python: `max(..., key=...)`).
 :::
 
-::: {.callout-tip title="Exercise 3.6: Currying the trimmed mean"}
+::: {.callout-tip title="Exercise 3.7: Currying the trimmed mean"}
 Reaction times (seconds) for four subjects, each with the occasional attention lapse:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
@@ -1082,14 +1186,14 @@ list(accumulate(range(1, 6)))     # keep the partial results: cumsum
 </div>
 :::
 
-The backticks around `` `+` `` let us pass an operator where a function is expected — operators *are* functions in R. That is the whole idea; `Reduce` is niche but irreplaceable when it fits.
+The backticks around `` `+` `` let us pass an operator where a function is expected: operators *are* functions in R. That is the whole idea; `Reduce` is niche but irreplaceable when it fits.
 
-**Note for Python users:** the pieces live in three standard-library modules: `functools.reduce` is the fold, the `operator` module wraps the operators as functions (`operator.add` is Python's `` `+` ``), and running folds come from `itertools.accumulate` rather than an `accumulate =` flag. There is no built-in `intersect` for lists, hence the lambda.
+**Note for Python:** the pieces live in three standard-library modules: `functools.reduce` is the fold, the `operator` module wraps the operators as functions (`operator.add` is Python's `` `+` ``), and running folds come from `itertools.accumulate` rather than an `accumulate =` flag. There is no built-in `intersect` for lists, hence the lambda.
 
-::: {.callout-tip title="Exercise 3.7: Reduce, reuse, recycle"}
+::: {.callout-tip title="Exercise 3.8: Reduce, reuse, recycle"}
 a.  Compute $10!$ with a single `Reduce` call (no loops, no `factorial`). (Python: `functools.reduce` with `operator.mul`.)
 b.  Given `x <- c(3, 1, 4, 1, 5, 9, 2, 6)`, compute the *running maximum* with `Reduce` and `accumulate = TRUE` (Python: `itertools.accumulate` with `max`), and check it against the built-in `cummax(x)` (Python: `np.maximum.accumulate(x)`).
-c.  With the `attended` list from above, use `Reduce` and `union` to list everyone who attended *at least once*, and check it against `unique(unlist(attended))` (Python: write the union step yourself, and check with `np.unique` on the concatenated lists — noting that `np.unique` also sorts).
+c.  With the `attended` list from above, use `Reduce` and `union` to list everyone who attended *at least once*, and check it against `unique(unlist(attended))` (Python: write the union step yourself, and check with `np.unique` on the concatenated lists, noting that `np.unique` also sorts).
 :::
 
 ## Packaging gradient descent {#sec-week3-gd}
@@ -1134,7 +1238,7 @@ def grad_descent(f, grad, x0, gamma, n):
 </div>
 :::
 
-That is the whole algorithm: pure (no globals touched), reusable, half a dozen lines. You may notice `grad_descent` never actually calls `f` — the update only needs the gradient. We keep `f` in the signature anyway: the objective is how we *check* the answer (see the plot below), and in @sec-week5 this exact interface will carry monitoring, stochastic variants and fancier updates without changing shape. Consider the signature `grad_descent(f, grad, x0, gamma, n)` — identical in both languages, deliberately — a contract between this week and week 5.
+That is the whole algorithm: pure (no globals touched), reusable, half a dozen lines. You may notice `grad_descent` never actually calls `f`: the update only needs the gradient. We keep `f` in the signature anyway: the objective is how we *check* the answer (see the plot below), and in @sec-week5 this exact interface will carry monitoring, stochastic variants and fancier updates without changing shape. Consider the signature `grad_descent(f, grad, x0, gamma, n)`, identical in both languages by design, a contract between this week and week 5.
 
 Minimising $f(x) = (x-2)^2$, whose gradient is $f'(x) = 2(x-2)$, is now a matter of two lambdas:
 
@@ -1198,7 +1302,7 @@ grad_descent(g, grad_g, x0=-2, gamma=0.1, n=200)   # other basin
 </div>
 :::
 
-Gradient descent rolls downhill from wherever you drop it, so it finds the *local* minimum of its starting basin — a theme we return to at length in @sec-week5. A quick base-plot sanity check that the answer really sits at the bottom:
+Gradient descent rolls downhill from wherever you drop it, so it finds the *local* minimum of its starting basin, a theme we return to at length in @sec-week5. A quick base-plot sanity check that the answer really sits at the bottom:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -1233,7 +1337,7 @@ plt.show()
 </div>
 :::
 
-One last cautionary demonstration — the step size $\gamma$ is not a detail:
+One last cautionary demonstration: the step size $\gamma$ is not a detail:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -1257,9 +1361,9 @@ grad_descent(f, grad_f, x0=10, gamma=1.05, n=50)   # too greedy: diverges
 </div>
 :::
 
-Each step overshoots the minimum by more than it gained, and the iterates explode (no randomness here, so for once the two columns agree to the last digit). Why this happens, how to choose $\gamma$, and what to do when the problem is multivariate and the data are big — that is precisely the programme of @sec-week5, where `grad_descent` and its descendants do statistics for real.
+Each step overshoots the minimum by more than it gained, and the iterates explode (no randomness here, so for once the two columns agree to the last digit). Why this happens, how to choose $\gamma$, and what to do when the problem is multivariate and the data are big: that is precisely the programme of @sec-week5, where `grad_descent` and its descendants do statistics for real.
 
-::: {.callout-tip title="Exercise 3.8: A new client for grad_descent"}
+::: {.callout-tip title="Exercise 3.9: A new client for grad_descent"}
 Consider $h(x) = e^x + x^2$.
 
 a.  Derive $h'(x)$ by hand, and write both as lambdas.
@@ -1276,7 +1380,7 @@ a.  iterates at most `max_n` times, but **stops early** when the step becomes ti
 b.  records every iterate along the way (including `x0`);
 c.  returns a **list** (Python: a dict) with three elements: `minimiser` (the final $x$), `path` (the vector of all iterates), and `iterations` (how many updates were performed).
 
-Run it on $f(x) = (x-2)^2$ with `x0 = 10`, `gamma = 0.1`, `max_n = 1000`. How many iterations did it actually need? Finish with a base plot of `f(path)` against iteration number — add `log = "y"` to the plot call (Python: `plt.yscale("log")`) and admire the straight line (linear convergence, literally).
+Run it on $f(x) = (x-2)^2$ with `x0 = 10`, `gamma = 0.1`, `max_n = 1000`. How many iterations did it actually need? Finish with a base plot of `f(path)` against iteration number; add `log = "y"` to the plot call (Python: `plt.yscale("log")`) and admire the straight line (linear convergence, literally).
 :::
 
 ::: {.callout-important title="Challenge 3.2: Generic FizzBuzz"}
@@ -1334,9 +1438,9 @@ generic_fizzbuzz(range(1, 21), [2, 3, 5, 7], ["Skibbidi", "Fizz", "Buzz", "Yo"])
 </div>
 :::
 
-Hint: `map_chr` over `x`, and inside the lambda, logical indexing of `phrases` plus `paste0(..., collapse = "")` gets you there in very few lines. Python route: a list comprehension over `x`, and inside, `"".join` over `zip(phrases, divisors)` plays the role of the logical indexing plus `paste0` — and an empty string is falsy, which handles the fallback.
+Hint: `map_chr` over `x`, and inside the lambda, logical indexing of `phrases` plus `paste0(..., collapse = "")` gets you there in very few lines. Python route: a list comprehension over `x`, and inside, `"".join` over `zip(phrases, divisors)` plays the role of the logical indexing plus `paste0`; and an empty string is falsy, which handles the fallback.
 :::
 
 ## Looking ahead
 
-We now hold both halves of the toolkit this module runs on: writing clean, pure functions, and wiring them together functionally — factories to build them, `map` to spread them over data, and higher-order functions like `grad_descent` that take the mathematics as an argument. In @sec-week4 we meet the data structures and plotting tools that real datasets deserve, and in @sec-week5 everything converges (pun fully intended) on optimisation for statistics.
+We now hold both halves of the toolkit this module runs on: writing clean, pure functions, and wiring them together functionally: factories to build them, `map` to spread them over data, and higher-order functions like `grad_descent` that take the mathematics as an argument. In @sec-week4 we meet the data structures and plotting tools that real datasets deserve, and in @sec-week5 everything converges (pun fully intended) on optimisation for statistics.

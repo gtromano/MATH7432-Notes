@@ -13,8 +13,8 @@ plotnine.options.figure_size = (6, 4)
 ```
 
 This chapter is **optional self-study material**: there is no timetabled slot for it, no lab,
-and nothing here is examinable. It exists because at some point — probably while reading
-someone else's package code — you will run into `setClass`, `@`, and `setMethod` in R, or
+and nothing here is examinable. It exists because at some point (probably while reading
+someone else's package code) you will run into `setClass`, `@`, and `setMethod` in R, or
 `class`, `self` and `__init__` in Python, and you deserve to know what is going on. It is
 also, quietly, one of the most elegant corners of R.
 
@@ -24,11 +24,12 @@ attaching a *class* to it and letting the language pick the right behaviour auto
 
 One warning about the shape of this chapter. Everywhere else in these notes the two
 languages run side by side, line for line. Object-oriented programming is where they
-genuinely part ways — R attaches behaviour to *generic functions* outside the object,
-Python attaches it to *methods* inside the class — so a two-column view would be a lie.
+genuinely part ways: R attaches behaviour to *generic functions* outside the object,
+Python attaches it to *methods* inside the class, so a two-column view would be a lie.
 Instead the chapter comes in two parts: @sec-bonus-r builds everything in R (S3, S4 and
-multiple dispatch), and @sec-bonus-python rebuilds the same machinery in Python. Read the
-part for your own language first; then skim the other — the contrast is the real lesson.
+multiple dispatch), and @sec-bonus-python rebuilds the same machinery in Python. Both
+parts are for everyone: read the R part first, then the Python part; the contrast is the
+real lesson.
 
 ## One name, many behaviours {#sec-bonus-motivation}
 
@@ -53,7 +54,7 @@ class(fit)
 ```
 
 `summary()` is a **generic function**: it does almost no work itself. It inspects the class
-of its argument and *dispatches* to a specialised **method** — `summary.default()` for the
+of its argument and *dispatches* to a specialised **method**: `summary.default()` for the
 numeric vector, `summary.lm()` for the regression. There are many such methods lying around:
 
 ```{r}
@@ -61,25 +62,25 @@ head(methods("summary"), 8)
 length(methods("summary"))
 ```
 
-`print()` and `plot()` work exactly the same way — that is why typing `fit` at the console
+`print()` and `plot()` work exactly the same way: that is why typing `fit` at the console
 shows a tidy coefficient display rather than the giant list that `fit` actually is. Contrast
 this with `optim()` from @sec-week5, which returns a plain unclassed list and wishes you
 luck.
 
-**Note for Python users:** the same phenomenon exists in your language — `len()` happily
-measures strings, lists and arrays, and `+` adds numbers but concatenates strings — but the
-mechanism is different: each type carries its own `__len__` or `__add__` method *inside*
-it. @sec-bonus-python makes this precise.
+**Note for Python:** the same phenomenon exists there: `len()` happily measures strings,
+lists and arrays, and `+` adds numbers but concatenates strings. The mechanism, though, is
+different: each type carries its own `__len__` or `__add__` method *inside* it.
+@sec-bonus-python makes this precise.
 
 This design is called **object-oriented programming** (OOP). R has several OOP systems; the
-R part of this chapter meets the two that matter — S3 and S4 — and finishes with S4's party
+R part of this chapter meets the two that matter (S3 and S4) and finishes with S4's party
 trick: dispatching on *two* arguments at once. Python has exactly one system, and we will
 use it to rebuild the very same example.
 
 ## Classes in R {#sec-bonus-r}
 
-Everything in this part is base R. The one sentence to hold on to, especially if Python is
-your language: in R, methods belong to **generic functions**, not to objects — you will
+Everything in this part is base R. The one sentence to hold on to, especially with the
+Python part ahead: in R, methods belong to **generic functions**, not to objects. You will
 write `summary(flips)`, never `flips.summary()`.
 
 ### S3: classes on a shoestring {#sec-bonus-s3}
@@ -90,7 +91,7 @@ S3 is R's oldest and simplest object system, and it powers most of what you have
 
 #### The class attribute
 
-Any object can be given a class — it is just a label:
+Any object can be given a class (it is just a label):
 
 ```{r}
 set.seed(7432)   # so we all flip the same coins
@@ -104,8 +105,8 @@ class(flips) <- "coin_flips"
 class(flips)
 ```
 
-In practice we wrap this in a **constructor function** — just an ordinary function in the
-sense of @sec-week3 — so that all `coin_flips` objects are built the same way:
+In practice we wrap this in a **constructor function** (just an ordinary function in the
+sense of @sec-week3) so that all `coin_flips` objects are built the same way:
 
 ```{r}
 coin_flips <- function(n, prob = 0.5, coin = "fair") {
@@ -118,7 +119,7 @@ coin_flips <- function(n, prob = 0.5, coin = "fair") {
 flips <- coin_flips(20)
 ```
 
-If we print `flips` right now we get the raw list — R has no better idea. Let's fix that.
+If we print `flips` right now we get the raw list: R has no better idea. Let's fix that.
 
 #### Writing methods for existing generics
 
@@ -198,7 +199,7 @@ class(logit_fit)
 ```
 
 A `glm` *is a* `lm` with extras: any generic without a `glm` method falls through to the
-`lm` one. We can do the same — a biased coin is still a coin:
+`lm` one. We can do the same, because a biased coin is still a coin:
 
 ```{r}
 biased_flips <- function(n, prob) {
@@ -241,7 +242,7 @@ ci <- structure(
 a. Write a `print.conf_int` method so that typing `ci` displays something like
    `95% CI: 5.30 [4.10, 6.50]` (use `sprintf()` for the formatting, and follow the
    invisible-return convention).
-b. Check that `print(unclass(ci))` still shows the raw list — the data never changed,
+b. Check that `print(unclass(ci))` still shows the raw list: the data never changed,
    only the label R uses to choose a method.
 c. Add a `se.conf_int` method for the `se()` generic above: assuming the interval is
    $\text{estimate} \pm 1.96 \times \text{se}$, recover the standard error as
@@ -283,7 +284,7 @@ z@mean
 new("Normal")    # prototype fills in the defaults: a standard normal
 ```
 
-Unlike S3, the contract is enforced — a slot must exist and have the declared type:
+Unlike S3, the contract is enforced. A slot must exist and have the declared type:
 
 ```{r}
 #| error: true
@@ -334,8 +335,8 @@ validObject(z)    # ...but does not survive an audit
 
 #### Generics and methods, take two
 
-In S4, generics are declared with `setGeneric()` and methods registered with `setMethod()`
-— no naming conventions, everything explicit. Let's make a generic that evaluates a
+In S4, generics are declared with `setGeneric()` and methods registered with `setMethod()`:
+no naming conventions, everything explicit. Let's make a generic that evaluates a
 distribution's density at some points:
 
 ```{r}
@@ -349,7 +350,7 @@ dens(z, 0:3)
 
 #### show
 
-The S4 analogue of the `print` method is `show()` — it controls what typing the object's
+The S4 analogue of the `print` method is `show()`, which controls what typing the object's
 name displays:
 
 ```{r}
@@ -377,7 +378,7 @@ dens(mu_prior, 0)        # inherited method: a NamedNormal is a Normal
 is(mu_prior, "Normal")
 ```
 
-Try `new("NamedNormal", name = "oops", sd = -1)` — the parent's validity function fires
+Try `new("NamedNormal", name = "oops", sd = -1)`: the parent's validity function fires
 too. This is exactly how large systems like the `Matrix` package build families of matrix
 classes (sparse, triangular, symmetric...) that all share the linear algebra you met in
 @sec-week1.
@@ -403,7 +404,7 @@ The cleanest example is conjugate Bayesian updating. The posterior
 $p(\theta \mid \mathbf{x}) \propto p(\mathbf{x} \mid \theta)\, p(\theta)$ has a closed form
 only for matching *pairs*: a Beta prior with binomial data gives a Beta posterior, a Gamma
 prior with Poisson data gives a Gamma posterior, and so on. The right computation depends on
-**both** the prior's class **and** the data's class — a job for S4, which dispatches on the
+**both** the prior's class **and** the data's class: a job for S4, which dispatches on the
 full signature.
 
 #### A tiny conjugate engine
@@ -468,8 +469,8 @@ d1 <- new("BinomData", successes = 7, trials = 20)
 posterior(prior, d1)
 ```
 
-The posterior is itself a `Beta`, so it can serve as the prior for the next batch of data —
-sequential updating comes for free, and matches pooling everything at once:
+The posterior is itself a `Beta`, so it can serve as the prior for the next batch of data.
+Sequential updating comes for free, and matches pooling everything at once:
 
 ```{r}
 d2 <- new("BinomData", successes = 5, trials = 10)
@@ -477,8 +478,8 @@ posterior(posterior(prior, d1), d2)
 posterior(prior, new("BinomData", successes = 12, trials = 30))
 ```
 
-The Normal-Normal pair reuses the `Normal` class from earlier — pretty `show`, validity
-check and all:
+The Normal-Normal pair reuses the `Normal` class from earlier (pretty `show`, validity
+check and all):
 
 ```{r}
 set.seed(7432)
@@ -490,14 +491,14 @@ posterior(new("Normal", mean = 0, sd = 10),
 
 #### The dispatch table
 
-Conceptually, S4 keeps a **table** of methods indexed by the signature — here, (prior
-class, data class) — and each call looks up the most specific matching entry:
+Conceptually, S4 keeps a **table** of methods indexed by the signature, here (prior
+class, data class), and each call looks up the most specific matching entry:
 
 |            | `BinomData`   | `PoisData`     | `NormData`      |
 |------------|---------------|----------------|-----------------|
-| `Beta`     | Beta update   | —              | —               |
-| `Gamma`    | —             | Gamma update   | —               |
-| `Normal`   | —             | —              | Normal update   |
+| `Beta`     | Beta update   |                |                 |
+| `Gamma`    |               | Gamma update   |                 |
+| `Normal`   |               |                | Normal update   |
 
 Notice this is precisely the conjugacy table from your Bayesian statistics course, turned
 into executable code. You can ask R to show its copy:
@@ -509,7 +510,7 @@ showMethods("posterior")
 #### An ANY fallback
 
 What about the empty cells? `ANY` is the wildcard class, matched only when nothing more
-specific fits — the S4 counterpart of `se.default`. We use it to fail *informatively*:
+specific fits: the S4 counterpart of `se.default`. We use it to fail *informatively*:
 
 ```{r}
 setMethod("posterior", signature("ANY", "ANY"), function(prior, data) {
@@ -548,7 +549,7 @@ ggplot(df, aes(x = theta, y = density, colour = curve)) +
   theme_minimal()
 ```
 
-Twenty coin flips took us from "no idea" to a tidy bump around $0.35$ — and the machinery
+Twenty coin flips took us from "no idea" to a tidy bump around $0.35$, and the machinery
 that computed it never once asked us *which* update formula to use.
 
 ::: {.callout-tip title="Exercise B.3: One more row in the table"}
@@ -558,13 +559,18 @@ $\text{Gamma}(\alpha + n,\ \beta + \sum_i x_i)$.
 
 a. Define an S4 class `ExpData` with a single numeric slot `x`.
 b. Register a `posterior` method for the signature `("Gamma", "ExpData")`.
-c. Simulate `set.seed(1); x <- rexp(50, rate = 2)`, update a `Gamma(1, 1)` prior with it,
-   and check the posterior mean $\alpha/\beta$ lands near the true rate 2.
+c. Simulate `set.seed(1); x <- rexp(50, rate = 2)` (Python:
+   `rng = np.random.default_rng(1); x = rng.exponential(scale=1/2, size=50)`, because
+   numpy parameterises the exponential by the *scale* $1/\lambda$, not the rate), update a
+   `Gamma(1, 1)` prior with it, and check the posterior mean $\alpha/\beta$ lands within a
+   couple of posterior standard deviations ($\sqrt{\alpha}/\beta$) of the true rate 2. The
+   R and numpy streams share only the seed number, so the two languages will land on
+   different values; both should pass the check.
 d. Verify that updating with the first 25 observations and then the remaining 25 gives the
-   same posterior as using all 50 at once (compare the slots with `all.equal()` — the
+   same posterior as using all 50 at once (compare the slots with `all.equal()`; the
    floating-point lesson from @sec-week2 applies to Bayesians too).
 
-(Python track: the same row fits the dict registry of @sec-bonus-python — add it there and
+(In Python, the same row fits the dict registry of @sec-bonus-python: add it there and
 re-check c. and d.; the solutions notebook works it in both languages.)
 :::
 
@@ -572,17 +578,17 @@ re-check c. and d.; the solutions notebook works it in both languages.)
 
 R famously has *several* OOP systems. A field guide:
 
-- **S3** — informal, everywhere. All of base R's modelling functions, and most of CRAN.
+- **S3**: informal, everywhere. All of base R's modelling functions, and most of CRAN.
   If you write a package, you will almost certainly write S3 methods. Learn it properly.
-- **S4** — formal: declared slots, validity, multiple dispatch. Heavier ceremony, used
-  where correctness matters at scale. As a statistician you will meet it mainly through
-  the **Matrix** package (the sparse-matrix workhorse underneath `lme4`), the
-  **Bioconductor** ecosystem (genomics — thousands of S4 classes), and the **distr**
+- **S4**: formal, with declared slots, validity and multiple dispatch. Heavier ceremony,
+  used where correctness matters at scale. As a statistician you will meet it mainly
+  through the **Matrix** package (the sparse-matrix workhorse underneath `lme4`), the
+  **Bioconductor** ecosystem (genomics: thousands of S4 classes), and the **distr**
   family of distribution packages, which does at production quality what our toy did here.
-- **R5 / Reference Classes** — mutable objects whose methods live *inside* the object,
+- **R5 / Reference Classes**: mutable objects whose methods live *inside* the object,
   Python-style; in practice superseded by the CRAN package **R6**, which does the same
   job leaner.
-- **S7** — a successor to S3 and S4 being developed by the R Consortium, designed to
+- **S7**: a successor to S3 and S4 being developed by the R Consortium, designed to
   unify the two; worth knowing the name, not yet worth reorganising your life around.
 
 When in doubt: use S3 for everyday work, reach for S4 when you need validity guarantees or
@@ -591,12 +597,12 @@ genuinely need dispatch on more than one argument, and recognise the other two o
 For the definitive treatment, read the object-oriented programming chapters of Hadley
 Wickham's *Advanced R* (2nd edition, free online at
 [adv-r.hadley.nz](https://adv-r.hadley.nz)): chapter 13 for S3, chapter 15 for S4, and
-chapter 16 for an honest comparison of the systems — a longer version of the advice above.
+chapter 16 for an honest comparison of the systems (a longer version of the advice above).
 
 ## Classes in Python {#sec-bonus-python}
 
 If R's story is "several object systems, choose wisely", Python's is the opposite: there is
-exactly **one**, it has been there from the start, and everything uses it — every number,
+exactly **one**, it has been there from the start, and everything uses it. Every number,
 string, array and function in Python is an object of some class. The deep difference from R
 is *where behaviour lives*. In R it lives in generic functions outside the object
 (`summary(flips)`); in Python it lives in methods inside the class, and you call them
@@ -606,7 +612,7 @@ and then rebuilds the conjugate-Bayes engine with it.
 ### `class`, `__init__` and `self`
 
 A class is declared with `class`, and its constructor is a special method called
-`__init__` (two underscores each side — Python calls these *dunder* methods). Its first
+`__init__` (two underscores each side; Python calls these *dunder* methods). Its first
 argument `self` is the object under construction; attaching data to `self` does in one
 step what the R part did with `list(...)` plus a class attribute:
 
@@ -625,22 +631,22 @@ flips.coin              # ...and read back with a dot
 type(flips)
 ```
 
-**Note for R users:** the class itself is the constructor — `CoinFlips(20)` does the job
+**Note for R:** the class itself is the constructor: `CoinFlips(20)` does the job
 of both the `coin_flips(20)` helper *and* `structure(..., class = ...)`. Attributes use a
 dot where R's lists used `$` (and S4 used `@`), and there is no separate "attach the
 label" step: an object's class is whichever class built it, forever queryable with
-`type()`. One more thing you can see above: the flips will **not** match the R part's —
-`set.seed(7432)` and `default_rng(7432)` are different generators that merely share a
-number — so expect a different H/T string; the statistics is the same.
+`type()`. One more thing you can see above: the flips will **not** match the R part's,
+because `set.seed(7432)` and `default_rng(7432)` are different generators that merely
+share a number. Expect a different H/T string; the statistics is the same.
 
 ### Methods and `__repr__`
 
-Right now `flips` echoes as something like `<__main__.CoinFlips object at 0x...>` —
+Right now `flips` echoes as something like `<__main__.CoinFlips object at 0x...>`:
 Python's version of R printing the raw list. Methods fix that. A method is just a function
 defined inside the class body, taking `self` first; the special method `__repr__` is the
 one the console uses to display an object, playing the role of `print.coin_flips` in S3
 and of `show` in S4. Unlike R, where we bolted methods on one at a time from the outside,
-a Python class is normally written in one block — so here is `CoinFlips` again, in full:
+a Python class is normally written in one block, so here is `CoinFlips` again, in full:
 
 ```{python}
 class CoinFlips:
@@ -675,14 +681,14 @@ Python says `flips.summary()`: the object walks in already knowing its methods, 
 thing before the dot decides. It is the same dispatch decision, made at the opposite
 address.
 
-**Note for R users:** no `invisible()` dance either — `summary` here has no `return`, so
+**Note for R:** no `invisible()` dance either: `summary` here has no `return`, so
 it returns `None`, and `None` never echoes at the console. The printing *is* the job, and
 that is the whole story.
 
 ### Inheritance and super()
 
 Inheritance is declared in parentheses after the class name, and `super()` reaches the
-parent class — R's `NextMethod`, but callable wherever you like:
+parent class (R's `NextMethod`, but callable wherever you like):
 
 ```{python}
 class BiasedFlips(CoinFlips):               # a BiasedFlips *is a* CoinFlips
@@ -705,18 +711,18 @@ b.summary()                # never defined on BiasedFlips -- inherited from Coin
 That is the whole inheritance story: `BiasedFlips` overrides what it must and inherits the
 rest, exactly what the class vector plus `NextMethod` bought us in S3. Everyday Python,
 mind you, often skips the formal `isinstance` question altogether: if an object has the
-methods you need, use it — "if it quacks like a duck, it *is* a duck" (**duck typing**),
+methods you need, use it; "if it quacks like a duck, it *is* a duck" (**duck typing**),
 the informal spirit of S3 taken one cheerful step further.
 
 ### The same engine, one dict at a time {#sec-bonus-python-bayes}
 
-Now the real test: can Python do the multiple-dispatch trick? Not natively — a method call
+Now the real test: can Python do the multiple-dispatch trick? Not natively: a method call
 dispatches on the type of `self` and on nothing else. But the dispatch *table* at the heart
 of the S4 machinery is just a lookup from a pair of classes to an update rule, and Python
 has a perfectly good pair-to-anything lookup: a dictionary with tuple keys. We will build
 the table ourselves.
 
-The cast first — same priors, same data classes. `__repr__` does what our `show` methods
+The cast first: same priors, same data classes. `__repr__` does what our `show` methods
 did, and `__init__` doubles as the validity check: there is no S4-style validator standing
 at the door, so you write your own and `raise`:
 
@@ -769,7 +775,7 @@ class NormData:
 ```
 
 Here is the multiple dispatch, spelled out by hand. The dictionary `conjugate` *is* the
-dispatch table — its keys are `(prior class, data class)` pairs — and `posterior()` plays
+dispatch table (its keys are `(prior class, data class)` pairs) and `posterior()` plays
 the generic: it looks up the pair of types it was handed, with the `None` case as our
 `ANY` fallback:
 
@@ -784,7 +790,7 @@ def posterior(prior, data):
     return update(prior, data)
 ```
 
-Registering a method is now a dict assignment — compare each entry with its `setMethod`
+Registering a method is now a dict assignment. Compare each entry with its `setMethod`
 twin in @sec-bonus-multiple:
 
 ```{python}
@@ -813,7 +819,7 @@ def normal_normal(prior, data):
 conjugate[(Normal, NormData)] = normal_normal
 ```
 
-The engine turns over exactly as before — same flat prior, same 7-in-20 data, and since
+The engine turns over exactly as before (same flat prior, same 7-in-20 data), and since
 there is no randomness in the updates, the two languages agree to the digit:
 
 ```{python}
@@ -838,7 +844,7 @@ obs = rng.normal(loc=3, scale=2, size=25)
 posterior(Normal(mean=0, sd=10), NormData(x=obs, sd=2))
 ```
 
-The draws differ from the R part's — again, shared seed number, different streams — so the
+The draws differ from the R part's (again, shared seed number, different streams), so the
 posterior mean will not match the R output; both runs, though, sit near the sample mean of
 their own 25 draws, and the posterior sd collapses from the prior's 10 to just under 0.4.
 (In this known-noise model the posterior sd does not depend on the draws at all, so *that*
@@ -862,8 +868,8 @@ list(conjugate.keys())   # the filled cells of the conjugacy table
 
 The closing visual once more, now with plotnine, ggplot2's Python twin from the week 4
 notes. Two Python-isms on the way: classes are themselves ordinary objects, so we can bolt
-a density method onto `Beta` *after the fact* — a habit called *monkey-patching*, handy in
-a notebook, frowned upon in production code — and it is `scipy.stats` playing the role of
+a density method onto `Beta` *after the fact* (a habit called *monkey-patching*, handy in
+a notebook, frowned upon in production code), and it is `scipy.stats` playing the role of
 R's `dbeta`:
 
 ```{python}
@@ -899,11 +905,11 @@ Step back and compare what you just did twice.
 In R, S4 made the dispatch table *the language's problem*: `setMethod` filed each update
 under its pair of classes, and lookup, inheritance-aware matching (a `NamedNormal` prior
 finds the `Normal` method automatically) and the `ANY` fallback all came built in. In
-Python, dispatch on more than one argument is *your problem*: the built-in mechanism —
-choosing behaviour by the thing before the dot — is **single** dispatch on `self`'s type,
+Python, dispatch on more than one argument is *your problem*: the built-in mechanism
+(choosing behaviour by the thing before the dot) is **single** dispatch on `self`'s type,
 and the standard library's `functools.singledispatch` automates single dispatch for plain
 functions but stops there too. So we built the pair table by hand: a dict, a two-line
-lookup, a `raise`. That is precisely the machinery S4 automates — and our hand-rolled
+lookup, a `raise`. That is precisely the machinery S4 automates, and our hand-rolled
 version is honestly dumber, too: `type(prior)` matches exactly, so a *subclass* of `Beta`
 would sail straight past the `(Beta, BinomData)` entry that S4's inheritance-aware
 dispatch would have found. Making the dict version subclass-aware is a nice puzzle, not a
@@ -911,6 +917,6 @@ one-liner.
 
 The trade cuts both ways. Python's single system is small, universal, and never leaves you
 wondering which of four object frameworks a package is written in. R's S4 is heavier
-ceremony, but it puts a genuinely statistical kind of dispatch — behaviour that depends on
-a prior *and* a likelihood at once — directly into the language. Now you know what you are
+ceremony, but it puts a genuinely statistical kind of dispatch (behaviour that depends on
+a prior *and* a likelihood at once) directly into the language. Now you know what you are
 looking at when you meet either.

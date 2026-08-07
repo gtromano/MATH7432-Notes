@@ -15,7 +15,7 @@ rng = np.random.default_rng(7432)
 ```
 
 Last week (@sec-week1) we taught the computer arithmetic. This week we teach it
-to *make decisions* and to *repeat itself* — the two ingredients that turn a
+to *make decisions* and to *repeat itself*: the two ingredients that turn a
 calculator into an algorithm. By the end of the chapter we will have built our
 first genuinely useful one: **gradient descent**, the workhorse optimiser
 behind most of modern statistics and machine learning
@@ -62,12 +62,12 @@ import math          # pi lives in the math module
 Note the double `=` in `==`: a single `=` is assignment, and mixing the two up
 is a rite of passage.
 
-**Note for Python users:** R spells its logicals `TRUE` and `FALSE`; Python
+**Note for Python:** R spells its logicals `TRUE` and `FALSE`; Python
 capitalises only the first letter, `True` and `False`. Same objects, different
-outfits — and each language rejects the other's spelling.
+outfits, and each language rejects the other's spelling.
 
 Like arithmetic, comparisons are **vectorised**: comparing a vector against a
-scalar (or another vector — R recycles, numpy broadcasts; @sec-week1) gives a
+scalar (or another vector: R recycles, numpy broadcasts; @sec-week1) gives a
 whole vector of logicals.
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
@@ -99,7 +99,7 @@ x == np.array([1, 2, 9, 20])
 :::
 
 One trap worth knowing now: comparing anything with `NA` (a missing value)
-gives `NA`, not `FALSE` — R refuses to claim it knows how a missing value
+gives `NA`, not `FALSE`: R refuses to claim it knows how a missing value
 compares. To test for missingness use `is.na()`.
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
@@ -126,9 +126,9 @@ np.isnan(np.array([1, np.nan, 3]))
 </div>
 :::
 
-**Note for Python users:** Python has no true missing-value marker like R's
-`NA`. The closest stand-in is the floating-point "not a number", `np.nan` —
-but where R's `NA` *propagates* through comparisons (`NA == NA` is `NA`),
+**Note for Python:** Python has no true missing-value marker like R's
+`NA`. The closest stand-in is the floating-point "not a number", `np.nan`.
+But where R's `NA` *propagates* through comparisons (`NA == NA` is `NA`),
 `nan` simply compares `False` to everything, including itself. Test for it
 with `np.isnan()`, never with `==`. (Proper missing-data handling arrives
 with pandas in @sec-week4.)
@@ -159,7 +159,7 @@ Here is the most famous line of code in numerical computing:
 </div>
 :::
 
-R is not broken — and Python agrees, which should tell you something. This
+R is not broken, and Python agrees, which should tell you something. This
 section is entirely *language-shared*: both languages store decimals in the
 same IEEE 754 double-precision *binary floating point*, and just as $1/3$ has
 no finite decimal expansion, $0.1$ has no finite binary one. What gets stored
@@ -192,7 +192,7 @@ print(f"{0.3:.17g}")
 
 The rule: **never test floating-point numbers for exact equality**. Ask
 instead whether they are equal *up to a small tolerance*, either by hand or
-with a ready-made helper — `all.equal()` in R, `math.isclose()` in Python
+with a ready-made helper: `all.equal()` in R, `math.isclose()` in Python
 (with `np.isclose()` / `np.allclose()` as the array versions):
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
@@ -242,14 +242,14 @@ isTRUE(all.equal(1, 1.5))  # this is what you test
 **Python**
 
 ```{python}
-math.isclose(1, 1.5)   # a plain False — nothing to wrap
+math.isclose(1, 1.5)   # a plain False: nothing to wrap
 ```
 
 </div>
 :::
 
-**Note for Python users:** the `isTRUE()` dance is an R quirk.
-`math.isclose()` returns a plain `True`/`False` you can test directly — the
+**Note for Python:** the `isTRUE()` dance is an R quirk.
+`math.isclose()` returns a plain `True`/`False` you can test directly; the
 Python column above is only there to prove it.
 
 ::: {.callout-tip title="Exercise 2.1: The pedantic computer"}
@@ -260,8 +260,8 @@ b. `0.1 + 0.2 + 0.3 == 0.6`
 c. `sqrt(2)^2 == 2`
 d. `1e5 / (1e5 + 1e-16) == 1`
 
-(Python users: item (c) is `math.sqrt(2)**2 == 2` — recall `**` is Python's
-power operator; the other three run as written.)
+(Python: item (c) is `math.sqrt(2)**2 == 2`; recall `**` is Python's
+power operator. The other three run as written.)
 
 Explain what you see, and rewrite the comparisons in (b) and (c) so that they
 return `TRUE` for the right reason.
@@ -303,20 +303,20 @@ True ^ True   # exclusive OR: True when exactly one is True
 </div>
 :::
 
-**Note for Python users:** on single logicals the operators are *words* —
+**Note for Python:** on single logicals the operators are *words*:
 `and`, `or`, `not` (and `^` doubles as xor on booleans). Python's `&` and `|`
 exist too, but as elementwise operators: they become important on numpy
 arrays in a moment.
 
 In R, comparisons bind tighter than logical operators, and `&` binds tighter
-than `|`, so `x > 2 & x < 5` means what you hope it means. **Note for Python
-users:** numpy's `&` and `|` bind *tighter* than comparisons, so that same
-line would be read as `x > (2 & x) < 5` — parentheses around every comparison
-are mandatory: `(x > 2) & (x < 5)`. When in doubt, in either language,
-parenthesise — future you will be grateful.
+than `|`, so `x > 2 & x < 5` means what you hope it means. **Note for
+Python:** numpy's `&` and `|` bind *tighter* than comparisons, so that same
+line would be read as `x > (2 & x) < 5`, so parentheses around every
+comparison are mandatory: `(x > 2) & (x < 5)`. When in doubt, in either
+language, parenthesise; future you will be grateful.
 
-All three operators are vectorised — R uses the same `&`, `|`, `!` on
-vectors; numpy's elementwise trio is `&`, `|`, `~` — which lets us combine
+All three operators are vectorised (R uses the same `&`, `|`, `!` on
+vectors; numpy's elementwise trio is `&`, `|`, `~`), which lets us combine
 conditions elementwise:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
@@ -377,14 +377,14 @@ np.array([True, False]) and True
 They also *short-circuit*: `a && b` never evaluates `b` if `a` is already
 `FALSE`. That makes them the right choice inside `if()` conditions (coming up
 shortly), where you want exactly one `TRUE`/`FALSE` and you may want the
-second check skipped when the first fails — e.g.
+second check skipped when the first fails, e.g.
 `n > 0 && x[n] > 5` never touches `x[n]` when `n` is 0. Rule of thumb: `&`/`|`
 for vectors, `&&`/`||` for `if` conditions.
 
-**Note for Python users:** there is no doubled-up operator to learn — and
+**Note for Python:** there is no doubled-up operator to learn, and
 nothing missing, either. Python's `and`/`or` *are* the single-value,
 short-circuiting pair (`n > 0 and x[n - 1] > 5` skips the second check
-exactly like R's `&&`), while `&`/`|` are the elementwise pair — and, as the
+exactly like R's `&&`), while `&`/`|` are the elementwise pair. As the
 error above shows, `and` on a numpy array refuses to guess. The rule of thumb
 translates directly: `&`/`|` for arrays, `and`/`or` for `if` conditions.
 
@@ -448,7 +448,7 @@ np.isin([2, 5, 8], [1, 3, 5, 7])   # vectorised on the left
 
 ::: {.callout-tip title="Exercise 2.2: Leap year logic"}
 A year is a leap year if it is divisible by 4, *except* that century years
-(divisible by 100) are not — *unless* they are also divisible by 400. So 2024
+(divisible by 100) are not, *unless* they are also divisible by 400. So 2024
 and 2000 are leap years; 2023 and 1900 are not.
 
 Store a year in a variable and write a **single logical expression** (no `if`
@@ -459,8 +459,8 @@ expression on 2024, 2023, 2000 and 1900.
 
 ## Logical indexing {#sec-week2-logical-indexing}
 
-Last week we indexed vectors by *position*: `x[3]`, `x[c(1, 5)]`. The second —
-and in statistics, far more useful — way is to index with a **logical
+Last week we indexed vectors by *position*: `x[3]`, `x[c(1, 5)]`. The second
+(and in statistics, far more useful) way is to index with a **logical
 vector**: R keeps the elements where the index is `TRUE`, and numpy indexing
 behaves the same way.
 
@@ -546,12 +546,12 @@ np.mean(x > 3)       # the proportion of Trues
 </div>
 :::
 
-**Note for Python users:** `which()`'s companion `np.where(condition)`
-returns a *tuple* of index arrays (one per dimension) — the `[0]` extracts
-the one we want — and of course the positions are 0-based where R's are
+**Note for Python:** `which()`'s companion `np.where(condition)`
+returns a *tuple* of index arrays (one per dimension); the `[0]` extracts
+the one we want. And of course the positions are 0-based where R's are
 1-based.
 
-That last trick — `mean()` of a logical vector is a proportion — is one of
+That last trick (the `mean()` of a logical vector is a proportion) is one of
 the most-used idioms in statistical computing. Here it is verifying the
 "68–95" rule for the normal distribution on simulated data (we set the seed
 so the "random" numbers are reproducible):
@@ -588,7 +588,7 @@ np.mean(np.abs(z) < 2)           # theory says about 0.95
 `rng = np.random.default_rng(7432)` each make their own language
 reproducible, but R and numpy use *different* generators: the two columns
 above print different numbers, and always will. Never expect the R and Python
-streams to match — expect each to match *itself* on every re-run, and both to
+streams to match: expect each to match *itself* on every re-run, and both to
 agree with the theory.
 
 Logical indexing also works on the left of an assignment, replacing just the
@@ -622,7 +622,7 @@ x
 
 ::: {.callout-tip title="Exercise 2.3: A century of leap years"}
 Take your leap-year expression from Exercise 2.2 and apply it to the vector
-`years <- 1900:2025` (it is vectorised for free — that's the beauty of it).
+`years <- 1900:2025` (it is vectorised for free; that's the beauty of it).
 (Python: `years = np.arange(1900, 2026)`, and remember the parentheses around
 each comparison.)
 
@@ -664,11 +664,11 @@ if x > 0:
 :::
 
 In R the condition goes in `( )` and the code to run goes in `{ }`; in Python
-there are no parentheses or braces — a colon `:` ends the condition, and the
+there are no parentheses or braces: a colon `:` ends the condition, and the
 body is delimited by *indentation* (consistent, four spaces by convention),
 which in Python is syntax, not cosmetics. In both languages the condition
 must evaluate to a **single** `TRUE` or `FALSE`. Add alternatives with
-`else if` (`elif` in Python) and a catch-all `else` — the *first* branch
+`else if` (`elif` in Python) and a catch-all `else`: the *first* branch
 whose condition is `TRUE` runs, and the rest are skipped:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
@@ -708,7 +708,7 @@ else:
 
 A classic example is *FizzBuzz*, once allegedly a job-interview filter: print
 "Fizz" if a number is divisible by 3, "Buzz" if by 5, "FizzBuzz" if by both,
-and the number otherwise. Order matters — the both-case must come first, or
+and the number otherwise. Order matters: the both-case must come first, or
 it can never be reached:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
@@ -785,7 +785,7 @@ one; numpy declares the truth value of an array *ambiguous* and points you to
 ### Vectorised choice: `ifelse()`
 
 When you want an elementwise either/or across a whole vector, use `ifelse()`
-in R — it takes a logical vector and picks from two alternatives, per
+in R: it takes a logical vector and picks from two alternatives, per
 element, in one line. Python has no vectorised `ifelse()` of its own;
 `np.where(condition, yes, no)` is the numpy idiom that fills the role:
 
@@ -854,11 +854,11 @@ for i in range(1, 6):
 :::
 
 The loop variable `i` takes each value in turn, and the block runs once per
-value. **Note for Python users:** `range(1, 6)` produces 1, 2, 3, 4, 5 — the
+value. **Note for Python:** `range(1, 6)` produces 1, 2, 3, 4, 5; the
 stop value is *excluded*, the mirror image of R's inclusive `1:5`. Forgetting
 this off-by-one is the classic porting bug in both directions. You can loop
-over any vector — in Python, over any *iterable*: lists, arrays, strings,
-`range`s — not just integers:
+over any vector, not just integers (in Python, over any *iterable*: lists,
+arrays, strings, `range`s):
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -887,12 +887,12 @@ for day in ["Mon", "Tue", "Wed"]:
 
 When you need positions rather than values, prefer `seq_along(x)` to
 `1:length(x)`. They agree on non-empty vectors, but on an empty vector
-`1:length(x)` is `1:0` — the sequence `c(1, 0)` — so the loop runs twice on
+`1:length(x)` is `1:0` (the sequence `c(1, 0)`), so the loop runs twice on
 nothing at all, usually with baffling errors. `seq_along` produces an empty
 sequence and the loop correctly runs zero times.
 
-**Note for Python users:** the positions idiom is `range(len(x))` — the
-direct companion of `seq_along(x)`, just 0-based — and it has no empty-vector
+**Note for Python:** the positions idiom is `range(len(x))`, the
+direct companion of `seq_along(x)`, just 0-based, and it has no empty-vector
 trap: `range(0)` is empty, so the loop correctly runs zero times. Since the
 positions start at 0, anything arithmetic done with them (like the
 divide-by-position below) needs an `i + 1`.
@@ -918,7 +918,7 @@ for (i in seq_along(x)) {
 ```{python}
 x = np.array([10, 20, 30])
 for i in range(len(x)):
-    print(x[i] / (i + 1))   # i runs 0, 1, 2 — hence the + 1
+    print(x[i] / (i + 1))   # i runs 0, 1, 2, hence the + 1
 ```
 
 </div>
@@ -944,7 +944,7 @@ $$
 r_i = r_{i-1} + r_{i-2}, \qquad r_1 = r_2 = 1,
 $$
 
-where each element is the sum of the previous two — no way to compute element
+where each element is the sum of the previous two: no way to compute element
 20 without computing 19 and 18 first. With a loop it is immediate: we create a
 vector, then fill it in order, using earlier entries to build later ones.
 
@@ -984,7 +984,7 @@ fib
 :::
 
 If a loop confuses you, the universal debugging move is to put `print()`
-statements inside it — print `i`, print `fib[i]` — and watch the state evolve
+statements inside it (print `i`, print `fib[i]`) and watch the state evolve
 iteration by iteration.
 
 ### Grow or preallocate?
@@ -1022,7 +1022,7 @@ for i in range(1, 10001):
 </div>
 :::
 
-This works, but every `c()` call — and every `np.append()` call — builds a
+This works, but every `c()` call (and every `np.append()` call) builds a
 brand-new copy of the whole vector, so filling $n$ slots costs on the order
 of $n^2$ copying. Let's measure the difference: in R with the
 `microbenchmark` package, in Python with the standard-library `timeit`
@@ -1078,19 +1078,19 @@ min(timeit.repeat(preallocate, number=1, repeat=10)) * 1000
 </div>
 :::
 
-**Note for Python users:** `timeit` wants a *function* to call, hence the two
-`def`s — a full treatment of writing functions is @sec-week3's business; for
+**Note for Python:** `timeit` wants a *function* to call, hence the two
+`def`s. A full treatment of writing functions is @sec-week3's business; for
 now, `def name(): ...` simply packages the block. `timeit.repeat(f, number=1,
 repeat=10)` returns ten timings in seconds; the minimum is the honest
 estimate, and we scale it to milliseconds.
 
-Same result, dozens of times apart — roughly fifty-fold in the R run,
+Same result, dozens of times apart: roughly fifty-fold in the R run,
 twenty-odd-fold in the Python one, and the magnitudes, not the exact numbers,
 are the message. Since the copying cost is quadratic, the gap widens as `n`
 grows. The habit to build, in either language: **decide the size first,
 allocate, then fill.**
 
-**Note for Python users:** the quadratic sin here belongs to *numpy arrays*.
+**Note for Python:** the quadratic sin here belongs to *numpy arrays*.
 Plain Python lists over-allocate as they grow, so `my_list.append(...)` is
 genuinely cheap, and building a list then converting with `np.array(my_list)`
 is idiomatic Python. For numerical work, preallocating the numpy array as
@@ -1099,7 +1099,7 @@ above remains the habit to build.
 ## `while`, `break` and `next` {#sec-week2-while}
 
 A `for` loop needs to know in advance how many times to run. A `while` loop
-keeps going *as long as a condition holds* — ideal when the number of
+keeps going *as long as a condition holds*, ideal when the number of
 iterations is itself the unknown.
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
@@ -1133,12 +1133,12 @@ while i <= 5:
 
 The line `i <- i + 1` is load-bearing: forget to update the state and the
 condition never becomes `FALSE`, so the loop runs forever. (If that happens,
-the Stop button or `Esc` in RStudio — `Ctrl`+`C` at a console — is your
+the Stop button or `Esc` in RStudio, or `Ctrl`+`C` at a console, is your
 friend. We've all been there.)
 
 A more statistical example: how many draws from a standard normal until we
 see one above 2? The answer is random, so a `for` loop can't know its own
-length — a `while` loop is the natural fit.
+length; a `while` loop is the natural fit.
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -1176,8 +1176,8 @@ attempts
 :::
 
 (Theory check: $P(Z > 2) \approx 0.023$, so on average we expect about
-$1/0.023 \approx 44$ attempts. The two columns disagree — 61 draws in the R
-run, 31 in the Python run — because the two seeded streams differ; both
+$1/0.023 \approx 44$ attempts. The two columns disagree (61 draws in the R
+run, 31 in the Python run) because the two seeded streams differ; both
 counts are perfectly ordinary draws from the same geometric distribution with
 mean about 44.)
 
@@ -1214,7 +1214,7 @@ for i in range(1, 11):
 </div>
 :::
 
-Use them sparingly — a loop that jumps around is harder to reason about, and
+Use them sparingly: a loop that jumps around is harder to reason about, and
 often a clearer `while` condition can express the same logic.
 
 ::: {.callout-tip title="Exercise 2.6: Double your money"}
@@ -1225,7 +1225,7 @@ a. Use a `while` loop to find how many whole years it takes for the balance
 b. Sanity-check your answer against the closed form
    $\log(2)/\log(1.05)$.
 c. Now suppose you also add £500 at the end of each year. How many years to
-   reach £10,000? (No closed form now — this is exactly the kind of question
+   reach £10,000? (No closed form now; this is exactly the kind of question
    loops are for.)
 :::
 
@@ -1233,7 +1233,7 @@ c. Now suppose you also add £500 at the end of each year. How many years to
 
 Time for a confession: much of what beginners write loops for, R and numpy
 already do better with the vectorised operations of @sec-week1. Squaring a
-million numbers needs no loop — `x^2` (`x**2`) *is* the loop, executed in
+million numbers needs no loop: `x^2` (`x**2`) *is* the loop, executed in
 fast compiled code rather than element-by-element in the interpreter:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
@@ -1278,7 +1278,7 @@ min(timeit.repeat(vectorised, number=1, repeat=10)) * 1000
 </div>
 :::
 
-The vectorised version is tens of times faster in the R run — and *hundreds*
+The vectorised version is tens of times faster in the R run, and *hundreds*
 of times in the Python one, where every trip around an interpreted loop (plus
 the numpy machinery invoked on each single element) costs more. And that is
 against a *well-written*, preallocated loop; against a sloppy one the gap
@@ -1287,9 +1287,9 @@ stretches further still, as Exercise 2.7 will show. The same holds for
 loop of `if`s, and so on.
 
 So, when do we actually loop? Ask one question: **does element $i$ of my
-output depend on element $i-1$?** If no — the computations are independent —
-think vectors first. If yes — there is state, as in Fibonacci, compound
-interest, or the simulation of any process that evolves over time — a loop is
+output depend on element $i-1$?** If no (the computations are independent),
+think vectors first. If yes (there is state, as in Fibonacci, compound
+interest, or the simulation of any process that evolves over time), a loop is
 the honest tool, and with preallocation it will be perfectly fast.
 
 ::: {.callout-tip title="Exercise 2.7: Vectorise this"}
@@ -1337,136 +1337,13 @@ c. Use `microbenchmark(..., times = 5)` (Python: `timeit.repeat(...,
    (`np.allclose()`) to confirm they agree. (Why not `==`?)
 :::
 
-## A brief look at recursion {#sec-week2-recursion}
-
-Loops are not the only way to repeat. A **recursive** definition solves a
-problem in terms of smaller instances of itself, plus a *base case* to stop
-the descent — exactly how we wrote Fibonacci mathematically:
-$r_i = r_{i-1} + r_{i-2}$, with $r_1 = r_2 = 1$ as the base.
-
-Writing this in code needs a one-week sneak preview of @sec-week3: R's
-`\(n) ...` and Python's `lambda n: ...` each create a *function* — a reusable
-piece of code with input `n` — which we can assign to a name and then call.
-Details next week; for now, take the syntax on trust — you only need to copy
-the pattern.
-
-::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
-<div>
-
-**R**
-
-```{r}
-fib_rec <- \(n) if (n <= 2) 1 else fib_rec(n - 1) + fib_rec(n - 2)
-
-fib_rec(10)
-```
-
-</div>
-
-<div>
-
-**Python**
-
-```{python}
-fib_rec = lambda n: 1 if n <= 2 else fib_rec(n - 1) + fib_rec(n - 2)
-
-fib_rec(10)
-```
-
-</div>
-:::
-
-The definition *is* the recurrence: `fib_rec` calls itself on smaller inputs
-until it hits the base case. (In R, `if` is an expression that returns a
-value, which is why this one-liner works; Python's counterpart is the
-*conditional expression* `value_if_true if condition else value_if_false` —
-note the value comes first.)
-
-Elegant — and, here, catastrophically inefficient. Each call spawns *two*
-more calls, so the total number of calls grows exponentially in `n`, and the
-same values get recomputed over and over. Watch the time explode as `n`
-creeps up (R's `elapsed` is the wall-clock time in seconds; the Python column
-uses `timeit.timeit(..., number=1)`, which returns seconds directly):
-
-::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
-<div>
-
-**R**
-
-```{r}
-system.time(fib_rec(20))
-system.time(fib_rec(30))
-```
-
-</div>
-
-<div>
-
-**Python**
-
-```{python}
-timeit.timeit(lambda: fib_rec(20), number=1)
-timeit.timeit(lambda: fib_rec(30), number=1)
-```
-
-</div>
-:::
-
-Ten more terms, roughly a hundred times slower — while our humble loop
-filled 10,000 slots in milliseconds. Recursion also has a hard depth limit: every
-nested call sits on a stack waiting for its sub-calls, and R gives up beyond
-a few thousand levels. Python is stricter still, with a default cap of 1,000
-frames — inspect or change it with `sys.getrecursionlimit()` /
-`sys.setrecursionlimit()`, though wanting to raise it is usually a hint that
-a loop would serve better. Forget the base case and you hit the limit
-immediately:
-
-::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
-<div>
-
-**R**
-
-```{r}
-#| error: true
-broken <- \(n) broken(n - 1)   # no base case!
-broken(1)
-```
-
-</div>
-
-<div>
-
-**Python**
-
-```{python}
-#| error: true
-broken = lambda n: broken(n - 1)   # no base case!
-broken(1)
-```
-
-</div>
-:::
-
-Verdict: recursion is a beautiful way to *think* — and for
-divide-and-conquer algorithms it can be genuinely efficient — but for simple
-sequences, in either language, the loop wins.
-
-::: {.callout-tip title="Exercise 2.8: Recursive factorial"}
-a. Write a recursive function `fact_rec` for $n! = n \times (n-1)!$ with base
-   case $0! = 1$, mimicking `fib_rec` above.
-b. Check `fact_rec(10)` against R's built-in `factorial(10)` (Python:
-   `math.factorial(10)`).
-c. Try `fact_rec(10000)`. What happens, and why? Would a loop version have
-   the same problem?
-:::
-
 ## A first taste of gradient descent {#sec-week2-gd}
 
 Time to put the toolbox to work. A huge share of statistics reduces to one
 task: **minimise a function**. Least squares minimises a sum of squared
 errors; maximum likelihood minimises a negative log-likelihood. For a few
 lucky models calculus hands us a formula, but for most modern ones there is
-no closed form — so we minimise *numerically*, with an algorithm. The
+no closed form, so we minimise *numerically*, with an algorithm. The
 simplest one worth knowing is gradient descent, and we can already build it
 with nothing but this week's loops.
 
@@ -1478,14 +1355,18 @@ $$
 L(m) = \frac{1}{n} \sum_{i=1}^n (y_i - m)^2 .
 $$
 
-(You may already know the answer is the sample mean $\bar{y}$ — perfect,
+(You may already know the answer is the sample mean $\bar{y}$: perfect,
 that gives us a way to check whether our algorithm works.)
 
 ### The idea: follow the slope downhill
 
 Imagine standing on the curve of $L$ at some guess $m$, in fog, unable to see
-where the minimum is. You can still feel the ground through your feet: the
-derivative
+where the minimum is. You can still feel the ground through your feet...
+
+![](images/chapter2/silent_hill.png){width="450"}
+
+
+Fortunately, the derivative
 
 $$
 L'(m) = -\frac{2}{n} \sum_{i=1}^n (y_i - m)
@@ -1493,7 +1374,7 @@ $$
 
 tells you the local slope. If $L'(m) < 0$ the function is decreasing, so the
 minimum lies to the *right*: step right. If $L'(m) > 0$, step left. Both
-cases are captured by one update — move *against* the slope:
+cases are captured by one update: move *against* the slope:
 
 $$
 m_{k+1} = m_k - \gamma \, L'(m_k),
@@ -1502,12 +1383,51 @@ $$
 where $\gamma > 0$ (the **step size**, or *learning rate*) scales how far we
 move. Notice the magnitude is used too: where the function is steep we take
 big strides; as the slope flattens near the minimum, the steps shrink on
-their own. Repeat until the steps become negligible — that is the whole
-algorithm.
+their own. Repeat until the steps become negligible: that is the whole
+algorithm. Here is the idea in a single picture, run for a few iterations on
+the loss we are about to minimise:
+
+```{r}
+#| echo: false
+#| fig-cap: 'The slope idea on the quadratic loss $L(m)$, for the data of the R run (step size $\gamma = 0.25$, chosen to make a clean picture). Each coloured point is an iterate $m_k$, and the short segment through it shows the local slope there: the slope points uphill, so the update steps the other way (dashed arrows), and as the slope flattens towards the minimum the steps shrink on their own.'
+suppressPackageStartupMessages(library(ggplot2))
+
+set.seed(7432)
+y <- rnorm(200, mean = 3, sd = 2)   # the same data the R column simulates below
+ybar <- mean(y)
+L  <- function(m) (m - ybar)^2 + mean((y - ybar)^2)   # mean((y - m)^2), expanded
+Lp <- function(m) 2 * (m - ybar)                      # its slope, -2 * mean(y - m)
+
+gamma <- 0.25
+m <- numeric(6)                     # the iterates m_0, ..., m_5
+m[1] <- 10
+for (k in 2:6) m[k] <- m[k - 1] - gamma * Lp(m[k - 1])
+
+hw <- 0.5                           # tangent half-width along m
+curve_df <- data.frame(x = seq(-2.5, 10.8, length.out = 400))
+curve_df$L <- L(curve_df$x)
+iter_df <- data.frame(k = factor(0:5), m = m, L = L(m), slope = Lp(m))
+step_df <- data.frame(m0 = m[-6], L0 = L(m[-6]), m1 = m[-1], L1 = L(m[-1]))
+
+ggplot() +
+  geom_line(data = curve_df, aes(x, L), linewidth = 0.6) +
+  geom_segment(data = step_df,
+               aes(x = m0, y = L0, xend = m1, yend = L1),
+               colour = "grey55", linetype = "dashed", linewidth = 0.4,
+               arrow = arrow(length = unit(2.5, "mm"), type = "closed")) +
+  geom_segment(data = iter_df,
+               aes(x = m - hw, y = L - hw * slope,
+                   xend = m + hw, yend = L + hw * slope, colour = k),
+               linewidth = 1.1) +
+  geom_point(data = iter_df, aes(m, L, colour = k), size = 2.4) +
+  scale_colour_viridis_d(end = 0.75, name = "iteration k") +
+  labs(x = "m", y = "L(m)") +
+  theme_minimal(base_size = 12)
+```
 
 ### The algorithm in code
 
-This is a computation with state — $m_{k+1}$ depends on $m_k$ — so it's a
+This is a computation with state ($m_{k+1}$ depends on $m_k$), so it's a
 job for a loop. We store the whole trajectory in a preallocated vector so we
 can inspect it afterwards, and we write the derivative *inline* as
 `-2 * mean(y - m)` (numpy: `-2 * np.mean(y - m)`):
@@ -1562,12 +1482,13 @@ np.mean(y)           # where we should be
 :::
 
 It works: sixty iterations of "step against the slope" land on the sample
-mean to several decimals. (The two columns simulate *different* datasets —
-remember, the streams never match — so they print different numbers: each
-lands on its own $\bar{y}$, both a touch under the true mean of 3.) A quick
-plot of the trajectory — base `plot()` in R, `matplotlib` in Python — shows
-the approach: big early strides, then ever-finer adjustments
-(quick-and-dirty plots for now; we do plotting properly in @sec-week4):
+mean to several decimals. (The two columns simulate *different* datasets,
+because the streams never match, so they print different numbers: each lands
+on its own sample mean, 2.66 in the R run and 2.93 in the Python run, both
+consistent with the true mean of 3 given $n = 200$.) A quick plot of the
+trajectory (base `plot()` in R, `matplotlib` in Python) shows the approach:
+big early strides, then ever-finer adjustments (quick-and-dirty plots for
+now; we do plotting properly in @sec-week4):
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -1608,7 +1529,7 @@ looks:
   of sixty.
 - **Too large**: each step overshoots the minimum and lands on the far side,
   further up than where it started. The iterates bounce from side to side
-  with growing amplitude — the algorithm *diverges*:
+  with growing amplitude: the algorithm *diverges*:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -1649,13 +1570,13 @@ plt.show()
 :::
 
 Every quantity in that plot is further from the answer than the terrible
-initial guess. Choosing $\gamma$ well — and adapting it on the fly — is a
-central theme of @sec-week5; for now, Exercise 2.9 lets you map out the
+initial guess. Choosing $\gamma$ well (and adapting it on the fly) is a
+central theme of @sec-week5; for now, Exercise 2.8 lets you map out the
 dial yourself.
 
 ### Beyond the quadratic
 
-Nothing in the recipe used the fact that $L$ was a quadratic — only that we
+Nothing in the recipe used the fact that $L$ was a quadratic, only that we
 can evaluate a derivative. Take the cubic
 
 $$
@@ -1706,7 +1627,7 @@ x_path[n_iter - 1]   # should be near 1/3
 </div>
 :::
 
-(No randomness in this one — for once, the two columns agree to the last
+(No randomness in this one: for once, the two columns agree to the last
 digit.) Plotting the iterates on the function itself shows the descent
 sliding into the valley and piling up at the minimum:
 
@@ -1729,7 +1650,7 @@ points(x_path, x_path^3 + x_path^2 - x_path - 1, pch = 19, col = "red")
 **Python**
 
 ```{python}
-xs = np.arange(-1.9, 1.61, 0.01)   # arange excludes the endpoint — hence 1.61
+xs = np.arange(-1.9, 1.61, 0.01)   # arange excludes the endpoint, hence 1.61
 plt.plot(xs, xs**3 + xs**2 - xs - 1)
 plt.scatter(x_path, x_path**3 + x_path**2 - x_path - 1, color="red")
 plt.xlabel("x")
@@ -1741,7 +1662,7 @@ plt.show()
 :::
 
 One honest caveat: gradient descent only follows the slope it can feel, so it
-finds *local* minima. Start this example at $x_1 = -2$ — downhill now points
+finds *local* minima. Start this example at $x_1 = -2$: downhill now points
 left, and since $g \to -\infty$ there, the iterates march off to $-\infty$
 without ever looking back. Try it.
 
@@ -1750,7 +1671,7 @@ derivative by hand each time. That itch has a cure: next week
 (@sec-week3) we wrap gradient descent into a reusable *function*, and by
 @sec-week5 it will be fitting real statistical models.
 
-::: {.callout-tip title="Exercise 2.9: Turning the step-size dial"}
+::: {.callout-tip title="Exercise 2.8: Turning the step-size dial"}
 Using the quadratic-loss setup (`set.seed(7432); y <- rnorm(200, mean = 3, sd = 2)`),
 run gradient descent from `m = 10` for 30 iterations, for **every** step size
 in `gammas <- c(0.005, 0.05, 0.2, 0.5, 0.8, 1.02)`. Store the trajectories in
@@ -1766,8 +1687,8 @@ a. Plot all trajectories at once with `matplot(paths, type = "l", lty = 1)`
    and re-plot the others without it.
 b. Classify each `gamma`: smooth convergence, oscillating convergence, or
    divergence?
-c. Something special happens at `gamma = 0.5`. What, and — looking at the
-   update formula with $L'(m) = -2(\bar{y} - m)$ — why?
+c. Something special happens at `gamma = 0.5`. What, and (looking at the
+   update formula with $L'(m) = -2(\bar{y} - m)$) why?
 :::
 
 ## Challenges
@@ -1778,9 +1699,9 @@ Two optional problems for the fearless, drawing the week together.
 Running a fixed 60 iterations is crude: wasteful when converged by iteration
 10, insufficient if convergence needs 200. Rebuild the quadratic-loss
 gradient descent with a `while` loop that stops when the step just taken is
-smaller than `tol = 1e-8` in absolute value — but add a safety cap of
+smaller than `tol = 1e-8` in absolute value, but add a safety cap of
 `max_iter = 5000` iterations so a diverging run cannot loop forever (this is
-one of the rare places where `&&` earns its keep — in Python, plain `and`).
+one of the rare places where `&&` earns its keep; in Python, plain `and`).
 
 Report the final `m` and the number of iterations used, for
 `gamma = 0.1`, `0.01` and `1.05`. For the last one, how does your code know
@@ -1801,6 +1722,8 @@ b. Wrap that in a `for` loop over every starting value from 1 to 5000,
 :::
 
 That is the week: comparisons and logic to make decisions, loops to repeat
-them — and, stitched together, a first real algorithm. Next week
+them, and, stitched together, a first real algorithm. Next week
 (@sec-week3) we stop copy-pasting the gradient-descent loop and wrap it into
-a *function* we can hand any problem we like.
+a *function* we can hand any problem we like. Functions also unlock the one
+way of repeating that this week deliberately skipped: *recursion*, where a
+function calls itself (@sec-week3-recursion).
