@@ -192,7 +192,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./01-week1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Week 1: Introduction to R Programming</span></span></a>
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Week 1: Introduction to R and Python Programming</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -247,14 +247,14 @@ window.Quarto = {
   <li><a href="#return-values" id="toc-return-values" class="nav-link" data-scroll-target="#return-values"><span class="header-section-number">3.1.2</span> Return values</a></li>
   </ul></li>
   <li><a href="#sec-week3-scope" id="toc-sec-week3-scope" class="nav-link" data-scroll-target="#sec-week3-scope"><span class="header-section-number">3.2</span> Scoping: where variables live</a></li>
-  <li><a href="#the-...-argument" id="toc-the-...-argument" class="nav-link" data-scroll-target="#the-...-argument"><span class="header-section-number">3.3</span> The <code>...</code> argument</a></li>
+  <li><a href="#the-...-kwargs-argument" id="toc-the-...-kwargs-argument" class="nav-link" data-scroll-target="#the-...-kwargs-argument"><span class="header-section-number">3.3</span> The <code>...</code> / <code>**kwargs</code> argument</a></li>
   <li><a href="#sec-week3-recursion" id="toc-sec-week3-recursion" class="nav-link" data-scroll-target="#sec-week3-recursion"><span class="header-section-number">3.4</span> A brief look at recursion</a></li>
   <li><a href="#sec-week3-fp" id="toc-sec-week3-fp" class="nav-link" data-scroll-target="#sec-week3-fp"><span class="header-section-number">3.5</span> Functions are values</a>
   <ul class="collapse">
   <li><a href="#lambdas" id="toc-lambdas" class="nav-link" data-scroll-target="#lambdas"><span class="header-section-number">3.5.1</span> Lambdas</a></li>
   <li><a href="#sec-week3-factories" id="toc-sec-week3-factories" class="nav-link" data-scroll-target="#sec-week3-factories"><span class="header-section-number">3.5.2</span> Function factories and currying</a></li>
   <li><a href="#sec-week3-map" id="toc-sec-week3-map" class="nav-link" data-scroll-target="#sec-week3-map"><span class="header-section-number">3.5.3</span> map: one function, every element</a></li>
-  <li><a href="#sec-week3-reduce" id="toc-sec-week3-reduce" class="nav-link" data-scroll-target="#sec-week3-reduce"><span class="header-section-number">3.5.4</span> Reduce: fold a collection to one value</a></li>
+  <li><a href="#sec-week3-reduce" id="toc-sec-week3-reduce" class="nav-link" data-scroll-target="#sec-week3-reduce"><span class="header-section-number">3.5.4</span> <code>Reduce</code> / <code>functools.reduce</code>: fold a collection to one value</a></li>
   </ul></li>
   <li><a href="#sec-week3-gd" id="toc-sec-week3-gd" class="nav-link" data-scroll-target="#sec-week3-gd"><span class="header-section-number">3.6</span> Packaging gradient descent</a></li>
   <li><a href="#looking-ahead" id="toc-looking-ahead" class="nav-link" data-scroll-target="#looking-ahead"><span class="header-section-number">3.7</span> Looking ahead</a></li>
@@ -537,7 +537,7 @@ Exercise 3.2: Standardise, with options
 </div>
 <p>This is idiomatic R; most functions in the wild are written this way, and we will mostly drop <code>return()</code> from here on.</p>
 <p><strong>Note for Python:</strong> there is no implicit return. A function that reaches the end of its body without hitting <code>return</code> hands back <code>None</code>, silently. Keep writing <code>return</code>; the R habit of leaving the last expression bare does not travel.</p>
-<p><strong>Early return.</strong> <code>return()</code> exits the function <em>immediately</em>, which is handy for bailing out of bad inputs before they cause trouble:</p>
+<p><strong>Early return.</strong> <code>return()</code> (Python: <code>return</code>) exits the function <em>immediately</em>, which is handy for bailing out of bad inputs before they cause trouble:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -659,7 +659,7 @@ Exercise 3.2: Standardise, with options
 </div>
 </div>
 </div>
-<p>The reverse direction, however, <em>does</em> work: if R cannot find a name inside the function, it looks in the environment where the function was <em>defined</em>: for a function typed at the top level of a script, that is the <strong>global environment</strong> (where your script-level variables live). That sounds convenient. It is also a classic source of silent bugs. Watch:</p>
+<p>The reverse direction, however, <em>does</em> work: if R (or Python) cannot find a name inside the function, it looks in the environment where the function was <em>defined</em>: for a function typed at the top level of a script, that is the <strong>global environment</strong> (R’s name; Python says <em>global scope</em>), where your script-level variables live. That sounds convenient. It is also a classic source of silent bugs. Watch:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -704,8 +704,8 @@ Exercise 3.2: Standardise, with options
 </div>
 </div>
 </div>
-<p>No error, no warning: R quietly grabbed the global <code>lbs</code> and returned <span class="math inline">453.5924 \times 3</span> forever. The input is ignored completely. The moral is short and worth memorising: <strong>everything a function needs should arrive through its arguments</strong>. A function that only reads its arguments and only communicates through its return value is called <em>pure</em>, and pure functions are dramatically easier to test, reuse and debug; this idea is the backbone of the second half of this chapter.</p>
-<p><strong>Note for Python:</strong> same lookup, same trap. Python’s rule is called <strong>LEGB</strong> (Local, Enclosing, Global, Built-ins, searched in that order), which for our purposes is R’s lexical scoping by another name. One genuine difference: <em>reading</em> a global from inside a function just works (as the bug shows), but <em>assigning</em> to one requires the <code>global</code> keyword: a plain <code>lbs = ...</code> inside a function always creates a local variable.</p>
+<p>No error, no warning: R and Python alike quietly grabbed the global <code>lbs</code> and returned <span class="math inline">453.5924 \times 3</span> forever. The input is ignored completely. The moral is short and worth memorising: <strong>everything a function needs should arrive through its arguments</strong>. A function that only reads its arguments and only communicates through its return value is called <em>pure</em>, and pure functions are dramatically easier to test, reuse and debug; this idea is the backbone of the second half of this chapter.</p>
+<p><strong>Note for Python:</strong> the lookup rule has a name here: <strong>LEGB</strong> (Local, Enclosing, Global, Built-ins, searched in that order), which for our purposes is R’s lexical scoping by another name. One genuine difference: <em>reading</em> a global from inside a function just works (as the bug shows), but <em>assigning</em> to one requires the <code>global</code> keyword: a plain <code>lbs = ...</code> inside a function always creates a local variable.</p>
 <p><strong>Note for Python:</strong> one more difference lives here, and it matters. R behaves <em>as if</em> every object passed to a function were copied: modify an argument inside a function and the caller’s object is untouched (<em>copy-on-modify</em>). Python passes references instead: <strong>rebinding</strong> a name (<code>x = x + 1</code>) is local and safe, but <strong>mutating</strong> a mutable object in place (<code>x.append(3)</code>, or <code>x[0] = 99</code> on a list or numpy array) changes the caller’s object too. A function that mutates its arguments is not pure; in Python, purity takes discipline that R’s semantics give you for free.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -784,9 +784,9 @@ Exercise 3.3: Where does x live?
 </div>
 </div>
 </section>
-<section id="the-...-argument" class="level2" data-number="3.3">
-<h2 data-number="3.3" class="anchored" data-anchor-id="the-...-argument"><span class="header-section-number">3.3</span> The <code>...</code> argument</h2>
-<p>Browse any help page and you will meet a mysterious argument literally called <code>...</code> (pronounced “dot-dot-dot”). It scoops up any extra arguments a caller supplies and lets you pass them on to another function. One example is worth a paragraph of theory:</p>
+<section id="the-...-kwargs-argument" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="the-...-kwargs-argument"><span class="header-section-number">3.3</span> The <code>...</code> / <code>**kwargs</code> argument</h2>
+<p>Browse any R help page and you will meet a mysterious argument literally called <code>...</code> (pronounced “dot-dot-dot”); Python signatures spell the same idea <code>*args</code> / <code>**kwargs</code>. Both scoop up any extra arguments a caller supplies and let you pass them on to another function. One example is worth a paragraph of theory:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -829,8 +829,8 @@ Exercise 3.3: Where does x live?
 </div>
 </div>
 </div>
-<p>We did not have to declare <code>na.rm</code> ourselves: whatever extras arrive get forwarded wholesale. Use it sparingly: it is wonderful for forwarding options, and terrible for hiding what a function actually depends on.</p>
-<p><strong>Note for Python:</strong> the Python spelling is <code>*args</code> / <code>**kwargs</code>: one star scoops extra <em>positional</em> arguments into a tuple, two stars scoop extra <em>keyword</em> arguments into a dict, and <code>np.mean(x, **kwargs)</code> unpacks them again on the way out. (numpy has no <code>na.rm</code>; the <code>where</code> mask above is the closest kwarg-shaped idiom, and <code>np.nanmean</code>/<code>np.nanstd</code> exist for exactly this job.)</p>
+<p>We did not have to declare <code>na.rm</code> (or <code>where</code>, on the Python side) ourselves: whatever extras arrive get forwarded wholesale. Use it sparingly: it is wonderful for forwarding options, and terrible for hiding what a function actually depends on.</p>
+<p><strong>Note for Python:</strong> one star (<code>*args</code>) scoops extra <em>positional</em> arguments into a tuple, two stars (<code>**kwargs</code>) scoop extra <em>keyword</em> arguments into a dict, and <code>np.mean(x, **kwargs)</code> unpacks them again on the way out. (numpy has no <code>na.rm</code>; the <code>where</code> mask above is the closest kwarg-shaped idiom, and <code>np.nanmean</code>/<code>np.nanstd</code> exist for exactly this job.)</p>
 </section>
 <section id="sec-week3-recursion" class="level2" data-number="3.4">
 <h2 data-number="3.4" class="anchored" data-anchor-id="sec-week3-recursion"><span class="header-section-number">3.4</span> A brief look at recursion</h2>
@@ -872,12 +872,12 @@ Exercise 3.3: Where does x live?
 <div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(<span class="fu">fib_rec</span>(<span class="dv">20</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.001   0.000   0.002 </code></pre>
+  0.002   0.000   0.003 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(<span class="fu">fib_rec</span>(<span class="dv">30</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.268   0.010   0.278 </code></pre>
+  0.365   0.015   0.380 </code></pre>
 </div>
 </div>
 </div>
@@ -888,11 +888,11 @@ Exercise 3.3: Where does x live?
 <span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb89-3"><a href="#cb89-3" aria-hidden="true" tabindex="-1"></a>timeit.timeit(<span class="st">"fib_rec(20)"</span>, <span class="bu">globals</span><span class="op">=</span><span class="bu">globals</span>(), number<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.00036941600001227926</code></pre>
+<pre><code>0.0005192849994273274</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb91"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a>timeit.timeit(<span class="st">"fib_rec(30)"</span>, <span class="bu">globals</span><span class="op">=</span><span class="bu">globals</span>(), number<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.046766315000240866</code></pre>
+<pre><code>0.06475937100003648</code></pre>
 </div>
 </div>
 </div>
@@ -988,7 +988,7 @@ Exercise 3.4: Recursive factorial
 </div>
 <section id="lambdas" class="level3" data-number="3.5.1">
 <h3 data-number="3.5.1" class="anchored" data-anchor-id="lambdas"><span class="header-section-number">3.5.1</span> Lambdas</h3>
-<p>For short, throwaway functions, R (since version 4.1) offers the <strong>lambda</strong> shorthand <code>\( )</code>, which is exactly equivalent to <code>function( )</code>:</p>
+<p>For short, throwaway functions, both languages offer a <strong>lambda</strong> shorthand: R (since version 4.1) spells it <code>\( )</code>, which is exactly equivalent to <code>function( )</code>, and Python spells it with the keyword <code>lambda</code>:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1229,7 +1229,7 @@ Exercise 3.5: A density factory
 </section>
 <section id="sec-week3-map" class="level3" data-number="3.5.3">
 <h3 data-number="3.5.3" class="anchored" data-anchor-id="sec-week3-map"><span class="header-section-number">3.5.3</span> map: one function, every element</h3>
-<p>Vectorised arithmetic (<a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>) covers a lot of ground, but it works on atomic vectors. The moment your data lives in a list (samples of different sizes, say), <code>mean(samples)</code> is meaningless and a <code>for</code> loop feels like heavy machinery for such a small job. The functional answer is <code>map</code>: apply a function to every element of a collection, collect the results. It lives in the <code>purrr</code> package (part of the tidyverse, which we meet properly in <a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>); Python has its counterparts built in:</p>
+<p>Vectorised arithmetic (<a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>) covers a lot of ground, but it works on atomic vectors (numpy arrays, on the Python side). The moment your data lives in a list (samples of different sizes, say), <code>mean(samples)</code> is meaningless and a <code>for</code> loop feels like heavy machinery for such a small job. The functional answer is <code>map</code>: apply a function to every element of a collection, collect the results. It lives in the <code>purrr</code> package (part of the tidyverse, which we meet properly in <a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>); Python has its counterparts built in:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1466,7 +1466,7 @@ Exercise 3.7: Currying the trimmed mean
 </div>
 </section>
 <section id="sec-week3-reduce" class="level3" data-number="3.5.4">
-<h3 data-number="3.5.4" class="anchored" data-anchor-id="sec-week3-reduce"><span class="header-section-number">3.5.4</span> Reduce: fold a collection to one value</h3>
+<h3 data-number="3.5.4" class="anchored" data-anchor-id="sec-week3-reduce"><span class="header-section-number">3.5.4</span> <code>Reduce</code> / <code>functools.reduce</code>: fold a collection to one value</h3>
 <p>Where <code>map</code> applies a function elementwise, <code>Reduce</code> (base R; purrr spells it <code>reduce</code>, Python keeps it in <code>functools.reduce</code>) <em>folds</em> a whole collection down to a single value with a two-argument function: combine the first two elements, combine the result with the third, and so on.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>

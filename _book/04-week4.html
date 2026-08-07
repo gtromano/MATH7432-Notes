@@ -192,7 +192,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./01-week1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Week 1: Introduction to R Programming</span></span></a>
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Week 1: Introduction to R and Python Programming</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -241,16 +241,16 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#the-tidyverse" id="toc-the-tidyverse" class="nav-link active" data-scroll-target="#the-tidyverse"><span class="header-section-number">4.1</span> The tidyverse</a></li>
+  <li><a href="#the-tidyverse-and-friends-in-python" id="toc-the-tidyverse-and-friends-in-python" class="nav-link active" data-scroll-target="#the-tidyverse-and-friends-in-python"><span class="header-section-number">4.1</span> The tidyverse (and friends in Python)</a></li>
   <li><a href="#sec-week4-df" id="toc-sec-week4-df" class="nav-link" data-scroll-target="#sec-week4-df"><span class="header-section-number">4.2</span> Data frames</a>
   <ul class="collapse">
   <li><a href="#building-one" id="toc-building-one" class="nav-link" data-scroll-target="#building-one"><span class="header-section-number">4.2.1</span> Building one</a></li>
   <li><a href="#columns-rows-and-cells" id="toc-columns-rows-and-cells" class="nav-link" data-scroll-target="#columns-rows-and-cells"><span class="header-section-number">4.2.2</span> Columns, rows and cells</a></li>
   <li><a href="#getting-to-know-a-data-frame" id="toc-getting-to-know-a-data-frame" class="nav-link" data-scroll-target="#getting-to-know-a-data-frame"><span class="header-section-number">4.2.3</span> Getting to know a data frame</a></li>
   </ul></li>
-  <li><a href="#sec-week4-tibbles" id="toc-sec-week4-tibbles" class="nav-link" data-scroll-target="#sec-week4-tibbles"><span class="header-section-number">4.3</span> Tibbles</a></li>
+  <li><a href="#sec-week4-tibbles" id="toc-sec-week4-tibbles" class="nav-link" data-scroll-target="#sec-week4-tibbles"><span class="header-section-number">4.3</span> Tibbles (and the pandas index)</a></li>
   <li><a href="#sec-week4-io" id="toc-sec-week4-io" class="nav-link" data-scroll-target="#sec-week4-io"><span class="header-section-number">4.4</span> Reading and writing data</a></li>
-  <li><a href="#sec-week4-pipe" id="toc-sec-week4-pipe" class="nav-link" data-scroll-target="#sec-week4-pipe"><span class="header-section-number">4.5</span> The pipe <code>|&gt;</code></a></li>
+  <li><a href="#sec-week4-pipe" id="toc-sec-week4-pipe" class="nav-link" data-scroll-target="#sec-week4-pipe"><span class="header-section-number">4.5</span> The pipe <code>|&gt;</code> (and method chaining)</a></li>
   <li><a href="#sec-week4-dplyr" id="toc-sec-week4-dplyr" class="nav-link" data-scroll-target="#sec-week4-dplyr"><span class="header-section-number">4.6</span> Data manipulation with dplyr (and pandas)</a>
   <ul class="collapse">
   <li><a href="#filter-and-select" id="toc-filter-and-select" class="nav-link" data-scroll-target="#filter-and-select"><span class="header-section-number">4.6.1</span> filter and select</a></li>
@@ -294,11 +294,11 @@ window.Quarto = {
 
 
 <p>Three weeks of machinery: vectors and matrices (<a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>), loops (<a href="02-week2.html" class="quarto-xref"><span>Chapter 2</span></a>), functions (<a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a>). This week we point all of it at what statisticians actually spend their days on: tables of data. We will learn how to store data in <em>data frames</em>, manipulate them with <code>dplyr</code> (in Python: <code>pandas</code>), and, at last, plot them properly with <code>ggplot2</code> (in Python: <code>plotnine</code>). The quick-and-dirty <code>plot()</code> and <code>plt.plot()</code> calls from the previous weeks retire this week.</p>
-<section id="the-tidyverse" class="level2" data-number="4.1">
-<h2 data-number="4.1" class="anchored" data-anchor-id="the-tidyverse"><span class="header-section-number">4.1</span> The tidyverse</h2>
+<section id="the-tidyverse-and-friends-in-python" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="the-tidyverse-and-friends-in-python"><span class="header-section-number">4.1</span> The tidyverse (and friends in Python)</h2>
 <p>Modern data work in R happens largely inside the <strong>tidyverse</strong>, a collection of packages that share a common design: <code>dplyr</code> for manipulation, <code>readr</code> for import/export, <code>tibble</code> for nicer data frames, <code>ggplot2</code> for graphics, and <code>purrr</code>, which you already met in <a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a>.</p>
 <p><strong>Note for Python:</strong> Python spreads the same jobs over separate packages: <code>pandas</code> covers what <code>dplyr</code>, <code>readr</code> and <code>tibble</code> do, and <code>plotnine</code> is a deliberate port of <code>ggplot2</code> (same grammar, nearly the same code). Together with <code>numpy</code> they are this week’s toolkit, installed and imported alongside the R column below.</p>
-<p>Install it once (already done on university machines). The R line runs in the R console; the Python line is a shell command, so it runs in a terminal, not in the Python console:</p>
+<p>Install them once (already done on university machines). The R line runs in the R console; the Python line is a shell command, so it runs in a terminal, not in the Python console:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -313,7 +313,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>then load it at the top of every script:</p>
+<p>then load them at the top of every script:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -767,7 +767,7 @@ Exercise 4.1: A data frame of distributions
 </section>
 </section>
 <section id="sec-week4-tibbles" class="level2" data-number="4.3">
-<h2 data-number="4.3" class="anchored" data-anchor-id="sec-week4-tibbles"><span class="header-section-number">4.3</span> Tibbles</h2>
+<h2 data-number="4.3" class="anchored" data-anchor-id="sec-week4-tibbles"><span class="header-section-number">4.3</span> Tibbles (and the pandas index)</h2>
 <p>The tidyverse ships a modernised data frame called a <strong>tibble</strong>. It <em>is</em> a data frame (everything above applies) with two behavioural upgrades. First, printing: a tibble shows ten rows, only the columns that fit, and the type of each. A classic data frame would happily dump every last row of a 50,000-row dataset into your console. Second, no partial matching. Watch this data.frame quirk:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -991,7 +991,7 @@ Exercise 4.2: A CSV round trip
 </div>
 </section>
 <section id="sec-week4-pipe" class="level2" data-number="4.5">
-<h2 data-number="4.5" class="anchored" data-anchor-id="sec-week4-pipe"><span class="header-section-number">4.5</span> The pipe <code>|&gt;</code></h2>
+<h2 data-number="4.5" class="anchored" data-anchor-id="sec-week4-pipe"><span class="header-section-number">4.5</span> The pipe <code>|&gt;</code> (and method chaining)</h2>
 <p>Data analysis is a sequence of steps, and code reads best when it is written in the order the steps happen. The <strong>pipe</strong> operator <code>|&gt;</code> takes the value on its left and passes it as the <em>first argument</em> of the function on its right: programming’s version of function composition <span class="math inline">(f_2 \circ f_1)(x)</span>, which we met in <a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a>. So to compute <span class="math inline">\ln(1 + 2 + \dots + 10)</span>:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -1460,7 +1460,7 @@ Exercise 4.4: Group statistics on mtcars
 </div>
 </div>
 </div>
-<p><code>left_join()</code> keeps every row of its first argument and attaches the matching information from the second; rows with no match (poor Rice) get <code>NA</code>. There is a whole family (<code>full_join()</code>, <code>inner_join()</code>, <code>right_join()</code>) differing only in which unmatched rows survive. (pandas folds the whole family into <code>.merge()</code>’s <code>how</code> argument: <code>"left"</code>, <code>"outer"</code>, <code>"inner"</code>, <code>"right"</code>.)</p>
+<p><code>left_join()</code> keeps every row of its first argument and attaches the matching information from the second; rows with no match (poor Rice) get <code>NA</code> (<code>NaN</code> in pandas). There is a whole family (<code>full_join()</code>, <code>inner_join()</code>, <code>right_join()</code>) differing only in which unmatched rows survive. (pandas folds the whole family into <code>.merge()</code>’s <code>how</code> argument: <code>"left"</code>, <code>"outer"</code>, <code>"inner"</code>, <code>"right"</code>.)</p>
 </section>
 </section>
 <section id="sec-week4-ggplot" class="level2" data-number="4.7">

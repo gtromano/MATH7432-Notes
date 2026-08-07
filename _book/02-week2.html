@@ -192,7 +192,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./01-week1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Week 1: Introduction to R Programming</span></span></a>
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Week 1: Introduction to R and Python Programming</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -247,13 +247,13 @@ window.Quarto = {
   </ul></li>
   <li><a href="#sec-week2-logical" id="toc-sec-week2-logical" class="nav-link" data-scroll-target="#sec-week2-logical"><span class="header-section-number">2.2</span> Logical operators</a>
   <ul class="collapse">
-  <li><a href="#versus" id="toc-versus" class="nav-link" data-scroll-target="#versus"><span class="header-section-number">2.2.1</span> <code>&amp;&amp;</code> versus <code>&amp;</code></a></li>
-  <li><a href="#any-all-and-in" id="toc-any-all-and-in" class="nav-link" data-scroll-target="#any-all-and-in"><span class="header-section-number">2.2.2</span> <code>any()</code>, <code>all()</code> and <code>%in%</code></a></li>
+  <li><a href="#and-versus" id="toc-and-versus" class="nav-link" data-scroll-target="#and-versus"><span class="header-section-number">2.2.1</span> <code>&amp;&amp;</code> / <code>and</code> versus <code>&amp;</code></a></li>
+  <li><a href="#any-all-and-in-in" id="toc-any-all-and-in-in" class="nav-link" data-scroll-target="#any-all-and-in-in"><span class="header-section-number">2.2.2</span> <code>any()</code>, <code>all()</code> and <code>%in%</code> / <code>in</code></a></li>
   </ul></li>
   <li><a href="#sec-week2-logical-indexing" id="toc-sec-week2-logical-indexing" class="nav-link" data-scroll-target="#sec-week2-logical-indexing"><span class="header-section-number">2.3</span> Logical indexing</a></li>
   <li><a href="#sec-week2-if" id="toc-sec-week2-if" class="nav-link" data-scroll-target="#sec-week2-if"><span class="header-section-number">2.4</span> Conditional statements</a>
   <ul class="collapse">
-  <li><a href="#vectorised-choice-ifelse" id="toc-vectorised-choice-ifelse" class="nav-link" data-scroll-target="#vectorised-choice-ifelse"><span class="header-section-number">2.4.1</span> Vectorised choice: <code>ifelse()</code></a></li>
+  <li><a href="#vectorised-choice-ifelse-np.where" id="toc-vectorised-choice-ifelse-np.where" class="nav-link" data-scroll-target="#vectorised-choice-ifelse-np.where"><span class="header-section-number">2.4.1</span> Vectorised choice: <code>ifelse()</code> / <code>np.where()</code></a></li>
   </ul></li>
   <li><a href="#sec-week2-for" id="toc-sec-week2-for" class="nav-link" data-scroll-target="#sec-week2-for"><span class="header-section-number">2.5</span> <code>for</code> loops</a>
   <ul class="collapse">
@@ -633,8 +633,8 @@ Exercise 2.1: The pedantic computer
 </div>
 </div>
 </div>
-<section id="versus" class="level3" data-number="2.2.1">
-<h3 data-number="2.2.1" class="anchored" data-anchor-id="versus"><span class="header-section-number">2.2.1</span> <code>&amp;&amp;</code> versus <code>&amp;</code></h3>
+<section id="and-versus" class="level3" data-number="2.2.1">
+<h3 data-number="2.2.1" class="anchored" data-anchor-id="and-versus"><span class="header-section-number">2.2.1</span> <code>&amp;&amp;</code> / <code>and</code> versus <code>&amp;</code></h3>
 <p>R also has doubled-up operators <code>&amp;&amp;</code> and <code>||</code>. They work only on <em>single</em> logicals and error on vectors:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -659,8 +659,8 @@ Exercise 2.1: The pedantic computer
 <p>They also <em>short-circuit</em>: <code>a &amp;&amp; b</code> never evaluates <code>b</code> if <code>a</code> is already <code>FALSE</code>. That makes them the right choice inside <code>if()</code> conditions (coming up shortly), where you want exactly one <code>TRUE</code>/<code>FALSE</code> and you may want the second check skipped when the first fails, e.g. <code>n &gt; 0 &amp;&amp; x[n] &gt; 5</code> never touches <code>x[n]</code> when <code>n</code> is 0. Rule of thumb: <code>&amp;</code>/<code>|</code> for vectors, <code>&amp;&amp;</code>/<code>||</code> for <code>if</code> conditions.</p>
 <p><strong>Note for Python:</strong> there is no doubled-up operator to learn, and nothing missing, either. Python’s <code>and</code>/<code>or</code> <em>are</em> the single-value, short-circuiting pair (<code>n &gt; 0 and x[n - 1] &gt; 5</code> skips the second check exactly like R’s <code>&amp;&amp;</code>), while <code>&amp;</code>/<code>|</code> are the elementwise pair. As the error above shows, <code>and</code> on a numpy array refuses to guess. The rule of thumb translates directly: <code>&amp;</code>/<code>|</code> for arrays, <code>and</code>/<code>or</code> for <code>if</code> conditions.</p>
 </section>
-<section id="any-all-and-in" class="level3" data-number="2.2.2">
-<h3 data-number="2.2.2" class="anchored" data-anchor-id="any-all-and-in"><span class="header-section-number">2.2.2</span> <code>any()</code>, <code>all()</code> and <code>%in%</code></h3>
+<section id="any-all-and-in-in" class="level3" data-number="2.2.2">
+<h3 data-number="2.2.2" class="anchored" data-anchor-id="any-all-and-in-in"><span class="header-section-number">2.2.2</span> <code>any()</code>, <code>all()</code> and <code>%in%</code> / <code>in</code></h3>
 <p>Two functions collapse a logical vector down to a single verdict:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -739,7 +739,7 @@ Exercise 2.2: Leap year logic
 </section>
 <section id="sec-week2-logical-indexing" class="level2" data-number="2.3">
 <h2 data-number="2.3" class="anchored" data-anchor-id="sec-week2-logical-indexing"><span class="header-section-number">2.3</span> Logical indexing</h2>
-<p>Last week we indexed vectors by <em>position</em>: <code>x[3]</code>, <code>x[c(1, 5)]</code>. The second (and in statistics, far more useful) way is to index with a <strong>logical vector</strong>: R keeps the elements where the index is <code>TRUE</code>, and numpy indexing behaves the same way.</p>
+<p>Last week we indexed vectors by <em>position</em>: <code>x[3]</code>, <code>x[c(1, 5)]</code>. The second (and in statistics, far more useful) way is to index with a <strong>logical vector</strong>: both R and numpy keep the elements where the index is <code>TRUE</code>.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1039,8 +1039,8 @@ Exercise 2.3: A century of leap years
 </div>
 </div>
 <p>Both languages refuse, each in its own words: R demands a condition of length one; numpy declares the truth value of an array <em>ambiguous</em> and points you to <code>.any()</code> / <code>.all()</code>.</p>
-<section id="vectorised-choice-ifelse" class="level3" data-number="2.4.1">
-<h3 data-number="2.4.1" class="anchored" data-anchor-id="vectorised-choice-ifelse"><span class="header-section-number">2.4.1</span> Vectorised choice: <code>ifelse()</code></h3>
+<section id="vectorised-choice-ifelse-np.where" class="level3" data-number="2.4.1">
+<h3 data-number="2.4.1" class="anchored" data-anchor-id="vectorised-choice-ifelse-np.where"><span class="header-section-number">2.4.1</span> Vectorised choice: <code>ifelse()</code> / <code>np.where()</code></h3>
 <p>When you want an elementwise either/or across a whole vector, use <code>ifelse()</code> in R: it takes a logical vector and picks from two alternatives, per element, in one line. Python has no vectorised <code>ifelse()</code> of its own; <code>np.where(condition, yes, no)</code> is the numpy idiom that fills the role:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -1075,7 +1075,7 @@ Exercise 2.4: The p-value verdict machine
 </div>
 <div class="callout-body-container callout-body">
 <ol type="a">
-<li>Store a p-value in <code>p</code> and write an <code>if</code> / <code>else if</code> / <code>else</code> chain that prints <code>"significant at the 1% level"</code> if <code>p &lt; 0.01</code>, <code>"significant at the    5% level"</code> if <code>p &lt; 0.05</code>, and <code>"not significant"</code> otherwise. Test it on <code>p = 0.003</code>, <code>p = 0.02</code> and <code>p = 0.7</code>.</li>
+<li>Store a p-value in <code>p</code> and write an <code>if</code> / <code>else if</code> / <code>else</code> chain (Python: <code>elif</code>) that prints <code>"significant at the 1% level"</code> if <code>p &lt; 0.01</code>, <code>"significant at the    5% level"</code> if <code>p &lt; 0.05</code>, and <code>"not significant"</code> otherwise. Test it on <code>p = 0.003</code>, <code>p = 0.02</code> and <code>p = 0.7</code>.</li>
 <li>Now do it for the whole vector <code>p_values &lt;- c(0.001, 0.02, 0.049, 0.051, 0.2)</code> in a single line, by nesting one <code>ifelse()</code> inside another (in Python, one <code>np.where()</code> inside another).</li>
 </ol>
 </div>
@@ -1279,12 +1279,12 @@ r_i = r_{i-1} + r_{i-2}, \qquad r_1 = r_2 = 1,
 <span id="cb185-13"><a href="#cb185-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Unit: milliseconds
-        expr       min        lq       mean     median         uq        max
-        grow 83.971549 102.55862 127.095381 118.132532 139.443942 214.945579
- preallocate  1.240073   1.47723   1.951008   1.680174   2.307619   3.573065
- neval cld
-    10  a 
-    10   b</code></pre>
+        expr      min        lq      mean    median        uq        max neval
+        grow 63.17321 65.879161 75.242847 67.452773 69.596493 142.916846    10
+ preallocate  1.03850  1.128898  1.389397  1.289983  1.483174   2.058277    10
+ cld
+  a 
+   b</code></pre>
 </div>
 </div>
 </div>
@@ -1307,11 +1307,11 @@ r_i = r_{i-1} + r_{i-2}, \qquad r_1 = r_2 = 1,
 <span id="cb187-14"><a href="#cb187-14" aria-hidden="true" tabindex="-1"></a><span class="co"># best of 10 runs of each, in milliseconds</span></span>
 <span id="cb187-15"><a href="#cb187-15" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(grow, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>19.861154999489372</code></pre>
+<pre><code>18.349449000197637</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb189"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb189-1"><a href="#cb189-1" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(preallocate, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.8125079993988038</code></pre>
+<pre><code>0.7517409994761692</code></pre>
 </div>
 </div>
 </div>
@@ -1359,7 +1359,7 @@ r_i = r_{i-1} + r_{i-2}, \qquad r_1 = r_2 = 1,
 </div>
 </div>
 </div>
-<p>The line <code>i &lt;- i + 1</code> is load-bearing: forget to update the state and the condition never becomes <code>FALSE</code>, so the loop runs forever. (If that happens, the Stop button or <code>Esc</code> in RStudio, or <code>Ctrl</code>+<code>C</code> at a console, is your friend. We’ve all been there.)</p>
+<p>The line <code>i &lt;- i + 1</code> (Python: <code>i = i + 1</code>) is load-bearing: forget to update the state and the condition never becomes <code>FALSE</code>, so the loop runs forever. (If that happens, the Stop button or <code>Esc</code> in RStudio, or <code>Ctrl</code>+<code>C</code> at a console, is your friend. We’ve all been there.)</p>
 <p>A more statistical example: how many draws from a standard normal until we see one above 2? The answer is random, so a <code>for</code> loop can’t know its own length; a <code>while</code> loop is the natural fit.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -1473,12 +1473,9 @@ Exercise 2.6: Double your money
 <span id="cb203-9"><a href="#cb203-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Unit: microseconds
-       expr       min        lq      mean    median        uq      max neval
-       loop 33943.655 35233.062 35681.541 35752.284 36435.224 36693.34    10
- vectorised   873.308  1012.366  8949.573  2833.304  3250.969 67707.34    10
- cld
-  a 
-   b</code></pre>
+       expr       min        lq     mean    median        uq      max neval cld
+       loop 31989.180 34189.545 35778.83 35408.690 36394.850 42667.22    10  a 
+ vectorised   931.449  2454.961 11564.77  3113.546  4943.253 86035.73    10   b</code></pre>
 </div>
 </div>
 </div>
@@ -1498,11 +1495,11 @@ Exercise 2.6: Double your money
 <span id="cb205-11"><a href="#cb205-11" aria-hidden="true" tabindex="-1"></a><span class="co"># best of 10 runs of each, in milliseconds</span></span>
 <span id="cb205-12"><a href="#cb205-12" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(loop, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>173.97907699978532</code></pre>
+<pre><code>168.95917400051985</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb207"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb207-1"><a href="#cb207-1" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(vectorised, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.31753800067235716</code></pre>
+<pre><code>0.28794399986509234</code></pre>
 </div>
 </div>
 </div>
@@ -1865,7 +1862,7 @@ Challenge 2.2: The hailstone numbers
 <p>The Collatz rule: take a positive integer <span class="math inline">n</span>; if even, halve it; if odd, replace it by <span class="math inline">3n + 1</span>. Repeat. The (unproven!) conjecture is that every starting value eventually reaches 1.</p>
 <ol type="a">
 <li>With a <code>while</code> loop, count the steps needed to reach 1 from <span class="math inline">n = 27</span>. (You should get 111.)</li>
-<li>Wrap that in a <code>for</code> loop over every starting value from 1 to 5000, storing the step counts in a preallocated vector. Which start takes longest, and how many steps does it need? A one-line base plot of counts against starting value is worth a look.</li>
+<li>Wrap that in a <code>for</code> loop over every starting value from 1 to 5000, storing the step counts in a preallocated vector. Which start takes longest, and how many steps does it need? A one-line plot of counts against starting value is worth a look.</li>
 </ol>
 </div>
 </div>
@@ -2264,8 +2261,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./01-week1.html" class="pagination-link" aria-label="Week 1: Introduction to R Programming">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Week 1: Introduction to R Programming</span></span>
+      <a href="./01-week1.html" class="pagination-link" aria-label="Week 1: Introduction to R and Python Programming">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Week 1: Introduction to R and Python Programming</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">

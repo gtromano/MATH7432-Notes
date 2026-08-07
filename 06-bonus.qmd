@@ -33,7 +33,8 @@ real lesson.
 
 ## One name, many behaviours {#sec-bonus-motivation}
 
-You have been using this machinery all term without noticing. Consider `summary()`:
+You have been using this machinery all term, in both languages, without noticing.
+Consider R's `summary()`:
 
 ```{r}
 x <- rnorm(50)
@@ -65,7 +66,8 @@ length(methods("summary"))
 `print()` and `plot()` work exactly the same way: that is why typing `fit` at the console
 shows a tidy coefficient display rather than the giant list that `fit` actually is. Contrast
 this with `optim()` from @sec-week5, which returns a plain unclassed list and wishes you
-luck.
+luck. (Python: `scipy.optimize.minimize()` went the other way; the `OptimizeResult` it
+returns is a proper class, which is why it prints as a tidy report.)
 
 **Note for Python:** the same phenomenon exists there: `len()` happily measures strings,
 lists and arrays, and `+` adds numbers but concatenates strings. The mechanism, though, is

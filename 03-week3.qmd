@@ -257,7 +257,7 @@ This is idiomatic R; most functions in the wild are written this way, and we wil
 
 **Note for Python:** there is no implicit return. A function that reaches the end of its body without hitting `return` hands back `None`, silently. Keep writing `return`; the R habit of leaving the last expression bare does not travel.
 
-**Early return.** `return()` exits the function *immediately*, which is handy for bailing out of bad inputs before they cause trouble:
+**Early return.** `return()` (Python: `return`) exits the function *immediately*, which is handy for bailing out of bad inputs before they cause trouble:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -375,7 +375,7 @@ grams    # does not exist out here
 </div>
 :::
 
-The reverse direction, however, *does* work: if R cannot find a name inside the function, it looks in the environment where the function was *defined*: for a function typed at the top level of a script, that is the **global environment** (where your script-level variables live). That sounds convenient. It is also a classic source of silent bugs. Watch:
+The reverse direction, however, *does* work: if R (or Python) cannot find a name inside the function, it looks in the environment where the function was *defined*: for a function typed at the top level of a script, that is the **global environment** (R's name; Python says *global scope*), where your script-level variables live. That sounds convenient. It is also a classic source of silent bugs. Watch:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -417,9 +417,9 @@ bug_lbs_to_grams(100)   # same answer, whatever we feed it!
 </div>
 :::
 
-No error, no warning: R quietly grabbed the global `lbs` and returned $453.5924 \times 3$ forever. The input is ignored completely. The moral is short and worth memorising: **everything a function needs should arrive through its arguments**. A function that only reads its arguments and only communicates through its return value is called *pure*, and pure functions are dramatically easier to test, reuse and debug; this idea is the backbone of the second half of this chapter.
+No error, no warning: R and Python alike quietly grabbed the global `lbs` and returned $453.5924 \times 3$ forever. The input is ignored completely. The moral is short and worth memorising: **everything a function needs should arrive through its arguments**. A function that only reads its arguments and only communicates through its return value is called *pure*, and pure functions are dramatically easier to test, reuse and debug; this idea is the backbone of the second half of this chapter.
 
-**Note for Python:** same lookup, same trap. Python's rule is called **LEGB** (Local, Enclosing, Global, Built-ins, searched in that order), which for our purposes is R's lexical scoping by another name. One genuine difference: *reading* a global from inside a function just works (as the bug shows), but *assigning* to one requires the `global` keyword: a plain `lbs = ...` inside a function always creates a local variable.
+**Note for Python:** the lookup rule has a name here: **LEGB** (Local, Enclosing, Global, Built-ins, searched in that order), which for our purposes is R's lexical scoping by another name. One genuine difference: *reading* a global from inside a function just works (as the bug shows), but *assigning* to one requires the `global` keyword: a plain `lbs = ...` inside a function always creates a local variable.
 
 **Note for Python:** one more difference lives here, and it matters. R behaves *as if* every object passed to a function were copied: modify an argument inside a function and the caller's object is untouched (*copy-on-modify*). Python passes references instead: **rebinding** a name (`x = x + 1`) is local and safe, but **mutating** a mutable object in place (`x.append(3)`, or `x[0] = 99` on a list or numpy array) changes the caller's object too. A function that mutates its arguments is not pure; in Python, purity takes discipline that R's semantics give you for free.
 
@@ -508,9 +508,9 @@ y
 :::
 :::
 
-## The `...` argument
+## The `...` / `**kwargs` argument
 
-Browse any help page and you will meet a mysterious argument literally called `...` (pronounced "dot-dot-dot"). It scoops up any extra arguments a caller supplies and lets you pass them on to another function. One example is worth a paragraph of theory:
+Browse any R help page and you will meet a mysterious argument literally called `...` (pronounced "dot-dot-dot"); Python signatures spell the same idea `*args` / `**kwargs`. Both scoop up any extra arguments a caller supplies and let you pass them on to another function. One example is worth a paragraph of theory:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -548,9 +548,9 @@ summary_stats(heights, where=~np.isnan(heights))   # `where` travels through **k
 </div>
 :::
 
-We did not have to declare `na.rm` ourselves: whatever extras arrive get forwarded wholesale. Use it sparingly: it is wonderful for forwarding options, and terrible for hiding what a function actually depends on.
+We did not have to declare `na.rm` (or `where`, on the Python side) ourselves: whatever extras arrive get forwarded wholesale. Use it sparingly: it is wonderful for forwarding options, and terrible for hiding what a function actually depends on.
 
-**Note for Python:** the Python spelling is `*args` / `**kwargs`: one star scoops extra *positional* arguments into a tuple, two stars scoop extra *keyword* arguments into a dict, and `np.mean(x, **kwargs)` unpacks them again on the way out. (numpy has no `na.rm`; the `where` mask above is the closest kwarg-shaped idiom, and `np.nanmean`/`np.nanstd` exist for exactly this job.)
+**Note for Python:** one star (`*args`) scoops extra *positional* arguments into a tuple, two stars (`**kwargs`) scoop extra *keyword* arguments into a dict, and `np.mean(x, **kwargs)` unpacks them again on the way out. (numpy has no `na.rm`; the `where` mask above is the closest kwarg-shaped idiom, and `np.nanmean`/`np.nanstd` exist for exactly this job.)
 
 ## A brief look at recursion {#sec-week3-recursion}
 
@@ -697,7 +697,7 @@ funs["root"](9)   # dicts extract by name only -- no positional [[ ]]
 
 ### Lambdas
 
-For short, throwaway functions, R (since version 4.1) offers the **lambda** shorthand `\( )`, which is exactly equivalent to `function( )`:
+For short, throwaway functions, both languages offer a **lambda** shorthand: R (since version 4.1) spells it `\( )`, which is exactly equivalent to `function( )`, and Python spells it with the keyword `lambda`:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -915,7 +915,7 @@ d.  Quick base-plot sanity check: plot `standard` over $[-6, 6]$ with `type = "l
 
 ### map: one function, every element {#sec-week3-map}
 
-Vectorised arithmetic (@sec-week1) covers a lot of ground, but it works on atomic vectors. The moment your data lives in a list (samples of different sizes, say), `mean(samples)` is meaningless and a `for` loop feels like heavy machinery for such a small job. The functional answer is `map`: apply a function to every element of a collection, collect the results. It lives in the `purrr` package (part of the tidyverse, which we meet properly in @sec-week4); Python has its counterparts built in:
+Vectorised arithmetic (@sec-week1) covers a lot of ground, but it works on atomic vectors (numpy arrays, on the Python side). The moment your data lives in a list (samples of different sizes, say), `mean(samples)` is meaningless and a `for` loop feels like heavy machinery for such a small job. The functional answer is `map`: apply a function to every element of a collection, collect the results. It lives in the `purrr` package (part of the tidyverse, which we meet properly in @sec-week4); Python has its counterparts built in:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -1136,7 +1136,7 @@ b.  Use `map_dbl` (Python: a comprehension) with `make_trimmed_mean(0)` and then
 c.  Compare the two sets of results. Which subjects change most, and why is the trimmed version a better summary here?
 :::
 
-### Reduce: fold a collection to one value {#sec-week3-reduce}
+### `Reduce` / `functools.reduce`: fold a collection to one value {#sec-week3-reduce}
 
 Where `map` applies a function elementwise, `Reduce` (base R; purrr spells it `reduce`, Python keeps it in `functools.reduce`) *folds* a whole collection down to a single value with a two-argument function: combine the first two elements, combine the result with the third, and so on.
 

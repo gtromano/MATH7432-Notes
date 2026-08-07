@@ -192,7 +192,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./01-week1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Week 1: Introduction to R Programming</span></span></a>
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Week 1: Introduction to R and Python Programming</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -537,7 +537,7 @@ f(x_1, x_2) = \frac{x_1^2}{2} + \frac{10\, x_2^2}{2},
 </ul>
 <section id="sec-week5-conditioning" class="level3" data-number="5.2.1">
 <h3 data-number="5.2.1" class="anchored" data-anchor-id="sec-week5-conditioning"><span class="header-section-number">5.2.1</span> The condition number</h3>
-<p>There is a clean piece of intuition behind this. For a quadratic, gradient descent in each coordinate multiplies the error by <span class="math inline">(1 - \gamma \lambda)</span> per step, where <span class="math inline">\lambda</span> is the curvature in that direction. (These directional curvatures are exactly the <em>eigenvalues</em> of the Hessian of <span class="math inline">f</span>: the <code>eigen()</code> from <a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>, quietly reappearing as promised.) Stability requires <span class="math inline">|1 - \gamma \lambda| &lt; 1</span> for <em>every</em> direction, i.e.</p>
+<p>There is a clean piece of intuition behind this. For a quadratic, gradient descent in each coordinate multiplies the error by <span class="math inline">(1 - \gamma \lambda)</span> per step, where <span class="math inline">\lambda</span> is the curvature in that direction. (These directional curvatures are exactly the <em>eigenvalues</em> of the Hessian of <span class="math inline">f</span>: the <code>eigen()</code> from <a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a> (Python: <code>np.linalg.eig()</code>), quietly reappearing as promised.) Stability requires <span class="math inline">|1 - \gamma \lambda| &lt; 1</span> for <em>every</em> direction, i.e.</p>
 <p><span class="math display">
 \gamma &lt; \frac{2}{L}, \qquad L = \text{largest curvature},
 </span></p>
@@ -1601,14 +1601,14 @@ B_{k+1} = \big(I - \rho_k \mathbf{s}_k \mathbf{y}_k^\top\big) B_k
 <li><strong>GD gets there too</strong>, but only after we hand-tuned <span class="math inline">\gamma</span>, and at over ten times the cost. On an ill-conditioned problem (Exercise 5.4) the gap becomes a chasm.</li>
 <li><strong>SGD is nearly as accurate here at a fraction of the cost</strong>, and its cost would be <em>unchanged</em> if <span class="math inline">n</span> were <span class="math inline">10^8</span>, which is the regime it is built for.</li>
 </ul>
-<p>Two closing remarks on <code>optim()</code> and <code>minimize()</code>. For problems with many parameters there is <code>method = "L-BFGS-B"</code> (same name in both), a low-memory variant that stores only the last few <span class="math inline">(\mathbf{s}_k, \mathbf{y}_k)</span> pairs instead of the full <span class="math inline">d \times d</span> matrix (and accepts box constraints on the parameters). And practically: <strong><code>optim()</code> with BFGS is what you reach for</strong> when fitting a model by maximum likelihood in R (<code>minimize()</code> in Python): countless packages are, under the hood, exactly <code>optim(par, nll, gr, method = "BFGS")</code> wearing a nice interface.</p>
-<div class="callout callout-style-default callout-tip callout-titled" title="Exercise 5.4: optim in the wild">
+<p>Two closing remarks on <code>optim()</code> and <code>minimize()</code>. For problems with many parameters there is <code>method = "L-BFGS-B"</code> (same name in both), a low-memory variant that stores only the last few <span class="math inline">(\mathbf{s}_k, \mathbf{y}_k)</span> pairs instead of the full <span class="math inline">d \times d</span> matrix (and accepts box constraints on the parameters). And practically: <strong><code>optim()</code> with BFGS is what you reach for</strong> when fitting a model by maximum likelihood in R (<code>minimize()</code> in Python): countless packages in both languages are, under the hood, exactly <code>optim(par, nll, gr, method = "BFGS")</code> or its <code>minimize()</code> twin wearing a nice interface.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Exercise 5.4: optim / minimize in the wild">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Exercise 5.4: optim in the wild
+Exercise 5.4: optim / minimize in the wild
 </div>
 </div>
 <div class="callout-body-container callout-body">

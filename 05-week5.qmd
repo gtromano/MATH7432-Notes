@@ -315,8 +315,8 @@ Three step sizes, three personalities:
 There is a clean piece of intuition behind this. For a quadratic, gradient descent in
 each coordinate multiplies the error by $(1 - \gamma \lambda)$ per step, where
 $\lambda$ is the curvature in that direction. (These directional curvatures are
-exactly the *eigenvalues* of the Hessian of $f$: the `eigen()` from @sec-week1,
-quietly reappearing as promised.) Stability requires
+exactly the *eigenvalues* of the Hessian of $f$: the `eigen()` from @sec-week1
+(Python: `np.linalg.eig()`), quietly reappearing as promised.) Stability requires
 $|1 - \gamma \lambda| < 1$ for *every* direction, i.e.
 
 $$
@@ -1581,10 +1581,11 @@ there is `method = "L-BFGS-B"` (same name in both), a low-memory variant that st
 only the last few $(\mathbf{s}_k, \mathbf{y}_k)$ pairs instead of the full
 $d \times d$ matrix (and accepts box constraints on the parameters). And practically:
 **`optim()` with BFGS is what you reach for** when fitting a model by maximum
-likelihood in R (`minimize()` in Python): countless packages are, under the hood,
-exactly `optim(par, nll, gr, method = "BFGS")` wearing a nice interface.
+likelihood in R (`minimize()` in Python): countless packages in both languages are,
+under the hood, exactly `optim(par, nll, gr, method = "BFGS")` or its `minimize()`
+twin wearing a nice interface.
 
-:::: {.callout-tip title="Exercise 5.4: optim in the wild"}
+:::: {.callout-tip title="Exercise 5.4: optim / minimize in the wild"}
 Fit a logistic regression predicting a car's transmission type from its horsepower
 and weight, using the built-in `mtcars` data (`am` is 1 for manual; in Python the
 same data frame ships with plotnine):

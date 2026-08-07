@@ -345,7 +345,7 @@ x = np.array([1, 4, 9, 16])
 </div>
 :::
 
-### `&&` versus `&`
+### `&&` / `and` versus `&`
 
 R also has doubled-up operators `&&` and `||`. They work only on *single*
 logicals and error on vectors:
@@ -388,7 +388,7 @@ exactly like R's `&&`), while `&`/`|` are the elementwise pair. As the
 error above shows, `and` on a numpy array refuses to guess. The rule of thumb
 translates directly: `&`/`|` for arrays, `and`/`or` for `if` conditions.
 
-### `any()`, `all()` and `%in%`
+### `any()`, `all()` and `%in%` / `in`
 
 Two functions collapse a logical vector down to a single verdict:
 
@@ -461,8 +461,7 @@ expression on 2024, 2023, 2000 and 1900.
 
 Last week we indexed vectors by *position*: `x[3]`, `x[c(1, 5)]`. The second
 (and in statistics, far more useful) way is to index with a **logical
-vector**: R keeps the elements where the index is `TRUE`, and numpy indexing
-behaves the same way.
+vector**: both R and numpy keep the elements where the index is `TRUE`.
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -782,7 +781,7 @@ Both languages refuse, each in its own words: R demands a condition of length
 one; numpy declares the truth value of an array *ambiguous* and points you to
 `.any()` / `.all()`.
 
-### Vectorised choice: `ifelse()`
+### Vectorised choice: `ifelse()` / `np.where()`
 
 When you want an elementwise either/or across a whole vector, use `ifelse()`
 in R: it takes a logical vector and picks from two alternatives, per
@@ -814,7 +813,8 @@ np.where(marks >= 40, "pass", "fail")
 :::
 
 ::: {.callout-tip title="Exercise 2.4: The p-value verdict machine"}
-a. Store a p-value in `p` and write an `if` / `else if` / `else` chain that
+a. Store a p-value in `p` and write an `if` / `else if` / `else` chain
+   (Python: `elif`) that
    prints `"significant at the 1% level"` if `p < 0.01`, `"significant at the
    5% level"` if `p < 0.05`, and `"not significant"` otherwise. Test it on
    `p = 0.003`, `p = 0.02` and `p = 0.7`.
@@ -1131,8 +1131,9 @@ while i <= 5:
 </div>
 :::
 
-The line `i <- i + 1` is load-bearing: forget to update the state and the
-condition never becomes `FALSE`, so the loop runs forever. (If that happens,
+The line `i <- i + 1` (Python: `i = i + 1`) is load-bearing: forget to
+update the state and the condition never becomes `FALSE`, so the loop runs
+forever. (If that happens,
 the Stop button or `Esc` in RStudio, or `Ctrl`+`C` at a console, is your
 friend. We've all been there.)
 
@@ -1717,7 +1718,7 @@ a. With a `while` loop, count the steps needed to reach 1 from $n = 27$.
    (You should get 111.)
 b. Wrap that in a `for` loop over every starting value from 1 to 5000,
    storing the step counts in a preallocated vector. Which start takes
-   longest, and how many steps does it need? A one-line base plot of counts
+   longest, and how many steps does it need? A one-line plot of counts
    against starting value is worth a look.
 :::
 

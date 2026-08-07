@@ -1,4 +1,4 @@
-# Week 1: Introduction to R Programming {#sec-week1}
+# Week 1: Introduction to R and Python Programming {#sec-week1}
 
 ```{r}
 #| include: false
@@ -86,7 +86,7 @@ The notes are designed for the labs: read a section, copy the code into RStudio,
 break it, fix it, and do the exercises as you meet them. Programming is not a spectator
 sport.
 
-## R and RStudio
+## R, Python and RStudio
 
 You will interact with R through **RStudio**, a program that wraps R in a friendly interface.
 Both are installed on the university machines; for your own laptop, install R from
@@ -154,7 +154,7 @@ numpy and pandas is excellent. For anything the help pages cannot answer, the in
 full of people who had your exact error message before you: Stack Overflow in particular.
 Reading other people's answers is a core programming skill, not cheating.
 
-## R as a glorified calculator
+## A glorified calculator
 
 At its heart, the processor is a very fast calculator, and the console gives you direct
 access to it. All the basic operations are here:
@@ -1602,7 +1602,7 @@ c.  Solve it, and verify your solution by computing `A %*% x_sol` (`A @ x_sol`) 
     comparing with `b`.
 :::
 
-### An `eigen()` teaser
+### An eigenvalue teaser
 
 One more linear-algebra tool, offered now as a trailer. In statistics, the **covariance
 matrix** of a random vector packages the variances (diagonal) and covariances

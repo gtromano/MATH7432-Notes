@@ -192,7 +192,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./01-week1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Week 1: Introduction to R Programming</span></span></a>
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Week 1: Introduction to R and Python Programming</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -288,7 +288,7 @@ window.Quarto = {
 <p>One warning about the shape of this chapter. Everywhere else in these notes the two languages run side by side, line for line. Object-oriented programming is where they genuinely part ways: R attaches behaviour to <em>generic functions</em> outside the object, Python attaches it to <em>methods</em> inside the class, so a two-column view would be a lie. Instead the chapter comes in two parts: <a href="#sec-bonus-r" class="quarto-xref"><span>Section 6.2</span></a> builds everything in R (S3, S4 and multiple dispatch), and <a href="#sec-bonus-python" class="quarto-xref"><span>Section 6.3</span></a> rebuilds the same machinery in Python. Both parts are for everyone: read the R part first, then the Python part; the contrast is the real lesson.</p>
 <section id="sec-bonus-motivation" class="level2" data-number="6.1">
 <h2 data-number="6.1" class="anchored" data-anchor-id="sec-bonus-motivation"><span class="header-section-number">6.1</span> One name, many behaviours</h2>
-<p>You have been using this machinery all term without noticing. Consider <code>summary()</code>:</p>
+<p>You have been using this machinery all term, in both languages, without noticing. Consider R’s <code>summary()</code>:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">50</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(x)   <span class="co"># a five-number summary (plus the mean)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -346,7 +346,7 @@ F-statistic: 91.38 on 1 and 30 DF,  p-value: 1.294e-10</code></pre>
 <pre><code>[1] 46</code></pre>
 </div>
 </div>
-<p><code>print()</code> and <code>plot()</code> work exactly the same way: that is why typing <code>fit</code> at the console shows a tidy coefficient display rather than the giant list that <code>fit</code> actually is. Contrast this with <code>optim()</code> from <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a>, which returns a plain unclassed list and wishes you luck.</p>
+<p><code>print()</code> and <code>plot()</code> work exactly the same way: that is why typing <code>fit</code> at the console shows a tidy coefficient display rather than the giant list that <code>fit</code> actually is. Contrast this with <code>optim()</code> from <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a>, which returns a plain unclassed list and wishes you luck. (Python: <code>scipy.optimize.minimize()</code> went the other way; the <code>OptimizeResult</code> it returns is a proper class, which is why it prints as a tidy report.)</p>
 <p><strong>Note for Python:</strong> the same phenomenon exists there: <code>len()</code> happily measures strings, lists and arrays, and <code>+</code> adds numbers but concatenates strings. The mechanism, though, is different: each type carries its own <code>__len__</code> or <code>__add__</code> method <em>inside</em> it. <a href="#sec-bonus-python" class="quarto-xref"><span>Section 6.3</span></a> makes this precise.</p>
 <p>This design is called <strong>object-oriented programming</strong> (OOP). R has several OOP systems; the R part of this chapter meets the two that matter (S3 and S4) and finishes with S4’s party trick: dispatching on <em>two</em> arguments at once. Python has exactly one system, and we will use it to rebuild the very same example.</p>
 </section>

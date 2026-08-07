@@ -21,7 +21,7 @@ tables of data. We will learn how to store data in *data frames*, manipulate the
 `plotnine`). The quick-and-dirty `plot()` and `plt.plot()` calls from the previous weeks retire
 this week.
 
-## The tidyverse
+## The tidyverse (and friends in Python)
 
 Modern data work in R happens largely inside the **tidyverse**, a collection of packages that
 share a common design: `dplyr` for manipulation, `readr` for import/export, `tibble` for nicer
@@ -32,7 +32,7 @@ what `dplyr`, `readr` and `tibble` do, and `plotnine` is a deliberate port of `g
 grammar, nearly the same code). Together with `numpy` they are this week's toolkit, installed
 and imported alongside the R column below.
 
-Install it once (already done on university machines). The R line runs in the R console; the
+Install them once (already done on university machines). The R line runs in the R console; the
 Python line is a shell command, so it runs in a terminal, not in the Python console:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
@@ -59,7 +59,7 @@ python -m pip install pandas plotnine
 </div>
 :::
 
-then load it at the top of every script:
+then load them at the top of every script:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -385,7 +385,7 @@ c. Add a logical column `symmetric` using the dollar syntax (Python: bracket ass
 d. Check your work with `str()` and `dim()` (Python: `.info()` and `.shape`).
 :::
 
-## Tibbles {#sec-week4-tibbles}
+## Tibbles (and the pandas index) {#sec-week4-tibbles}
 
 The tidyverse ships a modernised data frame called a **tibble**. It *is* a data frame
 (everything above applies) with two behavioural upgrades. First, printing: a tibble shows ten
@@ -575,7 +575,7 @@ d. Read it once more with base `read.csv()`. What differs? (R only: Python has j
    CSV reader.)
 :::
 
-## The pipe `|>` {#sec-week4-pipe}
+## The pipe `|>` (and method chaining) {#sec-week4-pipe}
 
 Data analysis is a sequence of steps, and code reads best when it is written in the order the
 steps happen. The **pipe** operator `|>` takes the value on its left and passes it as the *first
@@ -972,7 +972,7 @@ milk.merge(prices, on="type", how="left")
 :::
 
 `left_join()` keeps every row of its first argument and attaches the matching information from
-the second; rows with no match (poor Rice) get `NA`. There is a whole family (`full_join()`,
+the second; rows with no match (poor Rice) get `NA` (`NaN` in pandas). There is a whole family (`full_join()`,
 `inner_join()`, `right_join()`) differing only in which unmatched rows survive. (pandas folds
 the whole family into `.merge()`'s `how` argument: `"left"`, `"outer"`, `"inner"`, `"right"`.)
 
