@@ -44,6 +44,22 @@ again (chapters are self-contained) with one upgrade: instead of returning only 
 final point, it records the whole trajectory, because this week we want to *watch*
 the algorithm work.
 
+Algorithm 5.1 states the method formally; the code adds only the bookkeeping that
+records the trajectory.
+
+::: {.callout-note icon=false title="Algorithm 5.1: Gradient descent"}
+**Input:** objective $f : \mathbb{R}^d \to \mathbb{R}$, its gradient $\nabla f$,
+start point $\mathbf{x}_0$, step size $\gamma > 0$, number of steps
+$n_{\text{steps}}$ (the code's `n`).
+
+**Output:** the trajectory $\mathbf{x}_0, \mathbf{x}_1, \dots, \mathbf{x}_{n_{\text{steps}}}$;
+the final iterate approximates the minimiser.
+
+1. **for** $t = 1, 2, \dots, n_{\text{steps}}$:
+    a. $\mathbf{x}_t \leftarrow \mathbf{x}_{t-1} - \gamma \, \nabla f(\mathbf{x}_{t-1})$
+2. **return** $\mathbf{x}_0, \mathbf{x}_1, \dots, \mathbf{x}_{n_{\text{steps}}}$
+:::
+
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
 
@@ -655,6 +671,30 @@ economics are the whole point:
 When $n$ is huge, SGD has taken thousands of noisy-but-useful steps before GD finishes
 its first.
 
+Algorithm 5.2 states the mini-batch recipe precisely, with single-sample SGD as the
+special case $m = 1$.
+
+::: {.callout-note icon=false title="Algorithm 5.2: Stochastic gradient descent (mini-batch)"}
+**Input:** objective $L(\theta) = \frac{1}{n} \sum_{i=1}^{n} \ell_i(\theta)$ with
+per-observation gradients $\nabla \ell_i$, start point $\theta_0$, step sizes
+$\gamma_t > 0$ (constant, or decaying like $\gamma_t = a/(b + t)$), batch size $m$,
+number of steps $n_{\text{steps}}$.
+
+**Output:** the trajectory $\theta_0, \theta_1, \dots, \theta_{n_{\text{steps}}}$.
+
+1. **for** $t = 1, 2, \dots, n_{\text{steps}}$:
+    a. draw a subset $B_t \subseteq \{1, \dots, n\}$ of size $m$, uniformly at
+       random, without replacement
+    b. $\theta_t \leftarrow \theta_{t-1} - \gamma_t \, \frac{1}{m} \sum_{i \in B_t} \nabla \ell_i(\theta_{t-1})$
+2. **return** $\theta_0, \theta_1, \dots, \theta_{n_{\text{steps}}}$
+
+Single-sample SGD is the case $m = 1$: step (a) draws one index
+$I_t \sim \text{Uniform}\{1, \dots, n\}$ and step (b) becomes the update displayed
+above, $\theta_t \leftarrow \theta_{t-1} - \gamma_t \, \nabla \ell_{I_t}(\theta_{t-1})$.
+Note the index base: the step that *produces* $\theta_t$ uses $\gamma_t$, which is
+exactly the code's `gamma(t)`, so the first update uses $\gamma_1$.
+:::
+
 Here is single-sample SGD in the same functional style. One new ingredient: the step
 size is now a *function* of the step number $t$, for reasons one paragraph away.
 
@@ -972,6 +1012,26 @@ ball that overshoots and oscillates forever. In between, something useful happen
 - in the **consistent downhill direction** the contributions all point the same way
   and *accumulate*: the ball accelerates along the valley floor.
 
+Algorithm 5.3 sets the two updates down in order: velocity first, then position.
+
+::: {.callout-note icon=false title="Algorithm 5.3: Gradient descent with momentum (heavy ball)"}
+**Input:** objective $f$, gradient $\nabla f$, start point $\mathbf{x}_0$, step size
+$\gamma > 0$, momentum $\beta \in [0, 1)$, number of steps $n_{\text{steps}}$ (the
+code's `n`).
+
+**Output:** the trajectory $\mathbf{x}_0, \mathbf{x}_1, \dots, \mathbf{x}_{n_{\text{steps}}}$.
+
+1. start at rest: $\mathbf{v}_0 \leftarrow \mathbf{0}$
+2. **for** $t = 1, 2, \dots, n_{\text{steps}}$:
+    a. $\mathbf{v}_t \leftarrow \beta \, \mathbf{v}_{t-1} - \gamma \, \nabla f(\mathbf{x}_{t-1})$
+    b. $\mathbf{x}_t \leftarrow \mathbf{x}_{t-1} + \mathbf{v}_t$
+3. **return** $\mathbf{x}_0, \mathbf{x}_1, \dots, \mathbf{x}_{n_{\text{steps}}}$
+
+For the stochastic version, replace $\nabla f(\mathbf{x}_{t-1})$ in step 2a with the
+single-sample or mini-batch estimate of Algorithm 5.2 and step with the schedule
+$\gamma_t$, indexed as there; nothing else changes.
+:::
+
 In code, two lines change:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
@@ -1244,6 +1304,24 @@ $$
 $P$ reshapes the descent direction, stretching it in flat directions and shrinking it
 in steep ones. Plain gradient descent is $P = I$.
 
+Algorithm 5.4 is Algorithm 5.1 with one matrix slipped in.
+
+::: {.callout-note icon=false title="Algorithm 5.4: Preconditioned gradient descent"}
+**Input:** objective $f$, gradient $\nabla f$, start point $\mathbf{x}_0$, step size
+$\gamma > 0$, a symmetric positive-definite matrix $P$, number of steps
+$n_{\text{steps}}$ (the code's `n`).
+
+**Output:** the trajectory $\mathbf{x}_0, \mathbf{x}_1, \dots, \mathbf{x}_{n_{\text{steps}}}$.
+
+1. **for** $t = 1, 2, \dots, n_{\text{steps}}$:
+    a. $\mathbf{x}_t \leftarrow \mathbf{x}_{t-1} - \gamma \, P \, \nabla f(\mathbf{x}_{t-1})$
+2. **return** $\mathbf{x}_0, \mathbf{x}_1, \dots, \mathbf{x}_{n_{\text{steps}}}$
+
+$P = I$ recovers Algorithm 5.1. Taking $P = (\nabla^2 f)^{-1}$, the inverse Hessian
+recomputed at every iterate, with $\gamma = 1$, is Newton's method (of which more
+shortly).
+:::
+
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
 
@@ -1420,6 +1498,32 @@ and we will not derive it. The point to retain is the *idea*: start with $B_0 = 
 (plain gradient descent), and let each observed gradient difference teach the
 algorithm a bit more of the local geometry. After a handful of steps BFGS is taking
 nearly Newton-quality steps while having only ever evaluated $f$ and $\nabla f$.
+
+Algorithm 5.5 collects the whole loop in one place.
+
+::: {.callout-note icon=false title="Algorithm 5.5: BFGS"}
+**Input:** objective $f$, gradient $\nabla f$, start point $\mathbf{x}_0$, tolerance
+$\varepsilon > 0$ (in practice also an iteration cap, as in `optim()` and
+`minimize()`).
+
+**Output:** the final iterate, an approximate minimiser.
+
+1. initialise $B_0 \leftarrow I$, so the first step is a plain gradient step
+2. **for** $k = 0, 1, 2, \dots$ until $\|\nabla f_k\| \le \varepsilon$:
+    a. step to $\mathbf{x}_{k+1} \leftarrow \mathbf{x}_k - \gamma_k \, B_k \nabla f_k$,
+       with the step length $\gamma_k$ chosen by a line search
+    b. record the step $\mathbf{s}_k = \mathbf{x}_{k+1} - \mathbf{x}_k$ and the
+       gradient difference $\mathbf{y}_k = \nabla f_{k+1} - \nabla f_k$
+    c. update $B_k$ to $B_{k+1}$ by the rank-two formula above: the smallest
+       symmetric modification of $B_k$ satisfying the secant condition
+       $B_{k+1} \mathbf{y}_k = \mathbf{s}_k$ ($B_{k+1}$ stays positive definite
+       because the line search ensures $\mathbf{y}_k^\top \mathbf{s}_k > 0$)
+3. **return** the final iterate $\mathbf{x}_k$
+
+Here $\nabla f_k$ is short for $\nabla f(\mathbf{x}_k)$, and $B_k \approx H^{-1}$
+throughout: this $B$ is the traditional quasi-Newton symbol for the inverse-Hessian
+approximation, nothing to do with the mini-batches $B_t$ of Algorithm 5.2.
+:::
 
 You will never implement BFGS yourself, because both languages ship it (R as
 `optim()`, Python inside `scipy.optimize.minimize()`):

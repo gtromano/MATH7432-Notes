@@ -1001,7 +1001,7 @@ When the function needs **two** varying inputs, use `map2`, which walks two coll
 **R**
 
 ```{r}
-# trimmed means: a different trimming fraction for each sample
+# trimmed (also known as truncated) means: a different trimming fraction for each sample
 trims <- c(0, 0.1, 0.2)
 map2_dbl(samples, trims, \(x, t) mean(x, trim = t))
 ```
@@ -1094,7 +1094,7 @@ d.  Use `map` with `sort` (Python: `sorted`). Why would `map_dbl` be the wrong t
 e.  Which group did best on average? Answer in code with `which.max` (Python: `max(..., key=...)`).
 :::
 
-::: {.callout-tip title="Exercise 3.7: Currying the trimmed mean"}
+::: {.callout-tip title="Exercise 3.7: Currying the trimmed (truncated) mean"}
 Reaction times (seconds) for four subjects, each with the occasional attention lapse:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}

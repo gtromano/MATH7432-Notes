@@ -292,6 +292,28 @@ window.Quarto = {
 \mathbf{x}_{n+1} = \mathbf{x}_n - \gamma \, \nabla f(\mathbf{x}_n),
 </span></p>
 <p>where <span class="math inline">\gamma &gt; 0</span> is the <strong>step size</strong> (machine learning people say <em>learning rate</em>). In <a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a> we packaged this into <code>grad_descent(f, grad, x0, gamma, n)</code>. Here it is again (chapters are self-contained) with one upgrade: instead of returning only the final point, it records the whole trajectory, because this week we want to <em>watch</em> the algorithm work.</p>
+<p>Algorithm 5.1 states the method formally; the code adds only the bookkeeping that records the trajectory.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled" title="Algorithm 5.1: Gradient descent">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Algorithm 5.1: Gradient descent
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Input:</strong> objective <span class="math inline">f : \mathbb{R}^d \to \mathbb{R}</span>, its gradient <span class="math inline">\nabla f</span>, start point <span class="math inline">\mathbf{x}_0</span>, step size <span class="math inline">\gamma &gt; 0</span>, number of steps <span class="math inline">n_{\text{steps}}</span> (the code’s <code>n</code>).</p>
+<p><strong>Output:</strong> the trajectory <span class="math inline">\mathbf{x}_0, \mathbf{x}_1, \dots, \mathbf{x}_{n_{\text{steps}}}</span>; the final iterate approximates the minimiser.</p>
+<ol type="1">
+<li><strong>for</strong> <span class="math inline">t = 1, 2, \dots, n_{\text{steps}}</span>:
+<ol type="a">
+<li><span class="math inline">\mathbf{x}_t \leftarrow \mathbf{x}_{t-1} - \gamma \, \nabla f(\mathbf{x}_{t-1})</span></li>
+</ol></li>
+<li><strong>return</strong> <span class="math inline">\mathbf{x}_0, \mathbf{x}_1, \dots, \mathbf{x}_{n_{\text{steps}}}</span></li>
+</ol>
+</div>
+</div>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -808,6 +830,30 @@ grad_descent  1.930201 -1.014763</code></pre>
 <li>one SGD step costs <span class="math inline">O(1)</span> (or <span class="math inline">O(m)</span> for a mini-batch), <em>regardless of <span class="math inline">n</span></em>.</li>
 </ul>
 <p>When <span class="math inline">n</span> is huge, SGD has taken thousands of noisy-but-useful steps before GD finishes its first.</p>
+<p>Algorithm 5.2 states the mini-batch recipe precisely, with single-sample SGD as the special case <span class="math inline">m = 1</span>.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled" title="Algorithm 5.2: Stochastic gradient descent (mini-batch)">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Algorithm 5.2: Stochastic gradient descent (mini-batch)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Input:</strong> objective <span class="math inline">L(\theta) = \frac{1}{n} \sum_{i=1}^{n} \ell_i(\theta)</span> with per-observation gradients <span class="math inline">\nabla \ell_i</span>, start point <span class="math inline">\theta_0</span>, step sizes <span class="math inline">\gamma_t &gt; 0</span> (constant, or decaying like <span class="math inline">\gamma_t = a/(b + t)</span>), batch size <span class="math inline">m</span>, number of steps <span class="math inline">n_{\text{steps}}</span>.</p>
+<p><strong>Output:</strong> the trajectory <span class="math inline">\theta_0, \theta_1, \dots, \theta_{n_{\text{steps}}}</span>.</p>
+<ol type="1">
+<li><strong>for</strong> <span class="math inline">t = 1, 2, \dots, n_{\text{steps}}</span>:
+<ol type="a">
+<li>draw a subset <span class="math inline">B_t \subseteq \{1, \dots, n\}</span> of size <span class="math inline">m</span>, uniformly at random, without replacement</li>
+<li><span class="math inline">\theta_t \leftarrow \theta_{t-1} - \gamma_t \, \frac{1}{m} \sum_{i \in B_t} \nabla \ell_i(\theta_{t-1})</span></li>
+</ol></li>
+<li><strong>return</strong> <span class="math inline">\theta_0, \theta_1, \dots, \theta_{n_{\text{steps}}}</span></li>
+</ol>
+<p>Single-sample SGD is the case <span class="math inline">m = 1</span>: step (a) draws one index <span class="math inline">I_t \sim \text{Uniform}\{1, \dots, n\}</span> and step (b) becomes the update displayed above, <span class="math inline">\theta_t \leftarrow \theta_{t-1} - \gamma_t \, \nabla \ell_{I_t}(\theta_{t-1})</span>. Note the index base: the step that <em>produces</em> <span class="math inline">\theta_t</span> uses <span class="math inline">\gamma_t</span>, which is exactly the code’s <code>gamma(t)</code>, so the first update uses <span class="math inline">\gamma_1</span>.</p>
+</div>
+</div>
 <p>Here is single-sample SGD in the same functional style. One new ingredient: the step size is now a <em>function</em> of the step number <span class="math inline">t</span>, for reasons one paragraph away.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -1063,6 +1109,31 @@ Exercise 5.2: Mini-batch SGD
 <li>in the <strong>zig-zag direction</strong> the gradient flips sign every step, so successive contributions to <span class="math inline">\mathbf{v}</span> <em>cancel</em>: the oscillation damps itself;</li>
 <li>in the <strong>consistent downhill direction</strong> the contributions all point the same way and <em>accumulate</em>: the ball accelerates along the valley floor.</li>
 </ul>
+<p>Algorithm 5.3 sets the two updates down in order: velocity first, then position.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled" title="Algorithm 5.3: Gradient descent with momentum (heavy ball)">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Algorithm 5.3: Gradient descent with momentum (heavy ball)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Input:</strong> objective <span class="math inline">f</span>, gradient <span class="math inline">\nabla f</span>, start point <span class="math inline">\mathbf{x}_0</span>, step size <span class="math inline">\gamma &gt; 0</span>, momentum <span class="math inline">\beta \in [0, 1)</span>, number of steps <span class="math inline">n_{\text{steps}}</span> (the code’s <code>n</code>).</p>
+<p><strong>Output:</strong> the trajectory <span class="math inline">\mathbf{x}_0, \mathbf{x}_1, \dots, \mathbf{x}_{n_{\text{steps}}}</span>.</p>
+<ol type="1">
+<li>start at rest: <span class="math inline">\mathbf{v}_0 \leftarrow \mathbf{0}</span></li>
+<li><strong>for</strong> <span class="math inline">t = 1, 2, \dots, n_{\text{steps}}</span>:
+<ol type="a">
+<li><span class="math inline">\mathbf{v}_t \leftarrow \beta \, \mathbf{v}_{t-1} - \gamma \, \nabla f(\mathbf{x}_{t-1})</span></li>
+<li><span class="math inline">\mathbf{x}_t \leftarrow \mathbf{x}_{t-1} + \mathbf{v}_t</span></li>
+</ol></li>
+<li><strong>return</strong> <span class="math inline">\mathbf{x}_0, \mathbf{x}_1, \dots, \mathbf{x}_{n_{\text{steps}}}</span></li>
+</ol>
+<p>For the stochastic version, replace <span class="math inline">\nabla f(\mathbf{x}_{t-1})</span> in step 2a with the single-sample or mini-batch estimate of Algorithm 5.2 and step with the schedule <span class="math inline">\gamma_t</span>, indexed as there; nothing else changes.</p>
+</div>
+</div>
 <p>In code, two lines change:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -1314,6 +1385,29 @@ Exercise 5.3: Momentum pays off
 \mathbf{x}_{t+1} = \mathbf{x}_t - \gamma \, P \, \nabla f(\mathbf{x}_t).
 </span></p>
 <p><span class="math inline">P</span> reshapes the descent direction, stretching it in flat directions and shrinking it in steep ones. Plain gradient descent is <span class="math inline">P = I</span>.</p>
+<p>Algorithm 5.4 is Algorithm 5.1 with one matrix slipped in.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled" title="Algorithm 5.4: Preconditioned gradient descent">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Algorithm 5.4: Preconditioned gradient descent
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Input:</strong> objective <span class="math inline">f</span>, gradient <span class="math inline">\nabla f</span>, start point <span class="math inline">\mathbf{x}_0</span>, step size <span class="math inline">\gamma &gt; 0</span>, a symmetric positive-definite matrix <span class="math inline">P</span>, number of steps <span class="math inline">n_{\text{steps}}</span> (the code’s <code>n</code>).</p>
+<p><strong>Output:</strong> the trajectory <span class="math inline">\mathbf{x}_0, \mathbf{x}_1, \dots, \mathbf{x}_{n_{\text{steps}}}</span>.</p>
+<ol type="1">
+<li><strong>for</strong> <span class="math inline">t = 1, 2, \dots, n_{\text{steps}}</span>:
+<ol type="a">
+<li><span class="math inline">\mathbf{x}_t \leftarrow \mathbf{x}_{t-1} - \gamma \, P \, \nabla f(\mathbf{x}_{t-1})</span></li>
+</ol></li>
+<li><strong>return</strong> <span class="math inline">\mathbf{x}_0, \mathbf{x}_1, \dots, \mathbf{x}_{n_{\text{steps}}}</span></li>
+</ol>
+<p><span class="math inline">P = I</span> recovers Algorithm 5.1. Taking <span class="math inline">P = (\nabla^2 f)^{-1}</span>, the inverse Hessian recomputed at every iterate, with <span class="math inline">\gamma = 1</span>, is Newton’s method (of which more shortly).</p>
+</div>
+</div>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1460,6 +1554,32 @@ B_{k+1} = \big(I - \rho_k \mathbf{s}_k \mathbf{y}_k^\top\big) B_k
 \qquad \rho_k = \frac{1}{\mathbf{y}_k^\top \mathbf{s}_k},
 </span></p>
 <p>and we will not derive it. The point to retain is the <em>idea</em>: start with <span class="math inline">B_0 = I</span> (plain gradient descent), and let each observed gradient difference teach the algorithm a bit more of the local geometry. After a handful of steps BFGS is taking nearly Newton-quality steps while having only ever evaluated <span class="math inline">f</span> and <span class="math inline">\nabla f</span>.</p>
+<p>Algorithm 5.5 collects the whole loop in one place.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled" title="Algorithm 5.5: BFGS">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Algorithm 5.5: BFGS
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Input:</strong> objective <span class="math inline">f</span>, gradient <span class="math inline">\nabla f</span>, start point <span class="math inline">\mathbf{x}_0</span>, tolerance <span class="math inline">\varepsilon &gt; 0</span> (in practice also an iteration cap, as in <code>optim()</code> and <code>minimize()</code>).</p>
+<p><strong>Output:</strong> the final iterate, an approximate minimiser.</p>
+<ol type="1">
+<li>initialise <span class="math inline">B_0 \leftarrow I</span>, so the first step is a plain gradient step</li>
+<li><strong>for</strong> <span class="math inline">k = 0, 1, 2, \dots</span> until <span class="math inline">\|\nabla f_k\| \le \varepsilon</span>:
+<ol type="a">
+<li>step to <span class="math inline">\mathbf{x}_{k+1} \leftarrow \mathbf{x}_k - \gamma_k \, B_k \nabla f_k</span>, with the step length <span class="math inline">\gamma_k</span> chosen by a line search</li>
+<li>record the step <span class="math inline">\mathbf{s}_k = \mathbf{x}_{k+1} - \mathbf{x}_k</span> and the gradient difference <span class="math inline">\mathbf{y}_k = \nabla f_{k+1} - \nabla f_k</span></li>
+<li>update <span class="math inline">B_k</span> to <span class="math inline">B_{k+1}</span> by the rank-two formula above: the smallest symmetric modification of <span class="math inline">B_k</span> satisfying the secant condition <span class="math inline">B_{k+1} \mathbf{y}_k = \mathbf{s}_k</span> (<span class="math inline">B_{k+1}</span> stays positive definite because the line search ensures <span class="math inline">\mathbf{y}_k^\top \mathbf{s}_k &gt; 0</span>)</li>
+</ol></li>
+<li><strong>return</strong> the final iterate <span class="math inline">\mathbf{x}_k</span></li>
+</ol>
+<p>Here <span class="math inline">\nabla f_k</span> is short for <span class="math inline">\nabla f(\mathbf{x}_k)</span>, and <span class="math inline">B_k \approx H^{-1}</span> throughout: this <span class="math inline">B</span> is the traditional quasi-Newton symbol for the inverse-Hessian approximation, nothing to do with the mini-batches <span class="math inline">B_t</span> of Algorithm 5.2.</p>
+</div>
+</div>
 <p>You will never implement BFGS yourself, because both languages ship it (R as <code>optim()</code>, Python inside <code>scipy.optimize.minimize()</code>):</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
