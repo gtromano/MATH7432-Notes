@@ -1604,9 +1604,40 @@ c.  Solve it, and verify your solution by computing `A %*% x_sol` (`A @ x_sol`) 
 
 ### An eigenvalue teaser
 
-One more linear-algebra tool, offered now as a trailer. In statistics, the **covariance
-matrix** of a random vector packages the variances (diagonal) and covariances
-(off-diagonal) of its components. Its eigendecomposition is remarkably informative:
+One more linear-algebra tool, offered now as a teaser which will be useful later. A
+30-second reminder first: a square matrix $A$ defines a map $\mathbf{v} \mapsto A\mathbf{v}$
+that can rotate, stretch or compress, so the output $A\mathbf{v}$ generally points in
+a different direction from the input $\mathbf{v}$, with a different length. An
+**eigenvector** of $A$ is a special vector that $A$ maps to a multiple of itself:
+
+$$
+A \mathbf{v} = \lambda\, \mathbf{v}, \qquad \mathbf{v} \neq \mathbf{0}.
+$$
+
+No rotation for this input: $A\mathbf{v}$ lies on the same line as $\mathbf{v}$,
+merely stretched or shrunk (or flipped, when $\lambda < 0$), and the stretch factor
+$\lambda$ is its **eigenvalue**. A symmetric $d \times d$ matrix, which is the kind
+statistics mostly cares about, has a full set of $d$ such directions, mutually
+perpendicular, with real eigenvalues.
+
+So intuitively, the eigenvectors are the axes along which the matrix acts as
+ordinary scalar multiplication. Better still, the $d$ eigen-directions
+$\mathbf{v}_1, \dots, \mathbf{v}_d$ of a symmetric matrix form a basis: *any*
+vector $\mathbf{w}$ can be written as a combination
+$\mathbf{w} = c_1 \mathbf{v}_1 + \cdots + c_d \mathbf{v}_d$, and applying $A$
+piece by piece, each component just picks up its own stretch factor:
+
+$$
+A\mathbf{w} = c_1 \lambda_1 \mathbf{v}_1 + \cdots + c_d \lambda_d \mathbf{v}_d.
+$$
+
+The matrix's entire action, on any vector at all, is therefore captured by $d$
+separate stretches. The size of each $\lambda$ says what happens along its axis:
+a large $|\lambda|$ amplifies, a small one flattens, and $\lambda = 0$ destroys the
+direction outright (that is precisely the singular matrix met earlier in this
+chapter).
+
+In statistics, the **covariance matrix** of a random vector packages the variances (diagonal) and covariances (off-diagonal) of its components. Its eigendecomposition is remarkably informative:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -1646,6 +1677,10 @@ single idea is principal component analysis, the workhorse of dimension reductio
 Eigenvalues will also quietly reappear in @sec-week5, where they govern how fast our
 optimisation algorithms converge. For now: `eigen()` (and `np.linalg.eig`) exists, and
 Challenge 1.2 lets you poke at it.
+
+## Challenges
+
+Two optional problems to pull the week's vectors and matrices together.
 
 :::: {.callout-important title="Challenge 1.1: Least squares, a sneak preview"}
 A company records advertising spend $x$ (in £1000s) and sales $y$ (also £1000s) over eight

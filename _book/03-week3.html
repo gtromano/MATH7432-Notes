@@ -251,7 +251,8 @@ window.Quarto = {
   <li><a href="#sec-week3-reduce" id="toc-sec-week3-reduce" class="nav-link" data-scroll-target="#sec-week3-reduce"><span class="header-section-number">3.5.4</span> <code>Reduce</code> / <code>functools.reduce</code>: fold a collection to one value</a></li>
   </ul></li>
   <li><a href="#sec-week3-gd" id="toc-sec-week3-gd" class="nav-link" data-scroll-target="#sec-week3-gd"><span class="header-section-number">3.6</span> Packaging gradient descent</a></li>
-  <li><a href="#looking-ahead" id="toc-looking-ahead" class="nav-link" data-scroll-target="#looking-ahead"><span class="header-section-number">3.7</span> Looking ahead</a></li>
+  <li><a href="#challenges" id="toc-challenges" class="nav-link" data-scroll-target="#challenges"><span class="header-section-number">3.7</span> Challenges</a></li>
+  <li><a href="#looking-ahead" id="toc-looking-ahead" class="nav-link" data-scroll-target="#looking-ahead"><span class="header-section-number">3.8</span> Looking ahead</a></li>
   </ul>
 </nav>
     </div>
@@ -871,7 +872,7 @@ Exercise 3.3: Where does x live?
 <div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(<span class="fu">fib_rec</span>(<span class="dv">30</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.261   0.008   0.269 </code></pre>
+  0.277   0.011   0.288 </code></pre>
 </div>
 </div>
 </div>
@@ -882,11 +883,11 @@ Exercise 3.3: Where does x live?
 <span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb89-3"><a href="#cb89-3" aria-hidden="true" tabindex="-1"></a>timeit.timeit(<span class="st">"fib_rec(20)"</span>, <span class="bu">globals</span><span class="op">=</span><span class="bu">globals</span>(), number<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.0003565640072338283</code></pre>
+<pre><code>0.0003709870215971023</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb91"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a>timeit.timeit(<span class="st">"fib_rec(30)"</span>, <span class="bu">globals</span><span class="op">=</span><span class="bu">globals</span>(), number<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.0474945510213729</code></pre>
+<pre><code>0.047729026002343744</code></pre>
 </div>
 </div>
 </div>
@@ -1713,6 +1714,10 @@ Exercise 3.9: A new client for grad_descent
 </ol>
 </div>
 </div>
+</section>
+<section id="challenges" class="level2" data-number="3.7">
+<h2 data-number="3.7" class="anchored" data-anchor-id="challenges"><span class="header-section-number">3.7</span> Challenges</h2>
+<p>Two optional problems: one teaches <code>grad_descent</code> to stop by itself, one generalises a classic.</p>
 <div class="callout callout-style-default callout-important callout-titled" title="Challenge 3.1: Stop when you're done">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1777,8 +1782,8 @@ Challenge 3.2: Generic FizzBuzz
 </div>
 </div>
 </section>
-<section id="looking-ahead" class="level2" data-number="3.7">
-<h2 data-number="3.7" class="anchored" data-anchor-id="looking-ahead"><span class="header-section-number">3.7</span> Looking ahead</h2>
+<section id="looking-ahead" class="level2" data-number="3.8">
+<h2 data-number="3.8" class="anchored" data-anchor-id="looking-ahead"><span class="header-section-number">3.8</span> Looking ahead</h2>
 <p>We now hold both halves of the toolkit this module runs on: writing clean, pure functions, and wiring them together functionally: factories to build them, <code>map</code> to spread them over data, and higher-order functions like <code>grad_descent</code> that take the mathematics as an argument. In <a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a> we meet the data structures and plotting tools that real datasets deserve, and in <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a> everything converges (pun fully intended) on optimisation for statistics.</p>
 
 

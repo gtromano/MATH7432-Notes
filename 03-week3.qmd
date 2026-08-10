@@ -1373,6 +1373,11 @@ d.  Compare your answer with R's built-in one-dimensional optimiser: `optimize(h
 e.  Re-run with `gamma = 1` and with `gamma = 0.001` (same `n`). Describe what goes wrong in each case.
 :::
 
+## Challenges
+
+Two optional problems: one teaches `grad_descent` to stop by itself, one
+generalises a classic.
+
 ::: {.callout-important title="Challenge 3.1: Stop when you're done"}
 Our `grad_descent` runs for exactly `n` steps, even if it converged after ten. Write an improved `grad_descent_tol(f, grad, x0, gamma, max_n, tol = 1e-8)` that:
 

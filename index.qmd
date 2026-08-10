@@ -10,11 +10,9 @@ A word on the two languages before anything else. Every code chunk in these note
 twice, side by side: **R on the left, Python on the right**, translated line for line. You
 are expected to **learn both languages**. R is the lingua franca of statistics, Python of
 machine learning and production data science, and the modern statistician needs both in
-their toolset! Neither column is extra homework; each is a bridge to the other. Working
+their toolset! Neither column is extra homework: each is a bridge to the other. Working
 statisticians cross between the two languages constantly, and the side-by-side layout
-teaches you to make that hop until it feels routine, doubling as a phrasebook whenever you
-need one. One practical consequence: the side-by-side layout needs horizontal room, so
-read the notes on a wide screen (they were not designed for phones).
+teaches you to make that hop until it feels routine. One practical consequence: the side-by-side layout needs horizontal room, so read the notes on a wide screen (to be fair, it can work on a phone on a single column layout, but it kinda misses the point, and you probably want your phone for doomscrolling rather then reading the notes).
 
 ## Where we are going {.unnumbered}
 
@@ -23,7 +21,7 @@ The module has a deliberate arc, so here it is up front:
 - **Weeks 1–4: Programming in R and Python** (each week: 1h lecture + 2h lab). We start
   from zero and build up both languages: variables, vectors and matrices (@sec-week1); logic, loops
   and iteration (@sec-week2); functions and functional programming (@sec-week3); data
-  frames and plotting (@sec-week4). A single running example threads through these weeks:
+  frames and plotting (@sec-week4). A running example threads through these weeks:
   **gradient descent**, the workhorse optimiser behind half of modern statistics and
   essentially all of machine learning. It appears in week 2 as a humble loop and grows up
   alongside your programming skills.
@@ -33,6 +31,8 @@ The module has a deliberate arc, so here it is up front:
   stochastic gradient descent, preconditioning, and quasi-Newton methods
   (BFGS); see @sec-week5.
 
+**These notes cover weeks 1–5** The materials for weeks 6-10 will be released separately later in term, and will roughly cover the following topics:
+
 - **Weeks 6–7: The bootstrap.** Nonparametric, parametric and semi-parametric
   bootstraps; standard errors, confidence intervals, and bias correction. Week 6 also
   hosts the **in-class test**.
@@ -41,10 +41,6 @@ The module has a deliberate arc, so here it is up front:
   Metropolis–Hastings, Hamiltonian Monte Carlo, convergence diagnostics, and Gibbs
   sampling.
 
-**These notes cover weeks 1–5**, plus a bonus chapter on classes and multiple
-dispatch, in both languages (@sec-bonus), for the curious: optional self-study, no
-timetabled slot. The
-materials for weeks 6–10 will be released separately later in term.
 
 ## How to use these notes {.unnumbered}
 
@@ -52,10 +48,11 @@ These notes are meant to be *used*, not read like a novel. The intended workflow
 
 - **Before the lecture:** skim the week's chapter. You don't need to understand
   everything: the lecture will give you the overview and the why.
+- **During the lecture:** follow along, ask questions. You can take notes, but I will cover the same materials in the notes, so you don't need to copy everything down. 
 - **In the lab:** work through the chapter at your own pace, copy-pasting the code into
-  RStudio and running it yourself. Change things. Break things. Fix them. Exercises
+  RStudio and running it yourself. Change things. Break things. Exercises
   appear throughout each chapter exactly where the relevant idea is fresh: do them as
-  you meet them, not in a guilty batch the night before the test.
+  you meet them! If you get stuck, ask one of us for help.
 - **Which language for the exercises?** Since you are building both, use the exercises to
   train the weaker one. If you already know one of the two languages, do the exercises in
   the other; if you know neither, alternate languages across the exercises. In every case,
@@ -63,30 +60,29 @@ These notes are meant to be *used*, not read like a novel. The intended workflow
 - **Afterwards:** worked solutions are released on Moodle once all of the week's labs
   have ended.
 
-Code you are meant to run appears in grey boxes; its output appears just below. If your
-output disagrees with ours, one of us has a bug, and the smart money is rarely on the
-notes (though it does happen: tell us when it does).
+Code you are meant to run appears in grey boxes; its output appears just below.
 
 ## Prerequisites {.unnumbered}
 
-An honest word on what we assume. **Mathematical maturity: yes.** You are Master's
-students; we will use calculus and linear algebra notation (gradients, matrices,
-eigenvalues) without apology. **Programming background: none.** If you have never
-written a line of code in your life, you are exactly who week 1 was written for. It
-starts from zero; it just doesn't linger there. If you *have* programmed before, the
-early weeks will be quick revision with the occasional language-specific surprise.
+You might find that the rate of learning is faster than you expect. Well, it is. Since this is a Master's module, to proceed at the required speed we kind-of assume that you have: 
+
+- **A good grasp of year 1 mathematics**. We will use calculus and linear algebra concepts (gradients, matrices, eigenvalues). Most of you from Lancaster will have covered these, but if you haven't you need to catch up. If you don't understand part of the maths, please ask as soon as possible.
+
+- **Knowledge of basic statistics and probability**. We will use concepts such as random variables, distributions, and likelihoods. Again, as above, if you are not familiar with these, please get in touch.
+
+- **Programming**. Most importantly, we assume that you have **some** programming experience. Many of you will have done some programming at some point, but if you haven't, don't worry: the first four weeks start from zero, however they progress quickly. If you have programmed before, the early weeks will be quick revision (although, if you have never never programmed before, please get in touch, so we can make sure you are not left behind).
 
 ## Sources {.unnumbered}
 
 These notes build on, and reuse material from, two earlier Lancaster modules:
 
 - Gaetano Romano and Eduard Campillo-Funollet, *MATH245 Computational Mathematics*,
-  Lancaster University (also the source of the side-by-side R/Python format). MATH245
-  itself descends from the lineage of Debbie Costain, Clement Lee, Chris Nemeth, Tom
-  Palmer, Florian Pein, Gaetano Romano and Stuart Sharples.
+  Lancaster University (also the source of the side-by-side R/Python format). 
 - *MATH550/SCC.461 R Programming* (Statistics in Practice / Programming for Data
   Scientists), Lancaster University,
   <https://www.lancaster.ac.uk/~romano/teaching/2324MATH550/>.
+
+This sets of notes essentially descends from the lineage of Debbie Costain, Clement Lee, Chris Nemeth, Tom Palmer, Florian Pein, Eduard Campillo-Funollet, Gaetano Romano and Stuart Sharples. I hope I haven't missed anyone (and if I have, please let me know).
 
 For going deeper into R than we do here, the canonical further reading is
 Hadley Wickham, *Advanced R*, 2nd edition, <https://adv-r.hadley.nz/>: free online, and
