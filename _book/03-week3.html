@@ -877,7 +877,7 @@ Exercise 3.3: Where does x live?
 <div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(<span class="fu">fib_rec</span>(<span class="dv">30</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.269   0.009   0.278 </code></pre>
+  0.278   0.011   0.289 </code></pre>
 </div>
 </div>
 </div>
@@ -888,11 +888,11 @@ Exercise 3.3: Where does x live?
 <span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb89-3"><a href="#cb89-3" aria-hidden="true" tabindex="-1"></a>timeit.timeit(<span class="st">"fib_rec(20)"</span>, <span class="bu">globals</span><span class="op">=</span><span class="bu">globals</span>(), number<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.00037551999957941007</code></pre>
+<pre><code>0.00033646199153736234</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb91"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a>timeit.timeit(<span class="st">"fib_rec(30)"</span>, <span class="bu">globals</span><span class="op">=</span><span class="bu">globals</span>(), number<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.04639231599867344</code></pre>
+<pre><code>0.04586221699719317</code></pre>
 </div>
 </div>
 </div>
@@ -1332,7 +1332,7 @@ $large
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb161"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb161-1"><a href="#cb161-1" aria-hidden="true" tabindex="-1"></a><span class="co"># trimmed means: a different trimming fraction for each sample</span></span>
+<div class="sourceCode cell-code" id="cb161"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb161-1"><a href="#cb161-1" aria-hidden="true" tabindex="-1"></a><span class="co"># trimmed (also known as truncated) means: a different trimming fraction for each sample</span></span>
 <span id="cb161-2"><a href="#cb161-2" aria-hidden="true" tabindex="-1"></a>trims <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.1</span>, <span class="fl">0.2</span>)</span>
 <span id="cb161-3"><a href="#cb161-3" aria-hidden="true" tabindex="-1"></a><span class="fu">map2_dbl</span>(samples, trims, \(x, t) <span class="fu">mean</span>(x, <span class="at">trim =</span> t))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -1422,13 +1422,13 @@ Exercise 3.6: Mapping the lab marks
 </ol>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Exercise 3.7: Currying the trimmed mean">
+<div class="callout callout-style-default callout-tip callout-titled" title="Exercise 3.7: Currying the trimmed (truncated) mean">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Exercise 3.7: Currying the trimmed mean
+Exercise 3.7: Currying the trimmed (truncated) mean
 </div>
 </div>
 <div class="callout-body-container callout-body">

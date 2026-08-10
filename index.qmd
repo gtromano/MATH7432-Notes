@@ -30,7 +30,7 @@ The module has a deliberate arc, so here it is up front:
 
 - **Week 5: Optimisation for statistics** (2h lecture + 1h lab). The payoff chapter,
   where the programming tools meet the statistics: estimation as loss minimisation,
-  stochastic gradient descent, momentum, preconditioning, and quasi-Newton methods
+  stochastic gradient descent, preconditioning, and quasi-Newton methods
   (BFGS); see @sec-week5.
 
 - **Weeks 6–7: The bootstrap.** Nonparametric, parametric and semi-parametric

@@ -17,14 +17,12 @@ matplotlib.rcParams["figure.figsize"] = (6, 4)
 This is the week where everything pays off. In @sec-week2 we met gradient descent in
 one dimension, in @sec-week3 we wrapped it into a reusable function, and in @sec-week4
 we learnt to draw pictures of what our code is doing. This week we put those tools to
-work on the problem that underlies an enormous amount of modern statistics:
-
-> **Fitting a model is minimising a function.**
+work on the problem that underlies an enormous amount of modern statistics: **Fitting a model is minimising a function.**
 
 Maximum likelihood, least squares, penalised regression, neural networks: behind each
 of them sits an optimisation problem, and behind most of the algorithms that solve
 those problems sits some descendant of gradient descent. By the end of this chapter you
-will have met the whole family: plain gradient descent, its stochastic cousin, momentum,
+will have met the whole family: plain gradient descent, its stochastic cousin,
 preconditioning, and the quasi-Newton method BFGS that the built-in optimisers of both
 languages (R's `optim()` and Python's `scipy.optimize.minimize()`) use in practice.
 
@@ -40,7 +38,7 @@ $$
 
 where $\gamma > 0$ is the **step size** (machine learning people say *learning rate*).
 In @sec-week3 we packaged this into `grad_descent(f, grad, x0, gamma, n)`. Here it is
-again (chapters are self-contained) with one upgrade: instead of returning only the
+again with one upgrade: instead of returning only the
 final point, it records the whole trajectory, because this week we want to *watch*
 the algorithm work.
 
@@ -235,7 +233,7 @@ plt.show()
 
 The path marches straight into the bowl. Lovely. Time to break it.
 
-## Why the step size is hard {#sec-week5-stepsize}
+### Why the step size is hard {#sec-week5-stepsize}
 
 The step size $\gamma$ is doing a lot of quiet work. To expose it, we use a function
 that is deliberately *ill-conditioned* (much steeper in one direction than the other):
@@ -264,13 +262,13 @@ grad_ill <- \(x) c(x[1], 10 * x[2])
 
 path_small <- grad_descent(f_ill, grad_ill, c(-9, 1.5), gamma = 0.01, n = 60)
 path_zig   <- grad_descent(f_ill, grad_ill, c(-9, 1.5), gamma = 0.18, n = 60)
-path_boom  <- grad_descent(f_ill, grad_ill, c(-9, 1.5), gamma = 0.25, n = 8)
+path_exploding  <- grad_descent(f_ill, grad_ill, c(-9, 1.5), gamma = 0.25, n = 8)
 
 # one labelled data frame, one facet per step size (week 4 tricks)
 path_small$gamma <- "gamma = 0.01: crawling"
 path_zig$gamma   <- "gamma = 0.18: zig-zag"
-path_boom$gamma  <- "gamma = 0.25: boom"
-paths3 <- rbind(path_small, path_zig, path_boom)
+path_exploding$gamma  <- "gamma = 0.25: exploding"
+paths3 <- rbind(path_small, path_zig, path_exploding)
 paths3$gamma <- factor(paths3$gamma, levels = unique(paths3$gamma))
 
 # the contour layer has no `gamma` column, so it is drawn in every facet
@@ -295,11 +293,11 @@ grad_ill = lambda x: np.array([x[0], 10 * x[1]])
 
 path_small = grad_descent(f_ill, grad_ill, np.array([-9, 1.5]), gamma=0.01, n=60)
 path_zig   = grad_descent(f_ill, grad_ill, np.array([-9, 1.5]), gamma=0.18, n=60)
-path_boom  = grad_descent(f_ill, grad_ill, np.array([-9, 1.5]), gamma=0.25, n=8)
+path_exploding  = grad_descent(f_ill, grad_ill, np.array([-9, 1.5]), gamma=0.25, n=8)
 
 # one list of labelled paths, one subplot per step size (no facets in matplotlib)
-titles = ["gamma = 0.01: crawling", "gamma = 0.18: zig-zag", "gamma = 0.25: boom"]
-paths3 = [path_small, path_zig, path_boom]
+titles = ["gamma = 0.01: crawling", "gamma = 0.18: zig-zag", "gamma = 0.25: exploding"]
+paths3 = [path_small, path_zig, path_exploding]
 
 # the same contours are drawn in every panel, then one trajectory per panel
 x1, x2, f_grid = contour_data(f_ill, (-10, 3), (-4, 4))
@@ -316,7 +314,7 @@ plt.show()
 </div>
 :::
 
-Three step sizes, three personalities:
+It's like in Goldilocks and the Three Bears: the step size can be
 
 - **Too small** ($\gamma = 0.01$): every step is safe and almost useless. After 60
   iterations we have barely moved along the valley.
@@ -326,33 +324,83 @@ Three step sizes, three personalities:
 - **Too big** ($\gamma = 0.25$): each bounce is *bigger* than the last. The iterates
   diverge. (The panel is clipped; the true trajectory left the building.)
 
-### The condition number {#sec-week5-conditioning}
+<p><a href="https://commons.wikimedia.org/wiki/File:The_Three_Bears_-_Project_Gutenberg_eText_17034.jpg#/media/File:The_Three_Bears_-_Project_Gutenberg_eText_17034.jpg"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/The_Three_Bears_-_Project_Gutenberg_eText_17034.jpg/500px-The_Three_Bears_-_Project_Gutenberg_eText_17034.jpg?utm_source=en.wikipedia.org&amp;utm_campaign=imageinfo&amp;utm_content=thumbnail" alt="The Three Bears - Project Gutenberg eText 17034.jpg" height="571" width="500"></a><br>By Arthur Rackham - <a rel="nofollow" class="external free" href="http://www.gutenberg.org/etext/17034">http://www.gutenberg.org/etext/17034</a>, Public Domain, <a href="https://commons.wikimedia.org/w/index.php?curid=562870">Link</a></p>
+
+#### The condition number {#sec-week5-conditioning}
 
 There is a clean piece of intuition behind this. For a quadratic, gradient descent in
 each coordinate multiplies the error by $(1 - \gamma \lambda)$ per step, where
-$\lambda$ is the curvature in that direction. (These directional curvatures are
-exactly the *eigenvalues* of the Hessian of $f$: the `eigen()` from @sec-week1
-(Python: `np.linalg.eig()`), quietly reappearing as promised.) Stability requires
-$|1 - \gamma \lambda| < 1$ for *every* direction, i.e.
+$\lambda$ is the curvature in that direction. These directional curvatures are
+exactly the *eigenvalues* of the **Hessian** of $f$, its symmetric matrix of second
+derivatives $\nabla^2 f$: the `eigen()` from @sec-week1 (Python: `np.linalg.eig()`),
+quietly reappearing as promised. Formally, collect the eigenvalues of the Hessian
+into the set $\{\lambda_1, \lambda_2, \dots, \lambda_d\}$ and pick out its two
+extremes:
 
 $$
-\gamma < \frac{2}{L}, \qquad L = \text{largest curvature},
+\lambda_{\max} = \max_{j} \lambda_j
+\quad \text{(the steepest curvature)},
+\qquad
+\lambda_{\min} = \min_{j} \lambda_j
+\quad \text{(the flattest)}.
 $$
 
-which for our valley means $\gamma < 2/10 = 0.2$: exactly why $0.18$ scraped through
-and $0.25$ exploded. But *progress* in the flattest direction is governed by the
-smallest curvature $\mu$: per step the error shrinks by $(1 - \gamma\mu)$, at best
-about $(1 - \mu/L)$. The ratio
+Stability requires $|1 - \gamma \lambda_j| < 1$ for *every* direction $j$, and the
+steepest one is the binding constraint:
 
 $$
-\kappa = \frac{L}{\mu} \qquad \text{(the condition number)}
+\gamma < \frac{2}{\lambda_{\max}}.
 $$
 
-controls how many iterations you need: as $\kappa$ grows, the iteration count grows
-in proportion. Our valley has $\kappa = 10$ and is already annoying. Real statistical problems
-(say a regression with one covariate measured in grams and another in tonnes) can have
-$\kappa$ in the millions, and plain gradient descent simply stops being a usable tool.
-Hold that thought; it is the villain for the rest of the chapter.
+Progress in the flattest direction, meanwhile, is governed by $\lambda_{\min}$: per
+step its error shrinks by $(1 - \gamma\lambda_{\min})$, at best about
+$(1 - \lambda_{\min}/\lambda_{\max})$. The tension between the two extremes is
+measured by their ratio,
+
+$$
+\kappa = \frac{\lambda_{\max}}{\lambda_{\min}}
+\qquad \text{(the condition number)},
+$$
+
+which controls how many iterations you need: as $\kappa$ grows, the iteration count
+grows in proportion.
+
+In our example, the valley has curvatures $1$ (along $x_1$) and $10$ (across it,
+along $x_2$), so $\lambda_{\max} = 10$ and the stability bound is
+$\gamma < 2/10 = 0.2$: exactly
+why $0.18$ scraped through and $0.25$ exploded. Its condition number is
+$\kappa = 10/1 = 10$, and that is already annoying: the zig-zag panel is what
+$\kappa = 10$ looks like.
+
+If you have met condition numbers in a linear algebra course, you may know a
+different-looking definition: $\kappa(A) = \sigma_{\max}(A) / \sigma_{\min}(A)$, a
+ratio of **singular values**, measuring how much solving $A\mathbf{x} = \mathbf{b}$
+amplifies small errors in the inputs. There is no conflict. Our $\kappa$ is the
+condition number *of the Hessian*, and a Hessian is always symmetric (mixed partial
+derivatives commute) and, at a minimum, positive (semi-)definite; for such matrices
+the singular values *are* the eigenvalues, so
+$\lambda_{\max}/\lambda_{\min}$ and $\sigma_{\max}/\sigma_{\min}$ are the same
+number. (For a general symmetric matrix, $\sigma_i = |\lambda_i|$; eigenvalues and
+singular values genuinely part ways only for non-symmetric matrices, which a
+Hessian never is.) One notation warning for further reading: optimisation texts
+typically write $L = \lambda_{\max}$ and $\mu = \lambda_{\min}$, calling them the
+*smoothness* and *strong-convexity* constants, and state the condition number as
+$L/\mu$; same objects, different costume.
+
+The singular-value view also explains why *statistical* problems are so often
+ill-conditioned. A model fit through a design matrix $X$ (Challenge 1.1's least
+squares; the logistic regression of @sec-week5-losses, where a diagonal matrix of
+observation weights gets pinched between $X^\top$ and $X$) has a Hessian of the
+form $X^\top X / n$, and the eigenvalues of $X^\top X$ are the *squared* singular
+values of $X$. Whatever imbalance the columns of $X$ carry, the optimisation
+problem therefore suffers it twice over: one covariate in grams and another in
+kilograms (a scale ratio of just $10^3$) can already push $\kappa$ past $10^6$, and
+plain gradient descent simply stops being a usable tool. At the extreme
+$\sigma_{\min} = 0$, $\kappa$ is infinite and $X^\top X$ is exactly the *singular*
+matrix that @sec-week1 warned cannot be inverted; a huge $\kappa$ means nearly so.
+This is why Exercise 5.3 will ask you to stare at the column scales of its design
+matrix. Hold that thought; ill-conditioning is the villain for the rest of the
+chapter.
 
 A small helper we will use to compare methods fairly: how many iterations until we are
 within `tol` of the target?
@@ -400,7 +448,7 @@ def steps_to_tol(path, target, tol=1e-3):
 Consider $f(x_1, x_2) = x_1^2/2 + 25\,x_2^2/2$, with gradient
 $\nabla f = (x_1, \, 25 x_2)$, starting point $(-8, 2)$, and true minimum $(0,0)$.
 
-a. Using the stability condition $\gamma < 2/L$, predict the largest stable step
+a. Using the stability condition $\gamma < 2/\lambda_{\max}$, predict the largest stable step
    size. Check your prediction by running `grad_descent()` with $\gamma$ just below
    and just above it (a small `n`, say 100, is enough to see divergence).
 b. Use `steps_to_tol()` to count the iterations needed to get within $10^{-3}$ of
@@ -408,7 +456,7 @@ b. Use `steps_to_tol()` to count the iterations needed to get within $10^{-3}$ o
    20000). What do you conclude about how to choose $\gamma$?
 :::
 
-## Estimation is optimisation {#sec-week5-losses}
+### Estimation is optimisation {#sec-week5-losses}
 
 So far $f$ has been a toy. Here is why statisticians care. A huge share of estimators
 are defined as the minimiser of an **average loss over the data**:
@@ -420,25 +468,26 @@ L(\theta) = \frac{1}{n} \sum_{i=1}^{n} \ell_i(\theta),
 $$
 
 where $\ell_i(\theta)$ measures how badly the parameter $\theta$ explains observation
-$i$. Two examples will follow us for the rest of the chapter.
-
-**Linear regression (mean squared error).** With observations
-$(\mathbf{x}_i, y_i)$ and model $y_i \approx \mathbf{x}_i^\top \boldsymbol\beta$, take
-$\ell_i(\boldsymbol\beta) = \tfrac{1}{2}(y_i - \mathbf{x}_i^\top \boldsymbol\beta)^2$, so
-
-$$
-L(\boldsymbol\beta) = \frac{1}{2n} \|\mathbf{y} - X\boldsymbol\beta\|^2,
-\qquad
-\nabla L(\boldsymbol\beta) = -\frac{1}{n} X^\top (\mathbf{y} - X\boldsymbol\beta).
-$$
-
-(The $\tfrac12$ is cosmetic: it cancels the 2 from differentiating the square.
-Minimising $L$ is least squares, which for Gaussian errors is also maximum likelihood.)
+$i$. You have met one member of this family already: least squares, with
+$\ell_i(\boldsymbol\beta) = \tfrac{1}{2}(y_i - \mathbf{x}_i^\top \boldsymbol\beta)^2$
+and gradient
+$\nabla L(\boldsymbol\beta) = \tfrac{1}{n} X^\top (X\boldsymbol\beta - \mathbf{y})$.
+Least squares is also the family's great exception: setting its gradient to zero
+gives the normal equations $X^\top X \boldsymbol\beta = X^\top \mathbf{y}$, a linear
+system that `solve()` (`np.linalg.solve()` in Python) dispatches in one line, with no
+iteration in sight. That is exactly the magic formula
+$\hat{\boldsymbol\beta} = (X^\top X)^{-1} X^\top \mathbf{y}$ you used in Challenge 1.1
+of @sec-week1, and the reason this chapter spends no more time on it. Almost no other
+model is so lucky. Our running example is the everyday kind, where no closed form
+exists and iterating is the only way down.
 
 **Logistic regression (negative log-likelihood).** For binary $y_i \in \{0, 1\}$ the
-model is $\Pr(y_i = 1 \mid \mathbf{x}_i) = \sigma(\mathbf{x}_i^\top\boldsymbol\beta)$
-with $\sigma(z) = 1/(1 + e^{-z})$. Writing out $-\log$ of the likelihood and dividing
-by $n$:
+model is $\Pr(y_i = 1 \mid \mathbf{x}_i) = \sigma(\eta_i)$, where
+$\eta_i = \mathbf{x}_i^\top\boldsymbol\beta$ is the **linear predictor** (the code
+below calls it `eta`) and $\sigma(z) = 1/(1 + e^{-z})$ is the **sigmoid** function,
+which squashes the real line into $(0, 1)$ so that $\eta_i$, which can be any real
+number, becomes a probability. Taking $-\log$ of the likelihood and averaging over
+the observations gives the loss; differentiating the loss gives the gradient:
 
 $$
 L(\boldsymbol\beta) = \frac{1}{n}\sum_{i=1}^n
@@ -448,10 +497,107 @@ L(\boldsymbol\beta) = \frac{1}{n}\sum_{i=1}^n
 \nabla L(\boldsymbol\beta) = \frac{1}{n} X^\top\big(\sigma(X\boldsymbol\beta) - \mathbf{y}\big),
 $$
 
-with $\sigma$ applied elementwise. No closed-form minimiser exists here: you *must*
+with the rows $\mathbf{x}_i^\top$ stacked into the design matrix $X$ and $\sigma$
+applied elementwise. These two formulas are all the code will need. The gradient is
+worth reading aloud once: observation $i$ contributes
+$\nabla \ell_i(\boldsymbol\beta) = \big(\sigma(\eta_i) - y_i\big)\,\mathbf{x}_i$,
+predicted probability minus observed outcome (a residual on the probability scale)
+times its own covariates, so observations the model already gets right contribute
+almost nothing while confidently wrong ones push hard; this per-observation piece
+is also exactly the single-sample gradient that SGD will draw at random in
+@sec-week5-sgd. Note how the least-squares gradient at the top of this section,
+$\tfrac{1}{n} X^\top(X\boldsymbol\beta - \mathbf{y})$, has the same shape: both say
+"$X^\top$ times (prediction minus data)", the fingerprint of the *generalised
+linear model* family that R's `glm()` is named after. Tidy as the gradient is,
+setting it to zero gives equations with no closed-form solution: you *must*
 optimise numerically. This is the everyday reality of maximum likelihood.
 
-Let us simulate one dataset for each. We fix the random seed first (`set.seed()` in
+Where do the two formulas come from? The proof below is **optional**: nothing in
+the rest of the chapter depends on it. It is worth reading once in your life,
+though, because it is the derivation you will redo, with a different likelihood
+each time, for every model you ever fit by maximum likelihood.
+
+::: {.callout-note collapse="true" icon=false title="[OPTIONAL] Proof: from likelihood to loss to gradient"}
+*Step 1: write down the negative log-likelihood.* Observation $i$ is a Bernoulli
+trial with success probability $p_i = \sigma(\eta_i)$, so its probability mass is
+$p_i^{y_i} (1 - p_i)^{1 - y_i}$ (check it: this equals $p_i$ when $y_i = 1$ and
+$1 - p_i$ when $y_i = 0$). Independence multiplies the contributions, $-\log$ turns
+the product into a sum, and dividing by $n$ gives the average-loss form:
+
+$$
+L(\boldsymbol\beta)
+= -\frac{1}{n} \log \prod_{i=1}^n p_i^{y_i} (1 - p_i)^{1 - y_i}
+= -\frac{1}{n} \sum_{i=1}^n
+  \Big[ y_i \log p_i + (1 - y_i) \log(1 - p_i) \Big].
+$$
+
+*Step 2: substitute the sigmoid and simplify.* The parameters hide inside
+$p_i = \sigma(\eta_i)$, so before differentiating we rewrite everything in terms of
+$\eta_i$. Multiplying the top and bottom of $\sigma(\eta) = 1/(1 + e^{-\eta})$ by
+$e^{\eta}$ gives $\sigma(\eta) = e^{\eta}/(1 + e^{\eta})$, hence
+$1 - \sigma(\eta) = 1/(1 + e^{\eta})$, and taking logs:
+
+$$
+\log \sigma(\eta) = \eta - \log\big(1 + e^{\eta}\big),
+\qquad
+\log\big(1 - \sigma(\eta)\big) = -\log\big(1 + e^{\eta}\big).
+$$
+
+Substituting both into the $i$-th summand $\ell_i$ of $L$:
+
+$$
+\ell_i(\boldsymbol\beta)
+= -y_i \big[ \eta_i - \log\big(1 + e^{\eta_i}\big) \big]
+  + (1 - y_i) \log\big(1 + e^{\eta_i}\big)
+= \log\big(1 + e^{\eta_i}\big) - y_i \, \eta_i,
+$$
+
+the two logarithm terms merging because their coefficients $y_i$ and $1 - y_i$ sum
+to one. Averaging the $\ell_i$:
+
+$$
+L(\boldsymbol\beta) = \frac{1}{n}\sum_{i=1}^n
+  \Big[ \log\!\big(1 + e^{\mathbf{x}_i^\top\boldsymbol\beta}\big)
+        - y_i \, \mathbf{x}_i^\top\boldsymbol\beta \Big].
+$$
+
+*Step 3: differentiate.* Two ingredients. The first is the derivative of
+$\log(1 + e^{\eta})$ (machine learning people call this function the *softplus*),
+where the sigmoid reappears all by itself:
+
+$$
+\frac{d}{d\eta} \log\big(1 + e^{\eta}\big)
+= \frac{e^{\eta}}{1 + e^{\eta}}
+= \sigma(\eta).
+$$
+
+The second is the chain rule: $\eta_i = \mathbf{x}_i^\top\boldsymbol\beta$ is
+linear in $\boldsymbol\beta$ with $\nabla_{\boldsymbol\beta}\, \eta_i = \mathbf{x}_i$,
+so a term $g(\eta_i)$ contributes $g'(\eta_i)\, \mathbf{x}_i$ to the gradient.
+Applying both to $\ell_i = \log(1 + e^{\eta_i}) - y_i \eta_i$:
+
+$$
+\nabla \ell_i(\boldsymbol\beta)
+= \sigma(\eta_i)\, \mathbf{x}_i - y_i\, \mathbf{x}_i
+= \big(\sigma(\eta_i) - y_i\big)\, \mathbf{x}_i .
+$$
+
+Averaging over the sample and stacking the rows $\mathbf{x}_i^\top$ into the design
+matrix $X$ packs the sum into one matrix product:
+
+$$
+\nabla L(\boldsymbol\beta)
+= \frac{1}{n} \sum_{i=1}^n \big(\sigma(\eta_i) - y_i\big)\, \mathbf{x}_i
+= \frac{1}{n} X^\top\big(\sigma(X\boldsymbol\beta) - \mathbf{y}\big),
+$$
+
+with $\sigma$ applied elementwise: exactly the two formulas claimed above. (Prefer
+the scenic route? Differentiate the Step 1 form directly via the identity
+$\sigma'(z) = \sigma(z)\big(1 - \sigma(z)\big)$, itself worth verifying once with
+the quotient rule: slightly more algebra, same destination.) $\square$
+:::
+
+Let us simulate a dataset to fit. We fix the random seed first (`set.seed()` in
 R, a seeded generator `np.random.default_rng()` in Python) so that you get the same
 data, plots and fitted values as these notes.
 
@@ -468,20 +614,11 @@ numbers differ slightly between the columns.
 ```{r}
 set.seed(7432)
 
-# --- linear regression data: y = 2 - x + noise ------------------------------
-n_obs <- 200
-x_reg <- runif(n_obs, -2, 2)
-X <- cbind(1, x_reg)                      # design matrix: intercept + slope
-beta_true <- c(2, -1)
-y <- as.vector(X %*% beta_true + rnorm(n_obs, sd = 0.8))
-
-mse_loss <- \(b) sum((y - X %*% b)^2) / (2 * n_obs)
-mse_grad <- \(b) as.vector(-t(X) %*% (y - X %*% b)) / n_obs
-
-# --- logistic regression data: 2 covariates + intercept ---------------------
+# --- logistic regression data: intercept + one covariate --------------------
 n_log <- 500
-X_log <- cbind(1, matrix(rnorm(n_log * 2), ncol = 2))
-beta_log_true <- c(-0.5, 2, -1)
+x_log <- rnorm(n_log)
+X_log <- cbind(1, x_log)                  # design matrix: intercept + slope
+beta_log_true <- c(-0.5, 2)
 p_true <- 1 / (1 + exp(-as.vector(X_log %*% beta_log_true)))
 y_log <- rbinom(n_log, 1, p_true)
 
@@ -505,20 +642,11 @@ nll_grad <- \(b) {
 ```{python}
 rng = np.random.default_rng(7432)
 
-# --- linear regression data: y = 2 - x + noise ------------------------------
-n_obs = 200
-x_reg = rng.uniform(-2, 2, n_obs)
-X = np.column_stack([np.ones(n_obs), x_reg])   # design matrix: intercept + slope
-beta_true = np.array([2, -1])
-y = X @ beta_true + rng.normal(0, 0.8, n_obs)
-
-mse_loss = lambda b: np.sum((y - X @ b)**2) / (2 * n_obs)
-mse_grad = lambda b: -X.T @ (y - X @ b) / n_obs
-
-# --- logistic regression data: 2 covariates + intercept ---------------------
+# --- logistic regression data: intercept + one covariate --------------------
 n_log = 500
-X_log = np.column_stack([np.ones(n_log), rng.normal(size=(n_log, 2))])
-beta_log_true = np.array([-0.5, 2, -1])
+x_log = rng.normal(size=n_log)
+X_log = np.column_stack([np.ones(n_log), x_log])   # design matrix: intercept + slope
+beta_log_true = np.array([-0.5, 2])
 p_true = 1 / (1 + np.exp(-(X_log @ beta_log_true)))
 y_log = rng.binomial(1, p_true)
 
@@ -539,10 +667,22 @@ def nll_grad(b):
 multi-line R lambdas become small `def`s: the same first-class function objects
 either way (@sec-week3).
 
-For linear regression we do not actually *need* an iterative method: setting
-$\nabla L = 0$ gives the normal equations
-$X^\top X \boldsymbol\beta = X^\top \mathbf{y}$, which `solve()` (`np.linalg.solve()`
-in Python) dispatches in one line, the very linear algebra you did in @sec-week1:
+Before putting the gradient to work, let us make sure the calculus is right. A
+hand-derived gradient is easy to get subtly wrong (a dropped sign, a missing factor
+of $n$), and the failure mode is quiet: nothing crashes, the optimiser just crawls
+or drifts, and you blame the step size. The antidote is to test the formula against
+the definition of the derivative. For a small $h$, each partial derivative should
+be close to its **central difference**:
+
+$$
+\frac{\partial L}{\partial \beta_j}(\boldsymbol\beta)
+\;\approx\;
+\frac{L(\boldsymbol\beta + h\, \mathbf{e}_j) - L(\boldsymbol\beta - h\, \mathbf{e}_j)}{2h},
+$$
+
+where $\mathbf{e}_j$ has a one in position $j$ and zeros elsewhere. A loop over the
+coordinates (@sec-week2) wrapped in a function that takes `f` as an argument
+(@sec-week3) gives a universal gradient checker:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -550,8 +690,20 @@ in Python) dispatches in one line, the very linear algebra you did in @sec-week1
 **R**
 
 ```{r}
-beta_ols <- as.vector(solve(t(X) %*% X, t(X) %*% y))
-beta_ols
+# approximate each partial derivative of f by a central difference
+num_grad <- function(f, b, h = 1e-6) {
+  g <- numeric(length(b))
+  for (j in seq_along(b)) {
+    e <- numeric(length(b))
+    e[j] <- h
+    g[j] <- (f(b + e) - f(b - e)) / (2 * h)
+  }
+  g
+}
+
+b_test <- c(0.5, -1)
+rbind(analytic = nll_grad(b_test),
+      numeric  = num_grad(nll, b_test))
 ```
 
 </div>
@@ -561,15 +713,38 @@ beta_ols
 **Python**
 
 ```{python}
-beta_ols = np.linalg.solve(X.T @ X, X.T @ y)
-beta_ols
+# approximate each partial derivative of f by a central difference
+def num_grad(f, b, h=1e-6):
+    g = np.zeros(len(b))
+    for j in range(len(b)):
+        e = np.zeros(len(b))
+        e[j] = h
+        g[j] = (f(b + e) - f(b - e)) / (2 * h)
+    return g
+
+b_test = np.array([0.5, -1])
+pd.DataFrame([nll_grad(b_test), num_grad(nll, b_test)],
+             index=["analytic", "numeric"])
 ```
 
 </div>
 :::
 
-(In real life R's `lm()`, or `np.linalg.lstsq()` in Python, does this for you, more
-carefully.) The closed form gives us a gold standard to check gradient descent against:
+The rows agree to the printed precision (the true gap is around $10^{-10}$): the
+derivation survived contact with the computer. Make the check a reflex: never hand
+an optimiser a gradient you have not checked. Both languages ship polished versions
+(the `numDeriv` package in R, `scipy.optimize.check_grad()` in Python), and if you
+run BFGS without supplying a gradient at all, `optim()` and `minimize()` quietly
+build one with this very finite-difference idea at every iteration; handing over
+the exact gradient, as we will in @sec-week5-bfgs, spares them those extra loss
+evaluations and the last few digits of accuracy.
+
+Time to descend. The model has two parameters, so we can watch gradient descent
+walk over the loss surface of a real statistical model exactly as we watched it
+cross the toy bowls. We start from $\boldsymbol\beta = (0, 0)$, which predicts every
+observation as a 50/50 coin toss, and take a hand-tuned $\gamma = 2$: large, but
+safe here, because the contours below reveal a friendly, nearly round bowl (small
+$\kappa$). Exercise 5.3 shows how quickly that luxury disappears on real covariates.
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -577,10 +752,11 @@ carefully.) The closed form gives us a gold standard to check gradient descent a
 **R**
 
 ```{r}
-path_mse <- grad_descent(mse_loss, mse_grad, x0 = c(0, 0), gamma = 0.5, n = 100)
+path_nll <- grad_descent(nll, nll_grad, x0 = c(0, 0), gamma = 2, n = 200)
 
-rbind(closed_form = beta_ols,
-      grad_descent = unlist(tail(path_mse, 1)[1:2]))
+beta_hat <- unlist(tail(path_nll, 1)[1:2])   # the final iterate
+beta_hat
+nll_grad(beta_hat)                           # its gradient: numerically zero
 ```
 
 </div>
@@ -590,19 +766,22 @@ rbind(closed_form = beta_ols,
 **Python**
 
 ```{python}
-path_mse = grad_descent(mse_loss, mse_grad, x0=np.array([0.0, 0.0]), gamma=0.5, n=100)
+path_nll = grad_descent(nll, nll_grad, x0=np.array([0.0, 0.0]), gamma=2, n=200)
 
-pd.DataFrame([beta_ols, path_mse.iloc[-1, :2].to_numpy()],
-             index=["closed_form", "grad_descent"], columns=["x1", "x2"])
+beta_hat = path_nll.iloc[-1, :2].to_numpy()  # the final iterate
+beta_hat
+nll_grad(beta_hat)                           # its gradient: numerically zero
 ```
 
 </div>
 :::
 
-Identical to working precision, in about fifty effective steps. And because the loss
-has two parameters, we can watch the descent over the loss surface itself: the
-contours below are contours of $L(\beta_0, \beta_1)$, a picture worth keeping in mind
-every time you fit *any* model:
+With no closed form there is no answer sheet to compare against, but the gradient
+itself testifies: at `beta_hat` it is zero to machine precision, so the surface is
+flat there in every direction and the descent has nowhere left to go. Note also that
+`beta_hat` lands near the true $(-0.5, 2)$ that generated the data but not *on* it:
+the gap is the sampling error of maximum likelihood, not a failure of the optimiser,
+and running more iterations would not shrink it.
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -610,9 +789,7 @@ every time you fit *any* model:
 **R**
 
 ```{r}
-plot_path(mse_loss, path_mse, xlim = c(-0.5, 3), ylim = c(-2.5, 0.7)) +
-  geom_point(data = data.frame(x1 = beta_ols[1], x2 = beta_ols[2]),
-             shape = 4, size = 3, colour = "black") +
+plot_path(nll, path_nll, xlim = c(-1.2, 0.6), ylim = c(-0.4, 2.4)) +
   labs(x = expression(beta[0]), y = expression(beta[1]))
 ```
 
@@ -623,8 +800,7 @@ plot_path(mse_loss, path_mse, xlim = c(-0.5, 3), ylim = c(-2.5, 0.7)) +
 **Python**
 
 ```{python}
-fig, ax = plot_path(mse_loss, path_mse, xlim=(-0.5, 3), ylim=(-2.5, 0.7))
-ax.scatter([beta_ols[0]], [beta_ols[1]], marker="x", s=60, color="black")
+fig, ax = plot_path(nll, path_nll, xlim=(-1.2, 0.6), ylim=(-0.4, 2.4))
 ax.set_xlabel(r"$\beta_0$")
 ax.set_ylabel(r"$\beta_1$")
 plt.show()
@@ -633,12 +809,13 @@ plt.show()
 </div>
 :::
 
-The cross marks $\hat{\boldsymbol\beta}_{\text{OLS}}$. Gradient descent walks straight
-to the same place the algebra pointed to. For logistic regression there is no cross to
-draw in advance: the iterative method is the only game in town. We will fit it in
-@sec-week5-bfgs.
+The contours are contours of the NLL $L(\beta_0, \beta_1)$: a picture worth keeping
+in mind every time you fit *any* model. The path marches straight into the bowl and
+stops at the maximum likelihood estimate. The fit itself is done; what the rest of
+the chapter adds is how to get there *cheaply* when $n$ is enormous
+(@sec-week5-sgd), and how to stop hand-tuning $\gamma$ (@sec-week5-bfgs).
 
-## Stochastic gradient descent {#sec-week5-sgd}
+### Stochastic gradient descent {#sec-week5-sgd}
 
 Look again at the gradient of the average loss:
 
@@ -647,7 +824,7 @@ $$
 $$
 
 Every single step of gradient descent touches **all $n$ observations**. For our
-$n = 200$ toy that is nothing; for $n = 10^8$ user records it means one step of GD
+$n = 500$ example that is nothing; for $n = 10^8$ user records it means one step of GD
 costs a full pass over a dataset that may not even fit in memory. The sum structure
 suggests a cheeky fix: *don't compute the whole sum*. Pick one index $I$ uniformly at
 random and use $\nabla \ell_I(\theta)$ as a stand-in for $\nabla L(\theta)$. It is a
@@ -696,7 +873,9 @@ exactly the code's `gamma(t)`, so the first update uses $\gamma_1$.
 :::
 
 Here is single-sample SGD in the same functional style. One new ingredient: the step
-size is now a *function* of the step number $t$, for reasons one paragraph away.
+size is now a *function* of the step number $t$, for reasons one paragraph away. The
+other ingredient is an old friend: the per-observation gradient `grad_i` we feed it
+is exactly the $(\sigma(\eta_i) - y_i)\,\mathbf{x}_i$ derived in @sec-week5-losses.
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -719,8 +898,8 @@ sgd <- function(grad_i, x0, gamma, n_steps, n_data) {
   out
 }
 
-# single-observation gradient for the regression loss
-mse_grad_i <- function(b, i) as.vector(-X[i, ] * (y[i] - sum(X[i, ] * b)))
+# single-observation gradient of the NLL: (sigmoid(eta_i) - y_i) * x_i
+nll_grad_i <- function(b, i) X_log[i, ] * (sigmoid(sum(X_log[i, ] * b)) - y_log[i])
 ```
 
 </div>
@@ -742,8 +921,8 @@ def sgd(grad_i, x0, gamma, n_steps, n_data):
     out["iter"] = range(n_steps + 1)
     return out
 
-# single-observation gradient for the regression loss
-mse_grad_i = lambda b, i: -X[i] * (y[i] - X[i] @ b)
+# single-observation gradient of the NLL: (sigmoid(eta_i) - y_i) * x_i
+nll_grad_i = lambda b, i: X_log[i] * (sigmoid(X_log[i] @ b) - y_log[i])
 ```
 
 </div>
@@ -754,7 +933,7 @@ mse_grad_i = lambda b, i: -X[i] * (y[i] - X[i] @ b)
 for its language's indexing. And where R's `sample()` quietly uses the global RNG
 state, the Python column leans on the global `rng` object in the same way.
 
-Let us run it on the regression loss twice: once with a constant step size, once with
+Let us run it on the logistic loss twice: once with a constant step size, once with
 a decaying one.
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
@@ -767,19 +946,20 @@ a decaying one.
 #| fig-height: 3.8
 #| out-width: "100%"
 set.seed(1)
-sgd_const <- sgd(mse_grad_i, c(0, 0), gamma = \(t) 0.1,          n_steps = 2000, n_data = n_obs)
-sgd_decay <- sgd(mse_grad_i, c(0, 0), gamma = \(t) 2 / (20 + t), n_steps = 2000, n_data = n_obs)
+sgd_const <- sgd(nll_grad_i, c(0, 0), gamma = \(t) 0.2,           n_steps = 2000, n_data = n_log)
+sgd_decay <- sgd(nll_grad_i, c(0, 0), gamma = \(t) 10 / (20 + t), n_steps = 2000, n_data = n_log)
 
-sgd_const$schedule <- "constant: gamma_t = 0.1"
-sgd_decay$schedule <- "decaying: gamma_t = 2/(20 + t)"
+sgd_const$schedule <- "constant: gamma_t = 0.2"
+sgd_decay$schedule <- "decaying: gamma_t = 10/(20 + t)"
 sgd_both <- rbind(sgd_const, sgd_decay)
 
-ols_pt <- data.frame(x1 = beta_ols[1], x2 = beta_ols[2])
+# the cross marks beta_hat, the minimiser gradient descent found above
+mle_pt <- data.frame(x1 = beta_hat[1], x2 = beta_hat[2])
 
-ggplot(contour_data(mse_loss, c(-0.5, 3), c(-2.5, 0.7)), aes(x1, x2)) +
+ggplot(contour_data(nll, c(-1.6, 0.7), c(-0.5, 2.9)), aes(x1, x2)) +
   geom_contour(aes(z = f), bins = 20, colour = "grey70") +
   geom_path(data = sgd_both, colour = "#009E73", linewidth = 0.4) +
-  geom_point(data = ols_pt, shape = 4, size = 3, colour = "black") +
+  geom_point(data = mle_pt, shape = 4, size = 3, colour = "black") +
   facet_wrap(~ schedule) +
   labs(x = expression(beta[0]), y = expression(beta[1])) +
   theme_minimal()
@@ -793,17 +973,18 @@ ggplot(contour_data(mse_loss, c(-0.5, 3), c(-2.5, 0.7)), aes(x1, x2)) +
 
 ```{python}
 rng = np.random.default_rng(1)
-sgd_const = sgd(mse_grad_i, np.array([0.0, 0.0]), gamma=lambda t: 0.1,          n_steps=2000, n_data=n_obs)
-sgd_decay = sgd(mse_grad_i, np.array([0.0, 0.0]), gamma=lambda t: 2 / (20 + t), n_steps=2000, n_data=n_obs)
+sgd_const = sgd(nll_grad_i, np.array([0.0, 0.0]), gamma=lambda t: 0.2,           n_steps=2000, n_data=n_log)
+sgd_decay = sgd(nll_grad_i, np.array([0.0, 0.0]), gamma=lambda t: 10 / (20 + t), n_steps=2000, n_data=n_log)
 
-# one subplot per schedule, same contours in each
-titles = ["constant: gamma_t = 0.1", "decaying: gamma_t = 2/(20 + t)"]
-x1, x2, f_grid = contour_data(mse_loss, (-0.5, 3), (-2.5, 0.7))
+# one subplot per schedule, same contours in each;
+# the cross marks beta_hat, the minimiser gradient descent found above
+titles = ["constant: gamma_t = 0.2", "decaying: gamma_t = 10/(20 + t)"]
+x1, x2, f_grid = contour_data(nll, (-1.6, 0.7), (-0.5, 2.9))
 fig, axes = plt.subplots(1, 2, figsize=(8, 3.8), sharey=True)
 for ax, p, ttl in zip(axes, [sgd_const, sgd_decay], titles):
     ax.contour(x1, x2, f_grid, levels=20, colors="0.7", linewidths=0.5)
     ax.plot(p["x1"], p["x2"], color="#009E73", linewidth=0.8)
-    ax.scatter([beta_ols[0]], [beta_ols[1]], marker="x", s=60, color="black")
+    ax.scatter([beta_hat[0]], [beta_hat[1]], marker="x", s=60, color="black")
     ax.set_title(ttl, fontsize=9)
     ax.set_xlabel(r"$\beta_0$")
 axes[0].set_ylabel(r"$\beta_1$")
@@ -837,7 +1018,7 @@ second says they must shrink fast enough that the noise averages out. Schedules 
 $\gamma_t = a/(b + t)$ satisfy both, which is why you keep seeing that shape.
 
 Finally, the claim that actually sells SGD: progress *per data point touched*. One GD
-step costs $n = 200$ observation-gradients; one SGD step costs 1. Plot the loss
+step costs $n = 500$ observation-gradients; one SGD step costs 1. Plot the loss
 against that budget:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
@@ -849,10 +1030,10 @@ against that budget:
 #| message: false
 library(dplyr)
 
-sgd_decay$loss <- apply(as.matrix(sgd_decay[, 1:2]), 1, mse_loss)
+sgd_decay$loss <- apply(as.matrix(sgd_decay[, 1:2]), 1, nll)
 
 cost_df <- bind_rows(
-  tibble(evals = path_mse$iter * n_obs, loss = path_mse$f,   method = "GD (full gradient)"),
+  tibble(evals = path_nll$iter * n_log, loss = path_nll$f,    method = "GD (full gradient)"),
   tibble(evals = sgd_decay$iter,        loss = sgd_decay$loss, method = "SGD (one sample)")
 ) |>
   filter(evals > 0)
@@ -876,10 +1057,10 @@ ggplot(cost_df, aes(evals, loss, colour = method)) +
 from plotnine import (ggplot, aes, geom_line, scale_x_log10,
                       scale_colour_manual, labs, theme_minimal)
 
-sgd_decay["loss"] = [mse_loss(b) for b in sgd_decay[["x1", "x2"]].to_numpy()]
+sgd_decay["loss"] = [nll(b) for b in sgd_decay[["x1", "x2"]].to_numpy()]
 
 cost_df = pd.concat([
-    pd.DataFrame({"evals": path_mse["iter"] * n_obs, "loss": path_mse["f"],
+    pd.DataFrame({"evals": path_nll["iter"] * n_log, "loss": path_nll["f"],
                   "method": "GD (full gradient)"}),
     pd.DataFrame({"evals": sgd_decay["iter"], "loss": sgd_decay["loss"],
                   "method": "SGD (one sample)"})
@@ -902,7 +1083,7 @@ cost_df = cost_df[cost_df["evals"] > 0]
 `pd.concat()` plus a boolean mask do the same job (@sec-week4). And plotnine still
 calls the line-width aesthetic `size`, which ggplot2 has since renamed `linewidth`.
 
-By the time GD has finished its *first* step (200 evaluations), SGD has already
+By the time GD has finished its *first* step (500 evaluations), SGD has already
 collapsed most of the loss. Read the other end honestly too: GD then converges to the
 exact minimiser, while SGD closes in more slowly and less precisely. For small $n$ and
 high accuracy, GD (or better, @sec-week5-bfgs) wins; for enormous $n$ and
@@ -912,11 +1093,11 @@ only affordable option. It is the workhorse that trains essentially every neural
 network.
 
 :::: {.callout-tip title="Exercise 5.2: Mini-batch SGD"}
-Fill in the blanks to turn `sgd()` into mini-batch SGD, then run it on the regression
+Fill in the blanks to turn `sgd()` into mini-batch SGD, then run it on the logistic
 loss. The batch gradient function is given. Note (on the R side) the `drop = FALSE`:
-when the batch holds a single index, `X[idx, ]` would silently collapse the one-row
-matrix to a plain vector, and `drop = FALSE` keeps the matrix shape so the algebra
-survives `batch = 1`:
+when the batch holds a single index, `X_log[idx, ]` would silently collapse the
+one-row matrix to a plain vector, and `drop = FALSE` keeps the matrix shape so the
+algebra survives `batch = 1`:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -925,9 +1106,10 @@ survives `batch = 1`:
 
 ```{r}
 #| eval: false
-mse_grad_batch <- function(b, idx) {
-  Xb <- X[idx, , drop = FALSE]
-  as.vector(-t(Xb) %*% (y[idx] - Xb %*% b)) / length(idx)
+nll_grad_batch <- function(b, idx) {
+  Xb <- X_log[idx, , drop = FALSE]
+  p <- sigmoid(as.vector(Xb %*% b))
+  as.vector(t(Xb) %*% (p - y_log[idx])) / length(idx)
 }
 
 sgd_batch <- function(grad_batch, x0, gamma, n_steps, n_data, batch = 10) {
@@ -952,9 +1134,10 @@ sgd_batch <- function(grad_batch, x0, gamma, n_steps, n_data, batch = 10) {
 
 ```{python}
 #| eval: false
-def mse_grad_batch(b, idx):
-    Xb = X[idx]
-    return -Xb.T @ (y[idx] - Xb @ b) / len(idx)
+def nll_grad_batch(b, idx):
+    Xb = X_log[idx]
+    p = sigmoid(Xb @ b)
+    return Xb.T @ (p - y_log[idx]) / len(idx)
 
 def sgd_batch(grad_batch, x0, gamma, n_steps, n_data, batch=10):
     path = np.full((n_steps + 1, len(x0)), np.nan)
@@ -971,329 +1154,39 @@ def sgd_batch(grad_batch, x0, gamma, n_steps, n_data, batch=10):
 :::
 
 **Note for Python:** numpy dodges the `drop = FALSE` trap: indexing with an
-index *array* (`X[idx]`) always keeps the 2-D shape; only a bare scalar index drops
-the dimension. The trap on the Python side is `rng.choice()`, which samples **with**
+index *array* (`X_log[idx]`) always keeps the 2-D shape; only a bare scalar index
+drops the dimension. The trap on the Python side is `rng.choice()`, which samples **with**
 replacement unless told `replace=False`, whereas R's `sample()` is without
 replacement by default.
 
-Run 2000 steps with constant `gamma = \(t) 0.1` (`lambda t: 0.1`) for batch sizes 1,
+Run 2000 steps with constant `gamma = \(t) 0.2` (`lambda t: 0.2`) for batch sizes 1,
 10 and 50, and compare the wobble of the final 500 iterates (e.g. via `sd()` of each
 coordinate, `.std()` in Python, or just by plotting the paths). What does the batch
 size buy you, and what does it cost?
 ::::
 
-## Momentum: a ball rolling downhill {#sec-week5-momentum}
+## Fixing the geometry: preconditioning and BFGS {#sec-week5-precond}
 
 Back to the zig-zag valley of @sec-week5-stepsize. The step size was capped by the
-steep direction, progress was throttled along the flat one, and the trajectory wasted
-its energy bouncing between walls. Physics suggests a fix. Imagine the iterate is not
-a point teleporting around, but a **heavy ball rolling on the surface of $f$, with
-friction**. A ball entering a narrow valley rattles briefly between the walls, the
-rattling cancels itself out, and the ball settles into rolling *along* the valley,
-gathering speed in any direction the slope keeps pushing.
-
-To simulate that, give the iterate a velocity $\mathbf{v}$ that accumulates gradients
-instead of forgetting them:
-
-$$
-\mathbf{v}_{t+1} = \beta\, \mathbf{v}_t - \gamma\, \nabla f(\mathbf{x}_t),
-\qquad
-\mathbf{x}_{t+1} = \mathbf{x}_t + \mathbf{v}_{t+1},
-$$
-
-with $\beta \in [0, 1)$. This is the **heavy-ball method**, or gradient descent with
-**momentum**. The coefficient $\beta$ is the memory of the ball: each step the old
-velocity is kept, scaled by $\beta$, so $1 - \beta$ acts as friction. $\beta = 0$ is
-plain gradient descent (total friction: all velocity lost each step); $\beta \to 1$ is a frictionless
-ball that overshoots and oscillates forever. In between, something useful happens:
-
-- in the **zig-zag direction** the gradient flips sign every step, so successive
-  contributions to $\mathbf{v}$ *cancel*: the oscillation damps itself;
-- in the **consistent downhill direction** the contributions all point the same way
-  and *accumulate*: the ball accelerates along the valley floor.
-
-Algorithm 5.3 sets the two updates down in order: velocity first, then position.
-
-::: {.callout-note icon=false title="Algorithm 5.3: Gradient descent with momentum (heavy ball)"}
-**Input:** objective $f$, gradient $\nabla f$, start point $\mathbf{x}_0$, step size
-$\gamma > 0$, momentum $\beta \in [0, 1)$, number of steps $n_{\text{steps}}$ (the
-code's `n`).
-
-**Output:** the trajectory $\mathbf{x}_0, \mathbf{x}_1, \dots, \mathbf{x}_{n_{\text{steps}}}$.
-
-1. start at rest: $\mathbf{v}_0 \leftarrow \mathbf{0}$
-2. **for** $t = 1, 2, \dots, n_{\text{steps}}$:
-    a. $\mathbf{v}_t \leftarrow \beta \, \mathbf{v}_{t-1} - \gamma \, \nabla f(\mathbf{x}_{t-1})$
-    b. $\mathbf{x}_t \leftarrow \mathbf{x}_{t-1} + \mathbf{v}_t$
-3. **return** $\mathbf{x}_0, \mathbf{x}_1, \dots, \mathbf{x}_{n_{\text{steps}}}$
-
-For the stochastic version, replace $\nabla f(\mathbf{x}_{t-1})$ in step 2a with the
-single-sample or mini-batch estimate of Algorithm 5.2 and step with the schedule
-$\gamma_t$, indexed as there; nothing else changes.
-:::
-
-In code, two lines change:
-
-::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
-<div>
-
-**R**
-
-```{r}
-grad_descent_mom <- function(f, grad, x0, gamma, n, beta = 0.9) {
-  path <- matrix(NA_real_, nrow = n + 1, ncol = length(x0))
-  path[1, ] <- x0
-  v <- numeric(length(x0))            # start at rest
-  for (i in 1:n) {
-    v <- beta * v - gamma * grad(path[i, ])
-    path[i + 1, ] <- path[i, ] + v
-  }
-  out <- as.data.frame(path)
-  names(out) <- paste0("x", seq_along(x0))
-  out$f <- apply(path, 1, f)
-  out$iter <- 0:n
-  out
-}
-```
-
-</div>
-
-<div>
-
-**Python**
-
-```{python}
-def grad_descent_mom(f, grad, x0, gamma, n, beta=0.9):
-    path = np.full((n + 1, len(x0)), np.nan)
-    path[0] = x0
-    v = np.zeros(len(x0))               # start at rest
-    for i in range(n):
-        v = beta * v - gamma * grad(path[i])
-        path[i + 1] = path[i] + v
-    out = pd.DataFrame(path, columns=[f"x{j + 1}" for j in range(len(x0))])
-    out["f"] = [f(row) for row in path]
-    out["iter"] = range(n + 1)
-    return out
-```
-
-</div>
-:::
-
-Same valley, same aggressive $\gamma = 0.18$, with and without momentum:
-
-::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
-<div>
-
-**R**
-
-```{r}
-path_plain <- grad_descent(f_ill, grad_ill, c(-9, 1.5), gamma = 0.18, n = 60)
-path_mom   <- grad_descent_mom(f_ill, grad_ill, c(-9, 1.5), gamma = 0.18, n = 60, beta = 0.5)
-
-both <- bind_rows(mutate(path_plain, method = "gradient descent"),
-                  mutate(path_mom,   method = "with momentum"))
-
-ggplot(contour_data(f_ill, c(-10, 3), c(-4, 4)), aes(x1, x2)) +
-  geom_contour(aes(z = f), bins = 20, colour = "grey70") +
-  geom_path(data = both, aes(colour = method), linewidth = 0.4) +
-  geom_point(data = both, aes(colour = method), size = 0.9) +
-  scale_colour_manual(values = c("gradient descent" = "#0072B2",
-                                 "with momentum" = "#D55E00")) +
-  theme_minimal()
-```
-
-</div>
-
-<div>
-
-**Python**
-
-```{python}
-path_plain = grad_descent(f_ill, grad_ill, np.array([-9, 1.5]), gamma=0.18, n=60)
-path_mom   = grad_descent_mom(f_ill, grad_ill, np.array([-9, 1.5]), gamma=0.18, n=60, beta=0.5)
-
-both = [(path_plain, "#0072B2", "gradient descent"),
-        (path_mom,   "#D55E00", "with momentum")]
-
-x1, x2, f_grid = contour_data(f_ill, (-10, 3), (-4, 4))
-fig, ax = plt.subplots()
-ax.contour(x1, x2, f_grid, levels=20, colors="0.7", linewidths=0.5)
-for p, colour, label in both:
-    ax.plot(p["x1"], p["x2"], color=colour, linewidth=0.8, label=label)
-    ax.scatter(p["x1"], p["x2"], color=colour, s=8)
-ax.legend()
-plt.show()
-```
-
-</div>
-:::
-
-::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
-<div>
-
-**R**
-
-```{r}
-c(plain    = steps_to_tol(grad_descent(f_ill, grad_ill, c(-9, 1.5), 0.18, 3000), c(0, 0)),
-  momentum = steps_to_tol(grad_descent_mom(f_ill, grad_ill, c(-9, 1.5), 0.18, 3000, beta = 0.5),
-                          c(0, 0)))
-```
-
-</div>
-
-<div>
-
-**Python**
-
-```{python}
-{"plain":    steps_to_tol(grad_descent(f_ill, grad_ill, np.array([-9, 1.5]), 0.18, 3000),
-                          np.array([0, 0])),
- "momentum": steps_to_tol(grad_descent_mom(f_ill, grad_ill, np.array([-9, 1.5]), 0.18, 3000,
-                                           beta=0.5),
-                          np.array([0, 0]))}
-```
-
-</div>
-:::
-
-The orange path shakes off the zig-zag within a few bounces and cruises down the
-valley, reaching tolerance in half the iterations, and the gap widens as $\kappa$
-grows. In practice $\beta$ is a tuning knob like $\gamma$: values around $0.9$ are
-the folklore default in machine learning, but on a nearly-quadratic problem like this
-a smaller $\beta$ damps faster (try $0.9$ here and watch it overshoot the minimum and
-loop back).
-
-### Stochastic momentum
-
-Momentum drops straight into SGD. Replace the full gradient with the single-sample
-one:
-
-::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
-<div>
-
-**R**
-
-```{r}
-sgd_mom <- function(grad_i, x0, gamma, n_steps, n_data, beta = 0.9) {
-  path <- matrix(NA_real_, nrow = n_steps + 1, ncol = length(x0))
-  path[1, ] <- x0
-  v <- numeric(length(x0))
-  for (t in 1:n_steps) {
-    i <- sample(n_data, 1)
-    v <- beta * v - gamma(t) * grad_i(path[t, ], i)
-    path[t + 1, ] <- path[t, ] + v
-  }
-  out <- as.data.frame(path)
-  names(out) <- paste0("x", seq_along(x0))
-  out$iter <- 0:n_steps
-  out
-}
-```
-
-</div>
-
-<div>
-
-**Python**
-
-```{python}
-def sgd_mom(grad_i, x0, gamma, n_steps, n_data, beta=0.9):
-    path = np.full((n_steps + 1, len(x0)), np.nan)
-    path[0] = x0
-    v = np.zeros(len(x0))
-    for t in range(1, n_steps + 1):
-        i = rng.integers(n_data)
-        v = beta * v - gamma(t) * grad_i(path[t - 1], i)
-        path[t] = path[t - 1] + v
-    out = pd.DataFrame(path, columns=[f"x{j + 1}" for j in range(len(x0))])
-    out["iter"] = range(n_steps + 1)
-    return out
-```
-
-</div>
-:::
-
-Now $\mathbf{v}$ is a running average of *noisy* gradients, so momentum also acts as a
-noise filter: individual samples may point sideways, but their average points
-downhill. One honest subtlety: with memory $\beta$, the steps effectively add up to
-$\gamma/(1-\beta)$ worth of gradient (with $\beta = 0.9$ that is a factor of 10), so
-shrink $\gamma$ accordingly when you switch momentum on.
-
-::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
-<div>
-
-**R**
-
-```{r}
-set.seed(2)
-s_plain <- sgd(mse_grad_i, c(0, 0), gamma = \(t) 2 / (20 + t), n_steps = 2000, n_data = n_obs)
-set.seed(2)
-s_mom <- sgd_mom(mse_grad_i, c(0, 0), gamma = \(t) 0.2 / (20 + t), n_steps = 2000,
-                 n_data = n_obs, beta = 0.9)
-
-both_sgd <- bind_rows(mutate(s_plain, method = "SGD"),
-                      mutate(s_mom,   method = "SGD + momentum"))
-
-ggplot(contour_data(mse_loss, c(-0.5, 3), c(-2.5, 0.7)), aes(x1, x2)) +
-  geom_contour(aes(z = f), bins = 20, colour = "grey70") +
-  geom_path(data = both_sgd, aes(colour = method), linewidth = 0.4) +
-  geom_point(data = ols_pt, shape = 4, size = 3, colour = "black") +
-  scale_colour_manual(values = c("SGD" = "#009E73",
-                                 "SGD + momentum" = "#D55E00")) +
-  labs(x = expression(beta[0]), y = expression(beta[1])) +
-  theme_minimal()
-```
-
-</div>
-
-<div>
-
-**Python**
-
-```{python}
-rng = np.random.default_rng(2)
-s_plain = sgd(mse_grad_i, np.array([0.0, 0.0]), gamma=lambda t: 2 / (20 + t),
-              n_steps=2000, n_data=n_obs)
-rng = np.random.default_rng(2)
-s_mom = sgd_mom(mse_grad_i, np.array([0.0, 0.0]), gamma=lambda t: 0.2 / (20 + t),
-                n_steps=2000, n_data=n_obs, beta=0.9)
-
-both_sgd = [(s_plain, "#009E73", "SGD"),
-            (s_mom,   "#D55E00", "SGD + momentum")]
-
-x1, x2, f_grid = contour_data(mse_loss, (-0.5, 3), (-2.5, 0.7))
-fig, ax = plt.subplots()
-ax.contour(x1, x2, f_grid, levels=20, colors="0.7", linewidths=0.5)
-for p, colour, label in both_sgd:
-    ax.plot(p["x1"], p["x2"], color=colour, linewidth=0.8, label=label)
-ax.scatter([beta_ols[0]], [beta_ols[1]], marker="x", s=60, color="black")
-ax.set_xlabel(r"$\beta_0$")
-ax.set_ylabel(r"$\beta_1$")
-ax.legend()
-plt.show()
-```
-
-</div>
-:::
-
-Both end up at the same place, but the momentum path is visibly smoother: it turns
-gently where plain SGD staggers. SGD-plus-momentum, with mini-batches, is more or less
-*the* algorithm that trains deep neural networks.
-
-::: {.callout-tip title="Exercise 5.3: Momentum pays off"}
-Take Exercise 5.1's valley, $f(x_1, x_2) = x_1^2/2 + 25 x_2^2/2$ with
-$\nabla f = (x_1,\, 25 x_2)$, start $(-8, 2)$, and fix $\gamma = 0.07$.
-
-a. Run `grad_descent()` and `grad_descent_mom()` with `beta = 0.6` (use `n = 20000`)
-   and report `steps_to_tol()` to within $10^{-3}$ of the minimum for each.
-b. Plot the two trajectories on the contours of $f$ (adapting the momentum-comparison
-   code above). Where in the picture is momentum earning its keep?
-:::
-
-## Preconditioning: fixing the geometry {#sec-week5-precond}
-
-Momentum treats the symptom of ill-conditioning. Preconditioning treats the cause:
-the coordinates live on the wrong scales. If the valley is ten times steeper in $x_2$
+steep direction, progress was throttled along the flat one, and the trajectory
+wasted its energy bouncing between walls. This section solves that geometry problem
+twice: first by hand, then automatically.
+
+One classical fix earns an honourable mention on its way to the cutting-room floor:
+**momentum**, the heavy-ball trick. Give the iterate a velocity that accumulates
+past gradients, $\mathbf{v}_{t+1} = \beta\,\mathbf{v}_t - \gamma\,\nabla f(\mathbf{x}_t)$,
+and step by $\mathbf{v}_{t+1}$: in the zig-zag direction successive gradients flip
+sign and cancel, while along the valley floor they accumulate and the iterate picks
+up speed. It drops straight into SGD, and mini-batch SGD with momentum is more or
+less *the* algorithm that trains deep neural networks. We will not need it again in
+this module, so we leave it as optional reading: the notebook
+`additional_scrapped_materials` works it out in full, with code, pictures and an
+exercise. Momentum, however, only treats the *symptom* of ill-conditioning. The two
+methods of this section treat the cause: the coordinates live on the wrong scales.
+
+### Preconditioning {#sec-week5-precond-p}
+
+If the valley is ten times steeper in $x_2$
 than in $x_1$, then take steps ten times smaller in $x_2$. Formally, pick a symmetric
 positive-definite matrix $P$ and update
 
@@ -1304,9 +1197,9 @@ $$
 $P$ reshapes the descent direction, stretching it in flat directions and shrinking it
 in steep ones. Plain gradient descent is $P = I$.
 
-Algorithm 5.4 is Algorithm 5.1 with one matrix slipped in.
+Algorithm 5.3 is Algorithm 5.1 with one matrix slipped in.
 
-::: {.callout-note icon=false title="Algorithm 5.4: Preconditioned gradient descent"}
+::: {.callout-note icon=false title="Algorithm 5.3: Preconditioned gradient descent"}
 **Input:** objective $f$, gradient $\nabla f$, start point $\mathbf{x}_0$, step size
 $\gamma > 0$, a symmetric positive-definite matrix $P$, number of steps
 $n_{\text{steps}}$ (the code's `n`).
@@ -1363,8 +1256,8 @@ def grad_descent_pre(f, grad, x0, gamma, n, P):
 </div>
 :::
 
-What is the *ideal* $P$? Our valley has Hessian (matrix of second derivatives)
-$H = \mathrm{diag}(1, 10)$: curvature 1 along $x_1$, 10 along $x_2$. Choosing
+What is the *ideal* $P$? Our valley has Hessian $H = \mathrm{diag}(1, 10)$:
+curvature 1 along $x_1$, 10 along $x_2$. Choosing
 $P = H^{-1} = \mathrm{diag}(1, 1/10)$ divides each direction by its own curvature, so
 *every* direction behaves like curvature 1: the valley becomes a perfectly round
 bowl, $\kappa = 1$. With $\gamma = 1$:
@@ -1455,9 +1348,9 @@ Cheap compromises are everywhere in statistics and machine learning: use only th
 whole story, and in general it is a decent approximation); or simply **standardise
 your covariates**, which is preconditioning by a diagonal matrix before the algorithm
 even starts. If you remember one practical trick from this section: *rescale your
-variables before optimising*. Exercise 5.4 shows what happens if you don't.
+variables before optimising*. Exercise 5.3 shows what happens if you don't.
 
-## BFGS: learning the Hessian as you go {#sec-week5-bfgs}
+### BFGS: learning the Hessian as you go {#sec-week5-bfgs}
 
 Newton's method needs second derivatives we cannot afford. But here is the clever
 observation: the gradients we are *already computing* contain second-order
@@ -1499,9 +1392,9 @@ and we will not derive it. The point to retain is the *idea*: start with $B_0 = 
 algorithm a bit more of the local geometry. After a handful of steps BFGS is taking
 nearly Newton-quality steps while having only ever evaluated $f$ and $\nabla f$.
 
-Algorithm 5.5 collects the whole loop in one place.
+Algorithm 5.4 collects the whole loop in one place.
 
-::: {.callout-note icon=false title="Algorithm 5.5: BFGS"}
+::: {.callout-note icon=false title="Algorithm 5.4: BFGS"}
 **Input:** objective $f$, gradient $\nabla f$, start point $\mathbf{x}_0$, tolerance
 $\varepsilon > 0$ (in practice also an iteration cap, as in `optim()` and
 `minimize()`).
@@ -1552,9 +1445,8 @@ sp.optimize.minimize(fun, x0, jac=grad, method="BFGS")
 
 with `par`/`x0` the starting point, `fn`/`fun` the function to minimise and
 `gr`/`jac` its gradient: the same ingredients our `grad_descent()` takes (this is
-why we wrote everything functional-style: the interfaces match). Time to fit the
-logistic regression from @sec-week5-losses, which has been waiting patiently for a
-competent optimiser:
+why we wrote everything functional-style: the interfaces match). Time to return to
+the logistic regression of @sec-week5-losses and retire our hand-tuned step sizes:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -1562,7 +1454,7 @@ competent optimiser:
 **R**
 
 ```{r}
-fit_bfgs <- optim(par = c(0, 0, 0), fn = nll, gr = nll_grad, method = "BFGS")
+fit_bfgs <- optim(par = c(0, 0), fn = nll, gr = nll_grad, method = "BFGS")
 fit_bfgs$par          # estimated coefficients
 fit_bfgs$value        # NLL at the minimum
 fit_bfgs$counts       # evaluations of fn and gr
@@ -1578,7 +1470,7 @@ fit_bfgs$convergence  # 0 means success
 ```{python}
 import scipy as sp
 
-fit_bfgs = sp.optimize.minimize(nll, x0=np.zeros(3), jac=nll_grad, method="BFGS")
+fit_bfgs = sp.optimize.minimize(nll, x0=np.zeros(2), jac=nll_grad, method="BFGS")
 fit_bfgs.x            # estimated coefficients
 fit_bfgs.fun          # NLL at the minimum
 (fit_bfgs.nfev, fit_bfgs.njev)  # evaluations of fn and gr
@@ -1593,8 +1485,8 @@ fit_bfgs.success      # True means success
 `.success`. And R signals success with `convergence == 0`, scipy with
 `success == True`. Always check it, whatever it is called.
 
-About fifteen gradient evaluations in the R run (a dozen in the Python run, on its
-own draw of the data). Let us line it up against our own algorithms, and against a
+About a dozen gradient evaluations in either run (each language on its own draw of
+the data). Let us line it up against our own algorithms, and against a
 reference fit: `glm()`, R's official logistic regression fitter, on the left; on the
 right, since Python has no built-in `glm()` (the usual tools live in the
 `statsmodels` package), BFGS rerun with a very strict tolerance, measuring cost in
@@ -1606,13 +1498,11 @@ observation-gradients touched, as in @sec-week5-sgd:
 **R**
 
 ```{r}
-# our GD, with a hand-tuned step size
-path_nll <- grad_descent(nll, nll_grad, x0 = c(0, 0, 0), gamma = 2, n = 200)
+# our GD: path_nll, already computed in @sec-week5-losses (200 steps, gamma = 2)
 
 # our SGD, with a hand-tuned decay schedule
-nll_grad_i <- function(b, i) X_log[i, ] * (sigmoid(sum(X_log[i, ] * b)) - y_log[i])
 set.seed(3)
-path_sgd_nll <- sgd(nll_grad_i, c(0, 0, 0), gamma = \(t) 10 / (20 + t),
+path_sgd_nll <- sgd(nll_grad_i, c(0, 0), gamma = \(t) 10 / (20 + t),
                     n_steps = 4000, n_data = n_log)
 
 # the reference fit
@@ -1622,7 +1512,7 @@ results <- data.frame(
   method = c("glm()", "optim BFGS", "GD (200 steps)", "SGD (4000 steps)"),
   nll = c(nll(coef(fit_glm)), fit_bfgs$value,
           tail(path_nll$f, 1),
-          nll(unlist(tail(path_sgd_nll, 1)[1:3]))),
+          nll(unlist(tail(path_sgd_nll, 1)[1:2]))),
   obs_gradients = c(NA, fit_bfgs$counts["gradient"] * n_log, 200 * n_log, 4000)
 )
 results$nll <- round(results$nll, 6)
@@ -1637,24 +1527,22 @@ results
 **Python**
 
 ```{python}
-# our GD, with a hand-tuned step size
-path_nll = grad_descent(nll, nll_grad, x0=np.zeros(3), gamma=2, n=200)
+# our GD: path_nll, already computed in @sec-week5-losses (200 steps, gamma = 2)
 
 # our SGD, with a hand-tuned decay schedule
-nll_grad_i = lambda b, i: X_log[i] * (sigmoid(X_log[i] @ b) - y_log[i])
 rng = np.random.default_rng(3)
-path_sgd_nll = sgd(nll_grad_i, np.zeros(3), gamma=lambda t: 10 / (20 + t),
+path_sgd_nll = sgd(nll_grad_i, np.zeros(2), gamma=lambda t: 10 / (20 + t),
                    n_steps=4000, n_data=n_log)
 
 # the reference fit (no glm() here: BFGS again, with a very strict tolerance)
-fit_ref = sp.optimize.minimize(nll, np.zeros(3), jac=nll_grad, method="BFGS",
+fit_ref = sp.optimize.minimize(nll, np.zeros(2), jac=nll_grad, method="BFGS",
                                options={"gtol": 1e-10})
 
 results = pd.DataFrame({
     "method": ["reference (tight BFGS)", "minimize BFGS", "GD (200 steps)", "SGD (4000 steps)"],
     "nll": [fit_ref.fun, fit_bfgs.fun,
             path_nll["f"].iloc[-1],
-            nll(path_sgd_nll.iloc[-1, :3].to_numpy())],
+            nll(path_sgd_nll.iloc[-1, :2].to_numpy())],
     "obs_gradients": [np.nan, fit_bfgs.njev * n_log, 200 * n_log, 4000]
 })
 results["nll"] = results["nll"].round(6)
@@ -1674,8 +1562,8 @@ different draws of the data, so the loss values differ between languages: the
   a few thousand observation-gradients, with *no tuning at all*: no $\gamma$, no
   schedule, no $\beta$. The curvature information it accumulates replaces all the
   knobs we spent this chapter turning by hand.
-- **GD gets there too**, but only after we hand-tuned $\gamma$, and at over ten
-  times the cost. On an ill-conditioned problem (Exercise 5.4) the gap becomes a
+- **GD gets there too**, but only after we hand-tuned $\gamma$, and at over fifteen
+  times the cost. On an ill-conditioned problem (Exercise 5.3) the gap becomes a
   chasm.
 - **SGD is nearly as accurate here at a fraction of the cost**, and its cost would
   be *unchanged* if $n$ were $10^8$, which is the regime it is built for.
@@ -1689,7 +1577,7 @@ likelihood in R (`minimize()` in Python): countless packages in both languages a
 under the hood, exactly `optim(par, nll, gr, method = "BFGS")` or its `minimize()`
 twin wearing a nice interface.
 
-:::: {.callout-tip title="Exercise 5.4: optim / minimize in the wild"}
+:::: {.callout-tip title="Exercise 5.3: optim / minimize in the wild"}
 Fit a logistic regression predicting a car's transmission type from its horsepower
 and weight, using the built-in `mtcars` data (`am` is 1 for manual; in Python the
 same data frame ships with plotnine):
@@ -1772,10 +1660,11 @@ all over statistics and machine learning:
   look like. When a model "fails to converge", you have seen the picture: a too-large
   step diverging, or an ill-conditioned likelihood crawling.
 - **Neural networks.** Training a network is minimising an average loss over millions
-  of observations and millions of parameters: mini-batch SGD with momentum is the
-  core engine, and the popular Adam optimiser is momentum plus an adaptive *diagonal
-  preconditioner* estimated on the fly. You have now implemented the essential parts
-  of it in a few dozen lines of code.
+  of observations and millions of parameters: mini-batch SGD is the core engine
+  (usually with the momentum trick of the `additional_scrapped_materials` notebook),
+  and the popular Adam optimiser adds an adaptive *diagonal preconditioner* estimated
+  on the fly. You have now implemented the essential parts of it in a few dozen lines
+  of code.
 - **Sampling algorithms.** When you meet Markov chain Monte Carlo in weeks 8–10 of
   this module, you will find the same geometry problem in a new costume: a sampler
   exploring an elongated, ill-conditioned posterior zig-zags just like gradient
