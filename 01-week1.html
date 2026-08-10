@@ -260,7 +260,8 @@ window.Quarto = {
   <li><a href="#inverses-determinants-and-linear-systems" id="toc-inverses-determinants-and-linear-systems" class="nav-link" data-scroll-target="#inverses-determinants-and-linear-systems"><span class="header-section-number">1.6.3</span> Inverses, determinants and linear systems</a></li>
   <li><a href="#an-eigenvalue-teaser" id="toc-an-eigenvalue-teaser" class="nav-link" data-scroll-target="#an-eigenvalue-teaser"><span class="header-section-number">1.6.4</span> An eigenvalue teaser</a></li>
   </ul></li>
-  <li><a href="#what-you-can-do-now" id="toc-what-you-can-do-now" class="nav-link" data-scroll-target="#what-you-can-do-now"><span class="header-section-number">1.7</span> What you can do now</a></li>
+  <li><a href="#challenges" id="toc-challenges" class="nav-link" data-scroll-target="#challenges"><span class="header-section-number">1.7</span> Challenges</a></li>
+  <li><a href="#what-you-can-do-now" id="toc-what-you-can-do-now" class="nav-link" data-scroll-target="#what-you-can-do-now"><span class="header-section-number">1.8</span> What you can do now</a></li>
   </ul>
 </nav>
     </div>
@@ -1883,7 +1884,17 @@ Exercise 1.8: Three equations, three unknowns
 </section>
 <section id="an-eigenvalue-teaser" class="level3" data-number="1.6.4">
 <h3 data-number="1.6.4" class="anchored" data-anchor-id="an-eigenvalue-teaser"><span class="header-section-number">1.6.4</span> An eigenvalue teaser</h3>
-<p>One more linear-algebra tool, offered now as a trailer. In statistics, the <strong>covariance matrix</strong> of a random vector packages the variances (diagonal) and covariances (off-diagonal) of its components. Its eigendecomposition is remarkably informative:</p>
+<p>One more linear-algebra tool, offered now as a teaser which will be useful later. A 30-second reminder first: a square matrix <span class="math inline">A</span> defines a map <span class="math inline">\mathbf{v} \mapsto A\mathbf{v}</span> that can rotate, stretch or compress, so the output <span class="math inline">A\mathbf{v}</span> generally points in a different direction from the input <span class="math inline">\mathbf{v}</span>, with a different length. An <strong>eigenvector</strong> of <span class="math inline">A</span> is a special vector that <span class="math inline">A</span> maps to a multiple of itself:</p>
+<p><span class="math display">
+A \mathbf{v} = \lambda\, \mathbf{v}, \qquad \mathbf{v} \neq \mathbf{0}.
+</span></p>
+<p>No rotation for this input: <span class="math inline">A\mathbf{v}</span> lies on the same line as <span class="math inline">\mathbf{v}</span>, merely stretched or shrunk (or flipped, when <span class="math inline">\lambda &lt; 0</span>), and the stretch factor <span class="math inline">\lambda</span> is its <strong>eigenvalue</strong>. A symmetric <span class="math inline">d \times d</span> matrix, which is the kind statistics mostly cares about, has a full set of <span class="math inline">d</span> such directions, mutually perpendicular, with real eigenvalues.</p>
+<p>So intuitively, the eigenvectors are the axes along which the matrix acts as ordinary scalar multiplication. Better still, the <span class="math inline">d</span> eigen-directions <span class="math inline">\mathbf{v}_1, \dots, \mathbf{v}_d</span> of a symmetric matrix form a basis: <em>any</em> vector <span class="math inline">\mathbf{w}</span> can be written as a combination <span class="math inline">\mathbf{w} = c_1 \mathbf{v}_1 + \cdots + c_d \mathbf{v}_d</span>, and applying <span class="math inline">A</span> piece by piece, each component just picks up its own stretch factor:</p>
+<p><span class="math display">
+A\mathbf{w} = c_1 \lambda_1 \mathbf{v}_1 + \cdots + c_d \lambda_d \mathbf{v}_d.
+</span></p>
+<p>The matrix’s entire action, on any vector at all, is therefore captured by <span class="math inline">d</span> separate stretches. The size of each <span class="math inline">\lambda</span> says what happens along its axis: a large <span class="math inline">|\lambda|</span> amplifies, a small one flattens, and <span class="math inline">\lambda = 0</span> destroys the direction outright (that is precisely the singular matrix met earlier in this chapter).</p>
+<p>In statistics, the <strong>covariance matrix</strong> of a random vector packages the variances (diagonal) and covariances (off-diagonal) of its components. Its eigendecomposition is remarkably informative:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1921,6 +1932,11 @@ $vectors
 </div>
 <p><strong>Note for Python:</strong> <code>np.linalg.eig</code> hands back a <em>pair</em> (eigenvalues, eigenvectors) rather than R’s single object, and unlike R it makes no promise about their order (here it happens to match R’s largest-first). For symmetric matrices, and covariance matrices always are, the specialised <code>np.linalg.eigh</code> is faster, more accurate, and sorts eigenvalues in <em>ascending</em> order, so the “top” eigenvalue comes last.</p>
 <p>The eigenvector with the largest eigenvalue points in the direction along which the data varies most, and the eigenvalues split the total variance across those directions. This single idea is principal component analysis, the workhorse of dimension reduction. Eigenvalues will also quietly reappear in <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a>, where they govern how fast our optimisation algorithms converge. For now: <code>eigen()</code> (and <code>np.linalg.eig</code>) exists, and Challenge 1.2 lets you poke at it.</p>
+</section>
+</section>
+<section id="challenges" class="level2" data-number="1.7">
+<h2 data-number="1.7" class="anchored" data-anchor-id="challenges"><span class="header-section-number">1.7</span> Challenges</h2>
+<p>Two optional problems to pull the week’s vectors and matrices together.</p>
 <div class="callout callout-style-default callout-important callout-titled" title="Challenge 1.1: Least squares, a sneak preview">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1985,9 +2001,8 @@ Challenge 1.2: Dissecting a covariance matrix
 </div>
 </div>
 </section>
-</section>
-<section id="what-you-can-do-now" class="level2" data-number="1.7">
-<h2 data-number="1.7" class="anchored" data-anchor-id="what-you-can-do-now"><span class="header-section-number">1.7</span> What you can do now</h2>
+<section id="what-you-can-do-now" class="level2" data-number="1.8">
+<h2 data-number="1.8" class="anchored" data-anchor-id="what-you-can-do-now"><span class="header-section-number">1.8</span> What you can do now</h2>
 <ul>
 <li>Use both R and Python as calculators, keep results in variables, and organise it all in commented scripts.</li>
 <li>Build vectors with <code>c()</code>, <code>seq()</code> and <code>rep()</code> (numpy: <code>np.array</code>, <code>np.arange</code>/<code>np.linspace</code>, <code>np.tile</code>/<code>np.repeat</code>), slice them by position (minding who counts from 1 and who from 0) and act on all elements at once with vectorised arithmetic; recycling (R) and broadcasting (numpy) warning bells installed.</li>
