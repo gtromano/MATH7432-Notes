@@ -38,15 +38,18 @@ $$
 
 where $\gamma > 0$ is the **step size** (machine learning people say *learning rate*).
 In @sec-week3 we packaged this into `grad_descent(f, grad, x0, gamma, n)`. Here it is
-again with one upgrade: instead of returning only the
-final point, it records the whole trajectory, because this week we want to *watch*
-the algorithm work.
+again with two upgrades. First, instead of returning only the final point, it records
+the whole trajectory, because this week we want to *watch* the algorithm work.
+Second, it drops `f` from the arguments: look at the update rule, and notice that the
+objective itself is never evaluated. The gradient is all the algorithm needs; the
+function is for us (plots, diagnostics), and we will call it ourselves when we want
+it.
 
 Algorithm 5.1 states the method formally; the code adds only the bookkeeping that
 records the trajectory.
 
 ::: {.callout-note icon=false title="Algorithm 5.1: Gradient descent"}
-**Input:** objective $f : \mathbb{R}^d \to \mathbb{R}$, its gradient $\nabla f$,
+**Input:** the gradient $\nabla f$ of an objective $f : \mathbb{R}^d \to \mathbb{R}$,
 start point $\mathbf{x}_0$, step size $\gamma > 0$, number of steps
 $n_{\text{steps}}$ (the code's `n`).
 
@@ -64,17 +67,16 @@ the final iterate approximates the minimiser.
 **R**
 
 ```{r}
-grad_descent <- function(f, grad, x0, gamma, n) {
+grad_descent <- function(grad, x0, gamma, n) {
   # one row per iterate, one column per coordinate
   path <- matrix(NA_real_, nrow = n + 1, ncol = length(x0))
   path[1, ] <- x0
   for (i in 1:n) {
     path[i + 1, ] <- path[i, ] - gamma * grad(path[i, ])
   }
-  # return a data frame ready for ggplot: iterates plus the value of f at each
+  # return a data frame ready for ggplot: one row per iterate
   out <- as.data.frame(path)
   names(out) <- paste0("x", seq_along(x0))
-  out$f <- apply(path, 1, f)
   out$iter <- 0:n
   out
 }
@@ -90,15 +92,14 @@ grad_descent <- function(f, grad, x0, gamma, n) {
 import numpy as np
 import pandas as pd
 
-def grad_descent(f, grad, x0, gamma, n):
+def grad_descent(grad, x0, gamma, n):
     # one row per iterate, one column per coordinate
     path = np.full((n + 1, len(x0)), np.nan)
     path[0] = x0
     for i in range(n):
         path[i + 1] = path[i] - gamma * grad(path[i])
-    # return a data frame ready for plotting: iterates plus the value of f at each
+    # return a data frame ready for plotting: one row per iterate
     out = pd.DataFrame(path, columns=[f"x{j + 1}" for j in range(len(x0))])
-    out["f"] = [f(row) for row in path]
     out["iter"] = range(n + 1)
     return out
 ```
@@ -110,9 +111,9 @@ def grad_descent(f, grad, x0, gamma, n):
 `2, ..., n + 1`; the Python loop runs `i = 0, ..., n - 1` and fills rows `1, ..., n`:
 the same trajectory, one index base apart (@sec-week1's indexing note at work).
 
-Note the functional style from @sec-week3: `f` and `grad` are *arguments*. The same
-dozen lines will minimise a toy parabola now and a logistic regression likelihood
-later, without changing a character.
+Note the functional style from @sec-week3: `grad` is an *argument*. The same dozen
+lines will minimise a toy parabola now and a logistic regression likelihood later,
+without changing a character.
 
 Let us try it on a friendly two-dimensional bowl,
 
@@ -133,7 +134,7 @@ whose minimum sits at $(1, -1)$.
 f_bowl <- \(x) (x[1] - 1)^2 + 2 * (x[2] + 1)^2
 grad_bowl <- \(x) c(2 * (x[1] - 1), 4 * (x[2] + 1))
 
-path_bowl <- grad_descent(f_bowl, grad_bowl, x0 = c(-2, 2), gamma = 0.1, n = 60)
+path_bowl <- grad_descent(grad_bowl, x0 = c(-2, 2), gamma = 0.1, n = 60)
 round(tail(path_bowl, 3), 5)
 ```
 
@@ -147,7 +148,7 @@ round(tail(path_bowl, 3), 5)
 f_bowl = lambda x: (x[0] - 1)**2 + 2 * (x[1] + 1)**2
 grad_bowl = lambda x: np.array([2 * (x[0] - 1), 4 * (x[1] + 1)])
 
-path_bowl = grad_descent(f_bowl, grad_bowl, x0=np.array([-2, 2]), gamma=0.1, n=60)
+path_bowl = grad_descent(grad_bowl, x0=np.array([-2, 2]), gamma=0.1, n=60)
 path_bowl.tail(3).round(5)
 ```
 
@@ -157,8 +158,9 @@ path_bowl.tail(3).round(5)
 Sixty steps and we are sitting on the minimum. To *see* the descent we plot the
 function as a **contour plot**: evaluate $f$ on a grid (`expand.grid()` in R,
 `np.meshgrid()` in Python), then hand the grid to `geom_contour()`. Since we will
-draw many of these, we write two small helper functions (again: @sec-week3 habits
-paying rent).
+need many of these grids, we write a small helper for that step (again: @sec-week3
+habits paying rent). Note that this is the first place the objective $f$ is
+actually evaluated: the plot needs it, the descent never did.
 
 **Note for Python:** plotnine, ggplot2's Python twin from @sec-week4, has no
 `geom_contour()`. Every contour figure this week therefore falls back on matplotlib's
@@ -182,15 +184,11 @@ contour_data <- function(f, xlim, ylim, n = 100) {
 }
 
 # grey contours of f, with the trajectory drawn on top
-plot_path <- function(f, path, xlim, ylim, bins = 20, colour = "#0072B2") {
-  ggplot(contour_data(f, xlim, ylim), aes(x1, x2)) +
-    geom_contour(aes(z = f), bins = bins, colour = "grey70") +
-    geom_path(data = path, colour = colour, linewidth = 0.4) +
-    geom_point(data = path, colour = colour, size = 0.9) +
-    theme_minimal()
-}
-
-plot_path(f_bowl, path_bowl, xlim = c(-2.5, 3), ylim = c(-3, 2.5))
+ggplot(contour_data(f_bowl, c(-2.5, 3), c(-3, 2.5)), aes(x1, x2)) +
+  geom_contour(aes(z = f), bins = 20, colour = "grey70") +
+  geom_path(data = path_bowl, colour = "#0072B2", linewidth = 0.4) +
+  geom_point(data = path_bowl, colour = "#0072B2", size = 0.9) +
+  theme_minimal()
 ```
 
 </div>
@@ -214,17 +212,13 @@ def contour_data(f, xlim, ylim, n=100):
     return x1, x2, f_grid.reshape(x1.shape)
 
 # grey contours of f, with the trajectory drawn on top
-def plot_path(f, path, xlim, ylim, bins=20, colour="#0072B2"):
-    x1, x2, f_grid = contour_data(f, xlim, ylim)
-    fig, ax = plt.subplots()
-    ax.contour(x1, x2, f_grid, levels=bins, colors="0.7", linewidths=0.5)
-    ax.plot(path["x1"], path["x2"], color=colour, linewidth=0.8)
-    ax.scatter(path["x1"], path["x2"], color=colour, s=8)
-    ax.set_xlabel("x1")
-    ax.set_ylabel("x2")
-    return fig, ax
-
-fig, ax = plot_path(f_bowl, path_bowl, xlim=(-2.5, 3), ylim=(-3, 2.5))
+x1, x2, f_grid = contour_data(f_bowl, (-2.5, 3), (-3, 2.5))
+fig, ax = plt.subplots()
+ax.contour(x1, x2, f_grid, levels=20, colors="0.7", linewidths=0.5)
+ax.plot(path_bowl["x1"], path_bowl["x2"], color="#0072B2", linewidth=0.8)
+ax.scatter(path_bowl["x1"], path_bowl["x2"], color="#0072B2", s=8)
+ax.set_xlabel("x1")
+ax.set_ylabel("x2")
 plt.show()
 ```
 
@@ -260,9 +254,9 @@ $(-9, 1.5)$.
 f_ill <- \(x) x[1]^2 / 2 + 10 * x[2]^2 / 2
 grad_ill <- \(x) c(x[1], 10 * x[2])
 
-path_small <- grad_descent(f_ill, grad_ill, c(-9, 1.5), gamma = 0.01, n = 60)
-path_zig   <- grad_descent(f_ill, grad_ill, c(-9, 1.5), gamma = 0.18, n = 60)
-path_exploding  <- grad_descent(f_ill, grad_ill, c(-9, 1.5), gamma = 0.25, n = 8)
+path_small <- grad_descent(grad_ill, c(-9, 1.5), gamma = 0.01, n = 60)
+path_zig   <- grad_descent(grad_ill, c(-9, 1.5), gamma = 0.18, n = 60)
+path_exploding  <- grad_descent(grad_ill, c(-9, 1.5), gamma = 0.25, n = 8)
 
 # one labelled data frame, one facet per step size (week 4 tricks)
 path_small$gamma <- "gamma = 0.01: crawling"
@@ -291,9 +285,9 @@ ggplot(contour_data(f_ill, c(-10, 3), c(-4, 4)), aes(x1, x2)) +
 f_ill = lambda x: x[0]**2 / 2 + 10 * x[1]**2 / 2
 grad_ill = lambda x: np.array([x[0], 10 * x[1]])
 
-path_small = grad_descent(f_ill, grad_ill, np.array([-9, 1.5]), gamma=0.01, n=60)
-path_zig   = grad_descent(f_ill, grad_ill, np.array([-9, 1.5]), gamma=0.18, n=60)
-path_exploding  = grad_descent(f_ill, grad_ill, np.array([-9, 1.5]), gamma=0.25, n=8)
+path_small = grad_descent(grad_ill, np.array([-9, 1.5]), gamma=0.01, n=60)
+path_zig   = grad_descent(grad_ill, np.array([-9, 1.5]), gamma=0.18, n=60)
+path_exploding  = grad_descent(grad_ill, np.array([-9, 1.5]), gamma=0.25, n=8)
 
 # one list of labelled paths, one subplot per step size (no facets in matplotlib)
 titles = ["gamma = 0.01: crawling", "gamma = 0.18: zig-zag", "gamma = 0.25: exploding"]
@@ -418,8 +412,8 @@ steps_to_tol <- function(path, target, tol = 1e-3) {
   if (length(hit) == 0) NA_integer_ else path$iter[hit[1]]
 }
 
-c(crawl = steps_to_tol(grad_descent(f_ill, grad_ill, c(-9, 1.5), 0.01, 5000), c(0, 0)),
-  zig   = steps_to_tol(grad_descent(f_ill, grad_ill, c(-9, 1.5), 0.18, 5000), c(0, 0)))
+c(crawl = steps_to_tol(grad_descent(grad_ill, c(-9, 1.5), 0.01, 5000), c(0, 0)),
+  zig   = steps_to_tol(grad_descent(grad_ill, c(-9, 1.5), 0.18, 5000), c(0, 0)))
 ```
 
 </div>
@@ -435,9 +429,9 @@ def steps_to_tol(path, target, tol=1e-3):
     hit = np.nonzero(dist < tol)[0]
     return np.nan if len(hit) == 0 else int(path["iter"].iloc[hit[0]])
 
-{"crawl": steps_to_tol(grad_descent(f_ill, grad_ill, np.array([-9, 1.5]), 0.01, 5000),
+{"crawl": steps_to_tol(grad_descent(grad_ill, np.array([-9, 1.5]), 0.01, 5000),
                        np.array([0, 0])),
- "zig":   steps_to_tol(grad_descent(f_ill, grad_ill, np.array([-9, 1.5]), 0.18, 5000),
+ "zig":   steps_to_tol(grad_descent(grad_ill, np.array([-9, 1.5]), 0.18, 5000),
                        np.array([0, 0]))}
 ```
 
@@ -512,13 +506,10 @@ linear model* family that R's `glm()` is named after. Tidy as the gradient is,
 setting it to zero gives equations with no closed-form solution: you *must*
 optimise numerically. This is the everyday reality of maximum likelihood.
 
-Where do the two formulas come from? The proof below is **optional**: nothing in
-the rest of the chapter depends on it. It is worth reading once in your life,
-though, because it is the derivation you will redo, with a different likelihood
-each time, for every model you ever fit by maximum likelihood.
+If you're wondering where the two formulas come from, the proof below is **optional**. It is worth reading once in your life, though, in particular if you are planning to continue with your studies. This derivation you will redo, with a different likelihood each time, for every model you ever fit by maximum likelihood.
 
 ::: {.callout-note collapse="true" icon=false title="[OPTIONAL] Proof: from likelihood to loss to gradient"}
-*Step 1: write down the negative log-likelihood.* Observation $i$ is a Bernoulli
+*Step 1* We write down the negative log-likelihood. Observation $i$ is a Bernoulli
 trial with success probability $p_i = \sigma(\eta_i)$, so its probability mass is
 $p_i^{y_i} (1 - p_i)^{1 - y_i}$ (check it: this equals $p_i$ when $y_i = 1$ and
 $1 - p_i$ when $y_i = 0$). Independence multiplies the contributions, $-\log$ turns
@@ -531,8 +522,7 @@ L(\boldsymbol\beta)
   \Big[ y_i \log p_i + (1 - y_i) \log(1 - p_i) \Big].
 $$
 
-*Step 2: substitute the sigmoid and simplify.* The parameters hide inside
-$p_i = \sigma(\eta_i)$, so before differentiating we rewrite everything in terms of
+The parameters hide inside $p_i = \sigma(\eta_i)$, so before differentiating we rewrite everything in terms of
 $\eta_i$. Multiplying the top and bottom of $\sigma(\eta) = 1/(1 + e^{-\eta})$ by
 $e^{\eta}$ gives $\sigma(\eta) = e^{\eta}/(1 + e^{\eta})$, hence
 $1 - \sigma(\eta) = 1/(1 + e^{\eta})$, and taking logs:
@@ -561,9 +551,9 @@ L(\boldsymbol\beta) = \frac{1}{n}\sum_{i=1}^n
         - y_i \, \mathbf{x}_i^\top\boldsymbol\beta \Big].
 $$
 
-*Step 3: differentiate.* Two ingredients. The first is the derivative of
+*Step 2.* We differentiate, by first noting that the derivative of
 $\log(1 + e^{\eta})$ (machine learning people call this function the *softplus*),
-where the sigmoid reappears all by itself:
+is the sigmoid again:
 
 $$
 \frac{d}{d\eta} \log\big(1 + e^{\eta}\big)
@@ -571,7 +561,7 @@ $$
 = \sigma(\eta).
 $$
 
-The second is the chain rule: $\eta_i = \mathbf{x}_i^\top\boldsymbol\beta$ is
+Second, we note that $\eta_i = \mathbf{x}_i^\top\boldsymbol\beta$ is
 linear in $\boldsymbol\beta$ with $\nabla_{\boldsymbol\beta}\, \eta_i = \mathbf{x}_i$,
 so a term $g(\eta_i)$ contributes $g'(\eta_i)\, \mathbf{x}_i$ to the gradient.
 Applying both to $\ell_i = \log(1 + e^{\eta_i}) - y_i \eta_i$:
@@ -591,20 +581,14 @@ $$
 = \frac{1}{n} X^\top\big(\sigma(X\boldsymbol\beta) - \mathbf{y}\big),
 $$
 
-with $\sigma$ applied elementwise: exactly the two formulas claimed above. (Prefer
-the scenic route? Differentiate the Step 1 form directly via the identity
-$\sigma'(z) = \sigma(z)\big(1 - \sigma(z)\big)$, itself worth verifying once with
-the quotient rule: slightly more algebra, same destination.) $\square$
+with $\sigma$ applied elementwise: exactly the two formulas claimed above. $\square$
 :::
 
-Let us simulate a dataset to fit. We fix the random seed first (`set.seed()` in
+**Example.** Let us simulate a dataset to fit. We fix the random seed first (`set.seed()` in
 R, a seeded generator `np.random.default_rng()` in Python) so that you get the same
 data, plots and fitted values as these notes.
 
-**Note:** the two languages cannot share a random stream. The R and Python columns
-draw *different* datasets from the same model: each column is reproducible within its
-own language, and every fitted value below matches its own column's data, but the
-numbers differ slightly between the columns.
+**Note:** Remember that the two languages cannot share a random stream, so we will get slightly different results.
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -663,82 +647,6 @@ def nll_grad(b):
 </div>
 :::
 
-**Note for Python:** a `lambda` holds a single expression only, so the
-multi-line R lambdas become small `def`s: the same first-class function objects
-either way (@sec-week3).
-
-Before putting the gradient to work, let us make sure the calculus is right. A
-hand-derived gradient is easy to get subtly wrong (a dropped sign, a missing factor
-of $n$), and the failure mode is quiet: nothing crashes, the optimiser just crawls
-or drifts, and you blame the step size. The antidote is to test the formula against
-the definition of the derivative. For a small $h$, each partial derivative should
-be close to its **central difference**:
-
-$$
-\frac{\partial L}{\partial \beta_j}(\boldsymbol\beta)
-\;\approx\;
-\frac{L(\boldsymbol\beta + h\, \mathbf{e}_j) - L(\boldsymbol\beta - h\, \mathbf{e}_j)}{2h},
-$$
-
-where $\mathbf{e}_j$ has a one in position $j$ and zeros elsewhere. A loop over the
-coordinates (@sec-week2) wrapped in a function that takes `f` as an argument
-(@sec-week3) gives a universal gradient checker:
-
-::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
-<div>
-
-**R**
-
-```{r}
-# approximate each partial derivative of f by a central difference
-num_grad <- function(f, b, h = 1e-6) {
-  g <- numeric(length(b))
-  for (j in seq_along(b)) {
-    e <- numeric(length(b))
-    e[j] <- h
-    g[j] <- (f(b + e) - f(b - e)) / (2 * h)
-  }
-  g
-}
-
-b_test <- c(0.5, -1)
-rbind(analytic = nll_grad(b_test),
-      numeric  = num_grad(nll, b_test))
-```
-
-</div>
-
-<div>
-
-**Python**
-
-```{python}
-# approximate each partial derivative of f by a central difference
-def num_grad(f, b, h=1e-6):
-    g = np.zeros(len(b))
-    for j in range(len(b)):
-        e = np.zeros(len(b))
-        e[j] = h
-        g[j] = (f(b + e) - f(b - e)) / (2 * h)
-    return g
-
-b_test = np.array([0.5, -1])
-pd.DataFrame([nll_grad(b_test), num_grad(nll, b_test)],
-             index=["analytic", "numeric"])
-```
-
-</div>
-:::
-
-The rows agree to the printed precision (the true gap is around $10^{-10}$): the
-derivation survived contact with the computer. Make the check a reflex: never hand
-an optimiser a gradient you have not checked. Both languages ship polished versions
-(the `numDeriv` package in R, `scipy.optimize.check_grad()` in Python), and if you
-run BFGS without supplying a gradient at all, `optim()` and `minimize()` quietly
-build one with this very finite-difference idea at every iteration; handing over
-the exact gradient, as we will in @sec-week5-bfgs, spares them those extra loss
-evaluations and the last few digits of accuracy.
-
 Time to descend. The model has two parameters, so we can watch gradient descent
 walk over the loss surface of a real statistical model exactly as we watched it
 cross the toy bowls. We start from $\boldsymbol\beta = (0, 0)$, which predicts every
@@ -752,7 +660,7 @@ $\kappa$). Exercise 5.3 shows how quickly that luxury disappears on real covaria
 **R**
 
 ```{r}
-path_nll <- grad_descent(nll, nll_grad, x0 = c(0, 0), gamma = 2, n = 200)
+path_nll <- grad_descent(nll_grad, x0 = c(0, 0), gamma = 2, n = 200)
 
 beta_hat <- unlist(tail(path_nll, 1)[1:2])   # the final iterate
 beta_hat
@@ -766,7 +674,7 @@ nll_grad(beta_hat)                           # its gradient: numerically zero
 **Python**
 
 ```{python}
-path_nll = grad_descent(nll, nll_grad, x0=np.array([0.0, 0.0]), gamma=2, n=200)
+path_nll = grad_descent(nll_grad, x0=np.array([0.0, 0.0]), gamma=2, n=200)
 
 beta_hat = path_nll.iloc[-1, :2].to_numpy()  # the final iterate
 beta_hat
@@ -789,8 +697,12 @@ and running more iterations would not shrink it.
 **R**
 
 ```{r}
-plot_path(nll, path_nll, xlim = c(-1.2, 0.6), ylim = c(-0.4, 2.4)) +
-  labs(x = expression(beta[0]), y = expression(beta[1]))
+ggplot(contour_data(nll, c(-1.2, 0.6), c(-0.4, 2.4)), aes(x1, x2)) +
+  geom_contour(aes(z = f), bins = 20, colour = "grey70") +
+  geom_path(data = path_nll, colour = "#0072B2", linewidth = 0.4) +
+  geom_point(data = path_nll, colour = "#0072B2", size = 0.9) +
+  labs(x = expression(beta[0]), y = expression(beta[1])) +
+  theme_minimal()
 ```
 
 </div>
@@ -800,7 +712,11 @@ plot_path(nll, path_nll, xlim = c(-1.2, 0.6), ylim = c(-0.4, 2.4)) +
 **Python**
 
 ```{python}
-fig, ax = plot_path(nll, path_nll, xlim=(-1.2, 0.6), ylim=(-0.4, 2.4))
+x1, x2, f_grid = contour_data(nll, (-1.2, 0.6), (-0.4, 2.4))
+fig, ax = plt.subplots()
+ax.contour(x1, x2, f_grid, levels=20, colors="0.7", linewidths=0.5)
+ax.plot(path_nll["x1"], path_nll["x2"], color="#0072B2", linewidth=0.8)
+ax.scatter(path_nll["x1"], path_nll["x2"], color="#0072B2", s=8)
 ax.set_xlabel(r"$\beta_0$")
 ax.set_ylabel(r"$\beta_1$")
 plt.show()
@@ -814,6 +730,137 @@ in mind every time you fit *any* model. The path marches straight into the bowl 
 stops at the maximum likelihood estimate. The fit itself is done; what the rest of
 the chapter adds is how to get there *cheaply* when $n$ is enormous
 (@sec-week5-sgd), and how to stop hand-tuning $\gamma$ (@sec-week5-bfgs).
+
+#### Approximate gradients {#sec-week5-numgrad}
+
+What if we cannot compute the gradient? Perhaps the loss is a black box written by
+someone else, or the likelihood is a page of algebra we would rather not
+differentiate. The descent seems stuck before it starts, but remember what a
+partial derivative *is*: the limit of a difference quotient. We can simply stop
+short of the limit. For a small $h$, each partial derivative is well approximated
+by its **central difference**:
+
+$$
+\frac{\partial L}{\partial \beta_j}(\boldsymbol\beta)
+\;\approx\;
+\frac{L(\boldsymbol\beta + h\, \mathbf{e}_j) - L(\boldsymbol\beta - h\, \mathbf{e}_j)}{2h},
+$$
+
+where $\mathbf{e}_j$ has a one in position $j$ and zeros elsewhere. A loop over the
+coordinates (@sec-week2) wrapped in a function that takes `f` as an argument
+(@sec-week3) turns the definition into code. How close does it get? Since here we
+*do* know the exact gradient, we can measure the approximation error directly:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+# approximate each partial derivative of f by a central difference
+num_grad <- function(f, b, h = 1e-6) {
+  g <- numeric(length(b))
+  for (j in seq_along(b)) {
+    e <- numeric(length(b))
+    e[j] <- h
+    g[j] <- (f(b + e) - f(b - e)) / (2 * h)
+  }
+  g
+}
+
+b_test <- c(0.5, -1)
+num_grad(nll, b_test) - nll_grad(b_test)   # approximation error at a test point
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+# approximate each partial derivative of f by a central difference
+def num_grad(f, b, h=1e-6):
+    g = np.zeros(len(b))
+    for j in range(len(b)):
+        e = np.zeros(len(b))
+        e[j] = h
+        g[j] = (f(b + e) - f(b - e)) / (2 * h)
+    return g
+
+b_test = np.array([0.5, -1])
+num_grad(nll, b_test) - nll_grad(b_test)   # approximation error at a test point
+```
+
+</div>
+:::
+
+An error of order $10^{-11}$: for all practical purposes, `num_grad` recovers the
+gradient without a single line of calculus. (The same comparison, run in reverse,
+is a debugging tool: whenever you *have* derived a gradient by hand, check it
+against `num_grad` before trusting it. A dropped sign or a missing factor of $n$
+does not crash anything, it just quietly sabotages the descent. Both languages ship
+polished versions of this check: the `numDeriv` package in R,
+`scipy.optimize.check_grad()` in Python.)
+
+To descend with the approximate gradient, notice that `grad_descent()` never looks
+inside its `grad` argument; any function that maps a vector to a vector will do,
+including one manufactured on the spot from the loss itself. That is a job for a
+function factory (@sec-week3-factories): curry the loss $L$ and the step $h$ into
+`num_grad`, receive a function of $\boldsymbol\beta$ alone, and hand that straight
+to `grad_descent()`. As an example, we rerun the descent and compare with the
+exact-gradient run:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+# factory: fix f and h once, get back a gradient function of b alone
+make_num_grad <- function(f, h = 1e-6) \(b) num_grad(f, b, h)
+
+path_num <- grad_descent(make_num_grad(nll), x0 = c(0, 0), gamma = 2, n = 200)
+
+c(steps_exact = steps_to_tol(path_nll, beta_hat),
+  steps_num   = steps_to_tol(path_num, beta_hat))
+rbind(exact     = beta_hat,
+      numerical = unlist(tail(path_num, 1)[1:2]))
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+# factory: fix f and h once, get back a gradient function of b alone
+def make_num_grad(f, h=1e-6):
+    return lambda b: num_grad(f, b, h)
+
+path_num = grad_descent(make_num_grad(nll), x0=np.array([0.0, 0.0]), gamma=2, n=200)
+
+{"steps_exact": steps_to_tol(path_nll, beta_hat),
+ "steps_num":   steps_to_tol(path_num, beta_hat)}
+pd.DataFrame([beta_hat, path_num.iloc[-1, :2].to_numpy()],
+             index=["exact", "numerical"])
+```
+
+</div>
+:::
+
+Same number of steps into a $10^{-3}$ ball around `beta_hat`, the same estimate to
+the printed precision (the true gap is about $10^{-10}$), and we never
+differentiated anything. The price is on the meter: each step now costs $2d$
+evaluations of the full loss (here $4 \times 200 = 800$ passes over the data,
+against $200$ for the exact gradient), a bill that grows with the dimension; and
+the finite-difference error, harmless here, can bite on badly scaled problems.
+This trick is exactly what `optim()` and `minimize()` quietly do whenever you call
+them without supplying a gradient. It is also half of a bigger idea: if first
+derivatives can be built from differences of the *loss*, then curvature can be
+built from differences of *gradients*. That observation powers BFGS, the workhorse
+of the next section.
 
 ### Stochastic gradient descent {#sec-week5-sgd}
 
@@ -837,7 +884,30 @@ $$
 \qquad I_t \sim \text{Uniform}\{1, \dots, n\},
 $$
 
-is **stochastic gradient descent** (SGD). A compromise between one sample and all $n$
+is **stochastic gradient descent** (SGD). The step size has quietly acquired a
+subscript $t$, and it is load-bearing. With the full gradient, the steps shrink on
+their own as the minimum approaches, because $\nabla L \to \mathbf{0}$ there. The
+noisy stand-in does us no such favour: even standing exactly at the minimiser, a
+randomly drawn observation pushes the iterate *somewhere* (only the average of the
+pushes is zero), so with a constant $\gamma$ the iterates can never settle. They
+reach the neighbourhood of the minimiser quickly and then rattle around it forever,
+in a "noise ball" whose radius grows with $\gamma$. The cure is a **decaying
+schedule** $\gamma_t$: shrink the steps to strangle the noise, but not so fast that
+the algorithm runs out of fuel before arriving. The classical recipe (Robbins and
+Monro, 1951: this algorithm is older than the computer you are running it on) asks,
+informally, for
+
+$$
+\sum_{t=1}^{\infty} \gamma_t = \infty
+\qquad \text{and} \qquad
+\sum_{t=1}^{\infty} \gamma_t^2 < \infty:
+$$
+
+infinite total travel, so the iterate can reach the minimiser however far away it
+started, but finite total squared steps, so the noise averages out. Schedules like
+$\gamma_t = a/(b + t)$ satisfy both, which is why you keep seeing that shape.
+
+A compromise between one sample and all $n$
 is a **mini-batch**: average $\nabla\ell_i$ over a random subset $B$ of size $m$. Still
 unbiased, with variance shrinking like $1/m$, at cost proportional to $m$. The
 economics are the whole point:
@@ -872,10 +942,11 @@ Note the index base: the step that *produces* $\theta_t$ uses $\gamma_t$, which 
 exactly the code's `gamma(t)`, so the first update uses $\gamma_1$.
 :::
 
-Here is single-sample SGD in the same functional style. One new ingredient: the step
-size is now a *function* of the step number $t$, for reasons one paragraph away. The
-other ingredient is an old friend: the per-observation gradient `grad_i` we feed it
-is exactly the $(\sigma(\eta_i) - y_i)\,\mathbf{x}_i$ derived in @sec-week5-losses.
+Here is single-sample SGD in the same functional style. The step size enters as a
+*function* of the step number $t$, so that constant and decaying schedules fit the
+same interface, and the per-observation gradient `grad_i` we feed it is an old
+friend: exactly the $(\sigma(\eta_i) - y_i)\,\mathbf{x}_i$ derived in
+@sec-week5-losses.
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -995,27 +1066,11 @@ plt.show()
 :::
 
 Both trajectories are drunk versions of the gradient descent path: that is the noise
-of estimating the gradient from one observation. But the endgames differ:
-
-- With a **constant** step the iterates never settle: they reach the neighbourhood of
-  $\hat{\boldsymbol\beta}$ quickly and then rattle around it forever, in a "noise
-  ball" whose radius grows with $\gamma$.
-- With a **decaying** step the early iterations still move fast, while the shrinking
-  steps gradually strangle the noise, and the trajectory funnels into the minimum.
-
-How fast should $\gamma_t$ decay? The classical answer (Robbins and Monro, 1951:
-this algorithm is older than the computer you are running it on) is, informally:
-
-$$
-\sum_{t=1}^{\infty} \gamma_t = \infty
-\qquad \text{and} \qquad
-\sum_{t=1}^{\infty} \gamma_t^2 < \infty.
-$$
-
-The first condition says the steps must add up to infinity: otherwise the algorithm
-can run out of fuel before reaching the minimum, however far away it started. The
-second says they must shrink fast enough that the noise averages out. Schedules like
-$\gamma_t = a/(b + t)$ satisfy both, which is why you keep seeing that shape.
+of estimating the gradient from one observation. And the endgames play out exactly
+as the theory promised: the **constant** step reaches the neighbourhood of
+$\hat{\boldsymbol\beta}$ quickly and then rattles around it forever in its noise
+ball, while the **decaying** step still moves fast early on and then funnels into
+the minimum as the shrinking $\gamma_t$ strangles the noise.
 
 Finally, the claim that actually sells SGD: progress *per data point touched*. One GD
 step costs $n = 500$ observation-gradients; one SGD step costs 1. Plot the loss
@@ -1030,10 +1085,12 @@ against that budget:
 #| message: false
 library(dplyr)
 
+# the paths hold only iterates; evaluate the loss along each of them ourselves
+path_nll$loss  <- apply(as.matrix(path_nll[, 1:2]), 1, nll)
 sgd_decay$loss <- apply(as.matrix(sgd_decay[, 1:2]), 1, nll)
 
 cost_df <- bind_rows(
-  tibble(evals = path_nll$iter * n_log, loss = path_nll$f,    method = "GD (full gradient)"),
+  tibble(evals = path_nll$iter * n_log, loss = path_nll$loss,  method = "GD (full gradient)"),
   tibble(evals = sgd_decay$iter,        loss = sgd_decay$loss, method = "SGD (one sample)")
 ) |>
   filter(evals > 0)
@@ -1057,10 +1114,12 @@ ggplot(cost_df, aes(evals, loss, colour = method)) +
 from plotnine import (ggplot, aes, geom_line, scale_x_log10,
                       scale_colour_manual, labs, theme_minimal)
 
+# the paths hold only iterates; evaluate the loss along each of them ourselves
+path_nll["loss"]  = [nll(b) for b in path_nll[["x1", "x2"]].to_numpy()]
 sgd_decay["loss"] = [nll(b) for b in sgd_decay[["x1", "x2"]].to_numpy()]
 
 cost_df = pd.concat([
-    pd.DataFrame({"evals": path_nll["iter"] * n_log, "loss": path_nll["f"],
+    pd.DataFrame({"evals": path_nll["iter"] * n_log, "loss": path_nll["loss"],
                   "method": "GD (full gradient)"}),
     pd.DataFrame({"evals": sgd_decay["iter"], "loss": sgd_decay["loss"],
                   "method": "SGD (one sample)"})
@@ -1178,10 +1237,7 @@ past gradients, $\mathbf{v}_{t+1} = \beta\,\mathbf{v}_t - \gamma\,\nabla f(\math
 and step by $\mathbf{v}_{t+1}$: in the zig-zag direction successive gradients flip
 sign and cancel, while along the valley floor they accumulate and the iterate picks
 up speed. It drops straight into SGD, and mini-batch SGD with momentum is more or
-less *the* algorithm that trains deep neural networks. We will not need it again in
-this module, so we leave it as optional reading: the notebook
-`additional_scrapped_materials` works it out in full, with code, pictures and an
-exercise. Momentum, however, only treats the *symptom* of ill-conditioning. The two
+less *the* algorithm that trains deep neural networks. The two
 methods of this section treat the cause: the coordinates live on the wrong scales.
 
 ### Preconditioning {#sec-week5-precond-p}
@@ -1221,7 +1277,7 @@ shortly).
 **R**
 
 ```{r}
-grad_descent_pre <- function(f, grad, x0, gamma, n, P) {
+grad_descent_pre <- function(grad, x0, gamma, n, P) {
   path <- matrix(NA_real_, nrow = n + 1, ncol = length(x0))
   path[1, ] <- x0
   for (i in 1:n) {
@@ -1229,7 +1285,6 @@ grad_descent_pre <- function(f, grad, x0, gamma, n, P) {
   }
   out <- as.data.frame(path)
   names(out) <- paste0("x", seq_along(x0))
-  out$f <- apply(path, 1, f)
   out$iter <- 0:n
   out
 }
@@ -1242,13 +1297,12 @@ grad_descent_pre <- function(f, grad, x0, gamma, n, P) {
 **Python**
 
 ```{python}
-def grad_descent_pre(f, grad, x0, gamma, n, P):
+def grad_descent_pre(grad, x0, gamma, n, P):
     path = np.full((n + 1, len(x0)), np.nan)
     path[0] = x0
     for i in range(n):
         path[i + 1] = path[i] - gamma * (P @ grad(path[i]))
     out = pd.DataFrame(path, columns=[f"x{j + 1}" for j in range(len(x0))])
-    out["f"] = [f(row) for row in path]
     out["iter"] = range(n + 1)
     return out
 ```
@@ -1269,7 +1323,7 @@ bowl, $\kappa = 1$. With $\gamma = 1$:
 
 ```{r}
 P <- diag(c(1, 1 / 10))
-path_pre <- grad_descent_pre(f_ill, grad_ill, c(-9, 1.5), gamma = 1, n = 5, P = P)
+path_pre <- grad_descent_pre(grad_ill, c(-9, 1.5), gamma = 1, n = 5, P = P)
 round(path_pre, 10)
 ```
 
@@ -1281,7 +1335,7 @@ round(path_pre, 10)
 
 ```{python}
 P = np.diag([1, 1 / 10])
-path_pre = grad_descent_pre(f_ill, grad_ill, np.array([-9, 1.5]), gamma=1, n=5, P=P)
+path_pre = grad_descent_pre(grad_ill, np.array([-9, 1.5]), gamma=1, n=5, P=P)
 path_pre.round(10)
 ```
 
@@ -1444,9 +1498,12 @@ sp.optimize.minimize(fun, x0, jac=grad, method="BFGS")
 :::
 
 with `par`/`x0` the starting point, `fn`/`fun` the function to minimise and
-`gr`/`jac` its gradient: the same ingredients our `grad_descent()` takes (this is
-why we wrote everything functional-style: the interfaces match). Time to return to
-the logistic regression of @sec-week5-losses and retire our hand-tuned step sizes:
+`gr`/`jac` its gradient. Note that, unlike our `grad_descent()`, the built-in
+optimisers genuinely need the objective as well as the gradient: the line search
+inside BFGS evaluates `fn` to decide how far to step. The pieces we have been
+passing around all chapter slot straight in (this is why we wrote everything
+functional-style). Time to return to the logistic regression of @sec-week5-losses
+and retire our hand-tuned step sizes:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -1511,7 +1568,7 @@ fit_glm <- glm(y_log ~ X_log - 1, family = binomial)
 results <- data.frame(
   method = c("glm()", "optim BFGS", "GD (200 steps)", "SGD (4000 steps)"),
   nll = c(nll(coef(fit_glm)), fit_bfgs$value,
-          tail(path_nll$f, 1),
+          nll(beta_hat),
           nll(unlist(tail(path_sgd_nll, 1)[1:2]))),
   obs_gradients = c(NA, fit_bfgs$counts["gradient"] * n_log, 200 * n_log, 4000)
 )
@@ -1541,7 +1598,7 @@ fit_ref = sp.optimize.minimize(nll, np.zeros(2), jac=nll_grad, method="BFGS",
 results = pd.DataFrame({
     "method": ["reference (tight BFGS)", "minimize BFGS", "GD (200 steps)", "SGD (4000 steps)"],
     "nll": [fit_ref.fun, fit_bfgs.fun,
-            path_nll["f"].iloc[-1],
+            nll(beta_hat),
             nll(path_sgd_nll.iloc[-1, :2].to_numpy())],
     "obs_gradients": [np.nan, fit_bfgs.njev * n_log, 200 * n_log, 4000]
 })
