@@ -159,7 +159,7 @@ Sixty steps and we are sitting on the minimum. To *see* the descent we plot the
 function as a **contour plot**: evaluate $f$ on a grid (`expand.grid()` in R,
 `np.meshgrid()` in Python), then hand the grid to `geom_contour()`. Since we will
 need many of these grids, we write a small helper for that step (again: @sec-week3
-habits paying rent). Note that this is the first place the objective $f$ is
+habits paying off). Note that this is the first place the objective $f$ is
 actually evaluated: the plot needs it, the descent never did.
 
 **Note for Python:** plotnine, ggplot2's Python twin from @sec-week4, has no
@@ -316,7 +316,8 @@ It's like in Goldilocks and the Three Bears: the step size can be
   bounces from one wall of the valley to the other (the famous **zig-zag**) while
   slowly drifting towards the minimum.
 - **Too big** ($\gamma = 0.25$): each bounce is *bigger* than the last. The iterates
-  diverge. (The panel is clipped; the true trajectory left the building.)
+  diverge. (The panel is clipped: the true trajectory has already left the
+  plotting window.)
 
 <p><a href="https://commons.wikimedia.org/wiki/File:The_Three_Bears_-_Project_Gutenberg_eText_17034.jpg#/media/File:The_Three_Bears_-_Project_Gutenberg_eText_17034.jpg"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/The_Three_Bears_-_Project_Gutenberg_eText_17034.jpg/500px-The_Three_Bears_-_Project_Gutenberg_eText_17034.jpg?utm_source=en.wikipedia.org&amp;utm_campaign=imageinfo&amp;utm_content=thumbnail" alt="The Three Bears - Project Gutenberg eText 17034.jpg" height="571" width="500"></a><br>By Arthur Rackham - <a rel="nofollow" class="external free" href="http://www.gutenberg.org/etext/17034">http://www.gutenberg.org/etext/17034</a>, Public Domain, <a href="https://commons.wikimedia.org/w/index.php?curid=562870">Link</a></p>
 
@@ -362,7 +363,7 @@ grows in proportion.
 In our example, the valley has curvatures $1$ (along $x_1$) and $10$ (across it,
 along $x_2$), so $\lambda_{\max} = 10$ and the stability bound is
 $\gamma < 2/10 = 0.2$: exactly
-why $0.18$ scraped through and $0.25$ exploded. Its condition number is
+why $0.18$ was stable, if only just, and $0.25$ diverged. Its condition number is
 $\kappa = 10/1 = 10$, and that is already annoying: the zig-zag panel is what
 $\kappa = 10$ looks like.
 
@@ -393,7 +394,7 @@ plain gradient descent simply stops being a usable tool. At the extreme
 $\sigma_{\min} = 0$, $\kappa$ is infinite and $X^\top X$ is exactly the *singular*
 matrix that @sec-week1 warned cannot be inverted; a huge $\kappa$ means nearly so.
 This is why Exercise 5.3 will ask you to stare at the column scales of its design
-matrix. Hold that thought; ill-conditioning is the villain for the rest of the
+matrix. Hold that thought; ill-conditioning is the recurring obstacle for the rest of the
 chapter.
 
 A small helper we will use to compare methods fairly: how many iterations until we are
@@ -684,7 +685,7 @@ nll_grad(beta_hat)                           # its gradient: numerically zero
 </div>
 :::
 
-With no closed form there is no answer sheet to compare against, but the gradient
+With no closed form there is no reference value to compare against, but the gradient
 itself testifies: at `beta_hat` it is zero to machine precision, so the surface is
 flat there in every direction and the descent has nowhere left to go. Note also that
 `beta_hat` lands near the true $(-0.5, 2)$ that generated the data but not *on* it:
@@ -796,12 +797,9 @@ num_grad(nll, b_test) - nll_grad(b_test)   # approximation error at a test point
 :::
 
 An error of order $10^{-11}$: for all practical purposes, `num_grad` recovers the
-gradient without a single line of calculus. (The same comparison, run in reverse,
-is a debugging tool: whenever you *have* derived a gradient by hand, check it
-against `num_grad` before trusting it. A dropped sign or a missing factor of $n$
-does not crash anything, it just quietly sabotages the descent. Both languages ship
-polished versions of this check: the `numDeriv` package in R,
-`scipy.optimize.check_grad()` in Python.)
+gradient without a single line of calculus. (Note that the same comparison, run in reverse,
+is a debugging tool: whenever you *have* derived a gradient by hand, it is always possible to check it
+against a numerical counterpart)
 
 To descend with the approximate gradient, notice that `grad_descent()` never looks
 inside its `grad` argument; any function that maps a vector to a vector will do,
@@ -852,7 +850,7 @@ pd.DataFrame([beta_hat, path_num.iloc[-1, :2].to_numpy()],
 
 Same number of steps into a $10^{-3}$ ball around `beta_hat`, the same estimate to
 the printed precision (the true gap is about $10^{-10}$), and we never
-differentiated anything. The price is on the meter: each step now costs $2d$
+differentiated anything. The price is in the operation count: each step now costs $2d$
 evaluations of the full loss (here $4 \times 200 = 800$ passes over the data,
 against $200$ for the exact gradient), a bill that grows with the dimension; and
 the finite-difference error, harmless here, can bite on badly scaled problems.
@@ -873,7 +871,7 @@ $$
 Every single step of gradient descent touches **all $n$ observations**. For our
 $n = 500$ example that is nothing; for $n = 10^8$ user records it means one step of GD
 costs a full pass over a dataset that may not even fit in memory. The sum structure
-suggests a cheeky fix: *don't compute the whole sum*. Pick one index $I$ uniformly at
+suggests a bold shortcut: *don't compute the whole sum*. Pick one index $I$ uniformly at
 random and use $\nabla \ell_I(\theta)$ as a stand-in for $\nabla L(\theta)$. It is a
 noisy stand-in, but it is **unbiased**:
 $\mathbb{E}\big[\nabla \ell_I(\theta)\big] = \nabla L(\theta)$. On average, it is the
@@ -892,7 +890,7 @@ randomly drawn observation pushes the iterate *somewhere* (only the average of t
 pushes is zero), so with a constant $\gamma$ the iterates can never settle. They
 reach the neighbourhood of the minimiser quickly and then rattle around it forever,
 in a "noise ball" whose radius grows with $\gamma$. The cure is a **decaying
-schedule** $\gamma_t$: shrink the steps to strangle the noise, but not so fast that
+schedule** $\gamma_t$: shrink the steps to damp the noise, but not so fast that
 the algorithm runs out of fuel before arriving. The classical recipe (Robbins and
 Monro, 1951: this algorithm is older than the computer you are running it on) asks,
 informally, for
@@ -1065,12 +1063,12 @@ plt.show()
 </div>
 :::
 
-Both trajectories are drunk versions of the gradient descent path: that is the noise
+Both trajectories are noisy versions of the gradient descent path: that is the noise
 of estimating the gradient from one observation. And the endgames play out exactly
 as the theory promised: the **constant** step reaches the neighbourhood of
 $\hat{\boldsymbol\beta}$ quickly and then rattles around it forever in its noise
 ball, while the **decaying** step still moves fast early on and then funnels into
-the minimum as the shrinking $\gamma_t$ strangles the noise.
+the minimum as the shrinking $\gamma_t$ damps the noise.
 
 Finally, the claim that actually sells SGD: progress *per data point touched*. One GD
 step costs $n = 500$ observation-gradients; one SGD step costs 1. Plot the loss
@@ -1231,14 +1229,6 @@ steep direction, progress was throttled along the flat one, and the trajectory
 wasted its energy bouncing between walls. This section solves that geometry problem
 twice: first by hand, then automatically.
 
-One classical fix earns an honourable mention on its way to the cutting-room floor:
-**momentum**, the heavy-ball trick. Give the iterate a velocity that accumulates
-past gradients, $\mathbf{v}_{t+1} = \beta\,\mathbf{v}_t - \gamma\,\nabla f(\mathbf{x}_t)$,
-and step by $\mathbf{v}_{t+1}$: in the zig-zag direction successive gradients flip
-sign and cancel, while along the valley floor they accumulate and the iterate picks
-up speed. It drops straight into SGD, and mini-batch SGD with momentum is more or
-less *the* algorithm that trains deep neural networks. The two
-methods of this section treat the cause: the coordinates live on the wrong scales.
 
 ### Preconditioning {#sec-week5-precond-p}
 
@@ -1620,8 +1610,8 @@ different draws of the data, so the loss values differ between languages: the
   schedule, no $\beta$. The curvature information it accumulates replaces all the
   knobs we spent this chapter turning by hand.
 - **GD gets there too**, but only after we hand-tuned $\gamma$, and at over fifteen
-  times the cost. On an ill-conditioned problem (Exercise 5.3) the gap becomes a
-  chasm.
+  times the cost. On an ill-conditioned problem (Exercise 5.3) the gap grows by
+  orders of magnitude.
 - **SGD is nearly as accurate here at a fraction of the cost**, and its cost would
   be *unchanged* if $n$ were $10^8$, which is the regime it is built for.
 
@@ -1717,18 +1707,10 @@ all over statistics and machine learning:
   look like. When a model "fails to converge", you have seen the picture: a too-large
   step diverging, or an ill-conditioned likelihood crawling.
 - **Neural networks.** Training a network is minimising an average loss over millions
-  of observations and millions of parameters: mini-batch SGD is the core engine
-  (usually with the momentum trick of the `additional_scrapped_materials` notebook),
-  and the popular Adam optimiser adds an adaptive *diagonal preconditioner* estimated
-  on the fly. You have now implemented the essential parts of it in a few dozen lines
-  of code.
-- **Sampling algorithms.** When you meet Markov chain Monte Carlo in weeks 8–10 of
+  of observations and millions of parameters: mini-batch SGD is the core engine. However, 
+  as the geometry of the loss landscape is often ill-conditioned in those ML models, we tend to find that a separate class
+  of gradient descent algorithms, called **momentum** based SGD, which include Adam. In short, these accelerate convergence by using a moving average of past gradients to smooth out the zig-zagging and help navigate the loss landscape more effectively.
+  - **Sampling algorithms.** When you meet Markov chain Monte Carlo in weeks 8–10 of
   this module, you will find the same geometry problem in a new costume: a sampler
   exploring an elongated, ill-conditioned posterior zig-zags just like gradient
-  descent did, and the fix is again preconditioning (there it goes by names like
-  "mass matrix" or "proposal covariance"). The valley picture from this chapter is
-  worth keeping.
-
-The tools were weeks 1–4: vectors and matrices to hold the data, loops to iterate,
-functions to make the algorithms reusable, and plots to see what is really going on.
-The ideas were this week's. Together they are most of computational statistics.
+  descent did.

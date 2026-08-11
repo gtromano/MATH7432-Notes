@@ -1555,5 +1555,4 @@ a list comprehension does the same job), and stitch the results with `bind_rows(
 :::
 
 That completes the toolbox: data structures, control flow, functions, and now data wrangling
-and graphics. Next week (@sec-week5) we put everything to work on the central computational
-problem of statistics: optimisation.
+and graphics. Next week (@sec-week5) we put everything to work!

@@ -1084,13 +1084,11 @@ now, `def name(): ...` simply packages the block. `timeit.repeat(f, number=1,
 repeat=10)` returns ten timings in seconds; the minimum is the honest
 estimate, and we scale it to milliseconds.
 
-Same result, dozens of times apart: roughly fifty-fold in the R run,
-twenty-odd-fold in the Python one, and the magnitudes, not the exact numbers,
-are the message. Since the copying cost is quadratic, the gap widens as `n`
+Same result, dozens of times apart! Since the copying cost is quadratic, the gap widens as `n`
 grows. The habit to build, in either language: **decide the size first,
 allocate, then fill.**
 
-**Note for Python:** the quadratic sin here belongs to *numpy arrays*.
+**Note for Python:** the quadratic growth here belongs to *numpy arrays*.
 Plain Python lists over-allocate as they grow, so `my_list.append(...)` is
 genuinely cheap, and building a list then converting with `np.array(my_list)`
 is idiomatic Python. For numerical work, preallocating the numpy array as
@@ -1725,6 +1723,4 @@ b. Wrap that in a `for` loop over every starting value from 1 to 5000,
 That is the week: comparisons and logic to make decisions, loops to repeat
 them, and, stitched together, a first real algorithm. Next week
 (@sec-week3) we stop copy-pasting the gradient-descent loop and wrap it into
-a *function* we can hand any problem we like. Functions also unlock the one
-way of repeating that this week deliberately skipped: *recursion*, where a
-function calls itself (@sec-week3-recursion).
+a *function* we can hand any problem we like.

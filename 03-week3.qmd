@@ -429,7 +429,7 @@ No error, no warning: R and Python alike quietly grabbed the global `lbs` and re
 **R**
 
 ```{r}
-rm(lbs)   # tidy up the crime scene
+rm(lbs)   # tidy up: remove the leftover variable
 ```
 
 </div>
@@ -439,7 +439,7 @@ rm(lbs)   # tidy up the crime scene
 **Python**
 
 ```{python}
-del lbs   # tidy up the crime scene
+del lbs   # tidy up: remove the leftover variable
 ```
 
 </div>
@@ -588,7 +588,7 @@ fib_rec(10)
 
 The definition *is* the recurrence: `fib_rec` calls itself on smaller inputs until it hits the base case. (In R, `if` is an expression that returns a value, which is why the body fits on a single line; Python's counterpart is the *conditional expression* `value_if_true if condition else value_if_false`, where the value comes first.)
 
-Elegant, and here catastrophically inefficient. Each call spawns *two* more calls, so the total number of calls grows exponentially in `n`, and the same values get recomputed over and over. Watch the time explode as `n` creeps up (R's `elapsed` is the wall-clock time in seconds; the Python column hands the code to `timeit.timeit(..., number=1)` as a string, which runs it once and returns seconds directly, with `globals=globals()` letting the timed code see our function):
+Elegant, and here catastrophically inefficient. Each call spawns *two* more calls, so the total number of calls grows exponentially in `n`, and the same values get recomputed over and over. Watch the run time grow as `n` creeps up (R's `elapsed` is the wall-clock time in seconds; the Python column hands the code to `timeit.timeit(..., number=1)` as a string, which runs it once and returns seconds directly, with `globals=globals()` letting the timed code see our function):
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -735,7 +735,7 @@ We will use `\(x)` for one-liners and anonymous functions, and keep the long for
 
 ### Function factories and currying {#sec-week3-factories}
 
-Here is where first-class functions start paying rent: a function can *return a function*. Such a function is called a **function factory**:
+Here is where first-class functions start paying off: a function can *return a function*. Such a function is called a **function factory**:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -777,7 +777,7 @@ to_the_tenth(2)
 
 Note the small miracle: `cube` still knows that `exponent` is 3, long after the call to `make_power` finished. The returned function carries its birth environment with it (the technical name is a *closure*), and this works identically in both languages.
 
-Turning a function of several arguments into a chain of single-argument functions like this is called **currying** (after the logician Haskell Curry; the food connection is, sadly, coincidental). It shines when you fix some arguments once and vary the others a lot. A situation you will meet constantly in numerical work: evaluating a function on grids of different resolutions. Take this slightly unhinged function,
+Turning a function of several arguments into a chain of single-argument functions like this is called **currying** (after the logician Haskell Curry; the food connection is, sadly, coincidental). It shines when you fix some arguments once and vary the others a lot. A situation you will meet constantly in numerical work: evaluating a function on grids of different resolutions. Take this deliberately awkward function,
 
 $$
 f(x) = x^2 + x \sin(x - 1.5\,x^2),
@@ -1361,7 +1361,7 @@ grad_descent(f, grad_f, x0=10, gamma=1.05, n=50)   # too greedy: diverges
 </div>
 :::
 
-Each step overshoots the minimum by more than it gained, and the iterates explode (no randomness here, so for once the two columns agree to the last digit). Why this happens, how to choose $\gamma$, and what to do when the problem is multivariate and the data are big: that is precisely the programme of @sec-week5, where `grad_descent` and its descendants do statistics for real.
+Each step overshoots the minimum by more than it gained, and the iterates diverge (no randomness here, so for once the two columns agree to the last digit). Why this happens, how to choose $\gamma$, and what to do when the problem is multivariate and the data are big: that is precisely the programme of @sec-week5, where `grad_descent` and its descendants do statistics for real.
 
 ::: {.callout-tip title="Exercise 3.9: A new client for grad_descent"}
 Consider $h(x) = e^x + x^2$.
@@ -1448,4 +1448,4 @@ Hint: `map_chr` over `x`, and inside the lambda, logical indexing of `phrases` p
 
 ## Looking ahead
 
-We now hold both halves of the toolkit this module runs on: writing clean, pure functions, and wiring them together functionally: factories to build them, `map` to spread them over data, and higher-order functions like `grad_descent` that take the mathematics as an argument. In @sec-week4 we meet the data structures and plotting tools that real datasets deserve, and in @sec-week5 everything converges (pun fully intended) on optimisation for statistics.
+We now hold both halves of the toolkit this module runs on: writing clean, pure functions, and wiring them together functionally: factories to build them, `map` to spread them over data, and higher-order functions like `grad_descent` that take the mathematics as an argument. In @sec-week4 we meet the data structures and plotting tools that real datasets deserve, and in @sec-week5 everything converges (pun fully intended) on optimisation for statistics. There we will see how useful this functional style is in practice.
