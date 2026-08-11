@@ -174,6 +174,9 @@ window.Quarto = {
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
       <a href="./">MATH7432 - Computing and Algorithms for Statistics</a> 
+        <div class="sidebar-tools-main">
+    <a href="./MATH7432---Computing-and-Algorithms-for-Statistics.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+</div>
     </div>
       </div>
         <div class="mt-2 flex-shrink-0 align-items-center">
@@ -216,7 +219,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./05-week5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Week 5: Optimisation for Statistics</span></span></a>
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Week 5: Introduction to Optimisation for Statistics</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -537,7 +540,7 @@ Exercise 2.1: The pedantic computer
 <li><code>1e5 / (1e5 + 1e-16) == 1</code></li>
 </ol>
 <p>(Python: item (c) is <code>math.sqrt(2)**2 == 2</code>; recall <code>**</code> is Python’s power operator. The other three run as written.)</p>
-<p>Explain what you see, and rewrite the comparisons in (b) and (c) so that they return <code>TRUE</code> for the right reason.</p>
+<p>Explain what you see, and rewrite the <code>FALSE</code> comparisons so that they return <code>TRUE</code> for the right reason.</p>
 </div>
 </div>
 </section>
@@ -1273,9 +1276,9 @@ r_i = r_{i-1} + r_{i-2}, \qquad r_1 = r_2 = 1,
 <span id="cb185-13"><a href="#cb185-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Unit: milliseconds
-        expr      min        lq     mean    median        uq        max neval
-        grow 576.9728 597.61455 668.4949 613.05711 652.22024 1060.65319    10
- preallocate  12.8847  13.13497  15.8403  15.18048  18.02362   19.73842    10
+        expr       min        lq      mean    median        uq        max neval
+        grow 55.797520 62.623015 71.095533 63.965677 65.458148 141.043127    10
+ preallocate  1.039057  1.111635  1.340772  1.276112  1.387438   1.947242    10
  cld
   a 
    b</code></pre>
@@ -1301,11 +1304,11 @@ r_i = r_{i-1} + r_{i-2}, \qquad r_1 = r_2 = 1,
 <span id="cb187-14"><a href="#cb187-14" aria-hidden="true" tabindex="-1"></a><span class="co"># best of 10 runs of each, in milliseconds</span></span>
 <span id="cb187-15"><a href="#cb187-15" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(grow, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>214.21751898014918</code></pre>
+<pre><code>18.991970000115543</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb189"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb189-1"><a href="#cb189-1" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(preallocate, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>9.151322999969125</code></pre>
+<pre><code>0.7897479999883217</code></pre>
 </div>
 </div>
 </div>
@@ -1466,13 +1469,10 @@ Exercise 2.6: Double your money
 <span id="cb203-8"><a href="#cb203-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">times =</span> <span class="dv">10</span></span>
 <span id="cb203-9"><a href="#cb203-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Unit: milliseconds
-       expr        min        lq      mean    median        uq      max neval
-       loop 350.448867 362.16928 388.26011 387.86661 417.99012 428.1463    10
- vectorised   9.736725  11.73305  61.29843  18.57602  26.42696 441.6375    10
- cld
-  a 
-   b</code></pre>
+<pre><code>Unit: microseconds
+       expr       min        lq      mean   median        uq      max neval cld
+       loop 33272.428 34229.869 35054.607 34985.29 35342.750 36971.65    10  a 
+ vectorised   877.117   976.187  9652.591  2925.89  3870.618 73673.59    10   b</code></pre>
 </div>
 </div>
 </div>
@@ -1492,11 +1492,11 @@ Exercise 2.6: Double your money
 <span id="cb205-11"><a href="#cb205-11" aria-hidden="true" tabindex="-1"></a><span class="co"># best of 10 runs of each, in milliseconds</span></span>
 <span id="cb205-12"><a href="#cb205-12" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(loop, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>243.15090698655695</code></pre>
+<pre><code>174.46774199993342</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb207"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb207-1"><a href="#cb207-1" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(vectorised, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.39157000719569623</code></pre>
+<pre><code>0.2561270000569493</code></pre>
 </div>
 </div>
 </div>
