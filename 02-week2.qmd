@@ -263,7 +263,7 @@ d. `1e5 / (1e5 + 1e-16) == 1`
 (Python: item (c) is `math.sqrt(2)**2 == 2`; recall `**` is Python's
 power operator. The other three run as written.)
 
-Explain what you see, and rewrite the comparisons in (b) and (c) so that they
+Explain what you see, and rewrite the `FALSE` comparisons so that they
 return `TRUE` for the right reason.
 :::
 

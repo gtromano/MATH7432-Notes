@@ -1614,12 +1614,13 @@ $$
 A \mathbf{v} = \lambda\, \mathbf{v}, \qquad \mathbf{v} \neq \mathbf{0}.
 $$
 
-No rotation for this input: $A\mathbf{v}$ lies on the same line as $\mathbf{v}$,
+$A\mathbf{v}$ lies on the same line as $\mathbf{v}$,
 merely stretched or shrunk (or flipped, when $\lambda < 0$), and the stretch factor
-$\lambda$ is its **eigenvalue**. A symmetric $d \times d$ matrix, which is the kind
-statistics mostly cares about, has a full set of $d$ such directions, mutually
-perpendicular, with real eigenvalues.
+$\lambda$ is its **eigenvalue**. 
 
+A symmetric $d \times d$ matrix, which is the kind
+statistics mostly cares about, has a full set of $d$ such directions, mutually
+perpendicular (orthogonal), with real eigenvalues.
 So intuitively, the eigenvectors are the axes along which the matrix acts as
 ordinary scalar multiplication. Better still, the $d$ eigen-directions
 $\mathbf{v}_1, \dots, \mathbf{v}_d$ of a symmetric matrix form a basis: *any*
@@ -1637,7 +1638,7 @@ a large $|\lambda|$ amplifies, a small one flattens, and $\lambda = 0$ destroys 
 direction outright (that is precisely the singular matrix met earlier in this
 chapter).
 
-In statistics, the **covariance matrix** of a random vector packages the variances (diagonal) and covariances (off-diagonal) of its components. Its eigendecomposition is remarkably informative:
+In statistics, the **covariance matrix** of a random vector packages the variances (diagonal) and covariances (off-diagonal) of its components. Its eigendecomposition can be quite informative:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>

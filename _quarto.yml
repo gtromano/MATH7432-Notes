@@ -4,8 +4,8 @@ project:
 book:
   title: "MATH7432 - Computing and Algorithms for Statistics"
   author: "Gaetano Romano"
+  downloads: [pdf]
   date: "2026/2027"
-  cover-image: cover.png
   chapters:
     - index.qmd
     - 01-week1.qmd
