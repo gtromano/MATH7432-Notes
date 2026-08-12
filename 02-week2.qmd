@@ -14,8 +14,8 @@ matplotlib.rcParams["figure.figsize"] = (6, 4)
 rng = np.random.default_rng(7432)
 ```
 
-Last week (@sec-week1) we taught the computer arithmetic. This week we teach it
-to *make decisions* and to *repeat itself*: the two ingredients that turn a
+Last week (@sec-week1) we learned about computer arithmetic. This week learn how
+to *make decisions* using logic and to *iterate a chunk of code*: the two ingredients that turn a
 calculator into an algorithm. By the end of the chapter we will have built our
 first genuinely useful one: **gradient descent**, the workhorse optimiser
 behind most of modern statistics and machine learning
@@ -59,12 +59,7 @@ import math          # pi lives in the math module
 </div>
 :::
 
-Note the double `=` in `==`: a single `=` is assignment, and mixing the two up
-is a rite of passage.
-
-**Note for Python:** R spells its logicals `TRUE` and `FALSE`; Python
-capitalises only the first letter, `True` and `False`. Same objects, different
-outfits, and each language rejects the other's spelling.
+Note the double `=` in `==`: a single `=` is assignment.
 
 Like arithmetic, comparisons are **vectorised**: comparing a vector against a
 scalar (or another vector: R recycles, numpy broadcasts; @sec-week1) gives a
@@ -102,6 +97,14 @@ One trap worth knowing now: comparing anything with `NA` (a missing value)
 gives `NA`, not `FALSE`: R refuses to claim it knows how a missing value
 compares. To test for missingness use `is.na()`.
 
+**Note for Python:** Python has no true missing-value marker like R's
+`NA`. The closest stand-in is the floating-point "not a number", `np.nan`.
+But where R's `NA` *propagates* through comparisons (`NA == NA` is `NA`),
+`nan` simply compares `False` to everything, including itself. Test for it
+with `np.isnan()`, never with `==`. (Proper missing-data handling arrives
+with pandas in @sec-week4.)
+
+
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
 
@@ -126,12 +129,6 @@ np.isnan(np.array([1, np.nan, 3]))
 </div>
 :::
 
-**Note for Python:** Python has no true missing-value marker like R's
-`NA`. The closest stand-in is the floating-point "not a number", `np.nan`.
-But where R's `NA` *propagates* through comparisons (`NA == NA` is `NA`),
-`nan` simply compares `False` to everything, including itself. Test for it
-with `np.isnan()`, never with `==`. (Proper missing-data handling arrives
-with pandas in @sec-week4.)
 
 ### The floating-point trap
 
@@ -248,10 +245,6 @@ math.isclose(1, 1.5)   # a plain False: nothing to wrap
 </div>
 :::
 
-**Note for Python:** the `isTRUE()` dance is an R quirk.
-`math.isclose()` returns a plain `True`/`False` you can test directly; the
-Python column above is only there to prove it.
-
 ::: {.callout-tip title="Exercise 2.1: The pedantic computer"}
 Predict the result of each comparison, then run them:
 
@@ -274,6 +267,12 @@ Logicals can be combined with `&` (AND), `|` (OR) and `!` (NOT):
 - `a & b` is `TRUE` only when both are `TRUE`;
 - `a | b` is `FALSE` only when both are `FALSE`;
 - `!a` flips the value.
+
+
+**Note for Python:** on single logicals the operators are *words*:
+`and`, `or`, `not` (and `^` doubles as xor on booleans). Python's `&` and `|`
+exist too, but as elementwise operators: they become important on numpy
+arrays in a moment.
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -303,17 +302,13 @@ True ^ True   # exclusive OR: True when exactly one is True
 </div>
 :::
 
-**Note for Python:** on single logicals the operators are *words*:
-`and`, `or`, `not` (and `^` doubles as xor on booleans). Python's `&` and `|`
-exist too, but as elementwise operators: they become important on numpy
-arrays in a moment.
 
-In R, comparisons bind tighter than logical operators, and `&` binds tighter
+**Note for R** In R, comparisons bind tighter than logical operators, and `&` binds tighter
 than `|`, so `x > 2 & x < 5` means what you hope it means. **Note for
 Python:** numpy's `&` and `|` bind *tighter* than comparisons, so that same
 line would be read as `x > (2 & x) < 5`, so parentheses around every
 comparison are mandatory: `(x > 2) & (x < 5)`. When in doubt, in either
-language, parenthesise; future you will be grateful.
+language, parenthesise.
 
 All three operators are vectorised (R uses the same `&`, `|`, `!` on
 vectors; numpy's elementwise trio is `&`, `|`, `~`), which lets us combine
@@ -461,7 +456,8 @@ expression on 2024, 2023, 2000 and 1900.
 
 Last week we indexed vectors by *position*: `x[3]`, `x[c(1, 5)]`. The second
 (and in statistics, far more useful) way is to index with a **logical
-vector**: both R and numpy keep the elements where the index is `TRUE`.
+vector**: both R and numpy keep the elements where the index is `TRUE`. This is sometimes 
+referred as a mask, as it "masks" the elements you want to keep.
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -545,14 +541,14 @@ np.mean(x > 3)       # the proportion of Trues
 </div>
 :::
 
-**Note for Python:** `which()`'s companion `np.where(condition)`
+**Note for Python:** `np.where(condition)`
 returns a *tuple* of index arrays (one per dimension); the `[0]` extracts
 the one we want. And of course the positions are 0-based where R's are
 1-based.
 
 That last trick (the `mean()` of a logical vector is a proportion) is one of
 the most-used idioms in statistical computing. Here it is verifying the
-"68–95" rule for the normal distribution on simulated data (we set the seed
+["68–95"](https://en.wikipedia.org/wiki/68%E2%80%9395%E2%80%9399.7_rule) rule for the normal distribution on simulated data (we set the seed
 so the "random" numbers are reproducible):
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
@@ -561,7 +557,7 @@ so the "random" numbers are reproducible):
 **R**
 
 ```{r}
-set.seed(7432)
+set.seed(1234)
 z <- rnorm(10000)        # 10,000 standard normal draws
 mean(abs(z) < 1)         # theory says about 0.68
 mean(abs(z) < 2)         # theory says about 0.95
@@ -574,7 +570,7 @@ mean(abs(z) < 2)         # theory says about 0.95
 **Python**
 
 ```{python}
-rng = np.random.default_rng(7432)
+rng = np.random.default_rng(1234)
 z = rng.standard_normal(10000)   # 10,000 standard normal draws
 np.mean(np.abs(z) < 1)           # theory says about 0.68
 np.mean(np.abs(z) < 2)           # theory says about 0.95
@@ -583,8 +579,8 @@ np.mean(np.abs(z) < 2)           # theory says about 0.95
 </div>
 :::
 
-**A note on seeds in two languages.** `set.seed(7432)` and
-`rng = np.random.default_rng(7432)` each make their own language
+**A note on seeds in two languages.** `set.seed(1234)` and
+`rng = np.random.default_rng(1234)` each make their own language
 reproducible, but R and numpy use *different* generators: the two columns
 above print different numbers, and always will. Never expect the R and Python
 streams to match: expect each to match *itself* on every re-run, and both to
@@ -705,7 +701,7 @@ else:
 </div>
 :::
 
-A classic example is *FizzBuzz*, once allegedly a job-interview filter: print
+A classic example is *FizzBuzz*, once allegedly a job-interview filter (today sadly it's all AI... but some companies would still bring you in person for an interview, so you never know):  print
 "Fizz" if a number is divisible by 3, "Buzz" if by 5, "FizzBuzz" if by both,
 and the number otherwise. Order matters: the both-case must come first, or
 it can never be reached:
@@ -888,8 +884,8 @@ for day in ["Mon", "Tue", "Wed"]:
 When you need positions rather than values, prefer `seq_along(x)` to
 `1:length(x)`. They agree on non-empty vectors, but on an empty vector
 `1:length(x)` is `1:0` (the sequence `c(1, 0)`), so the loop runs twice on
-nothing at all, usually with baffling errors. `seq_along` produces an empty
-sequence and the loop correctly runs zero times.
+nothing at all, usually breaking your code (I have seen this over and over in my career).
+`seq_along` produces an empty sequence and the loop correctly runs zero times.
 
 **Note for Python:** the positions idiom is `range(len(x))`, the
 direct companion of `seq_along(x)`, just 0-based, and it has no empty-vector
@@ -1692,25 +1688,26 @@ c. Something special happens at `gamma = 0.5`. What, and (looking at the
 
 ## Challenges
 
-Two optional problems for the fearless, drawing the week together.
+Two optional problems.
 
 ::: {.callout-important title="Challenge 2.1: Gradient descent that knows when to stop"}
 Running a fixed 60 iterations is crude: wasteful when converged by iteration
 10, insufficient if convergence needs 200. Rebuild the quadratic-loss
 gradient descent with a `while` loop that stops when the step just taken is
 smaller than `tol = 1e-8` in absolute value, but add a safety cap of
-`max_iter = 5000` iterations so a diverging run cannot loop forever (this is
-one of the rare places where `&&` earns its keep; in Python, plain `and`).
+`max_iter = 5000` iterations so a diverging run cannot loop forever.
 
 Report the final `m` and the number of iterations used, for
 `gamma = 0.1`, `0.01` and `1.05`. For the last one, how does your code know
 it failed?
 :::
 
-::: {.callout-important title="Challenge 2.2: The hailstone numbers"}
-The Collatz rule: take a positive integer $n$; if even, halve it; if odd,
+::: {.callout-important title="Challenge 2.2: The Collatz conjecture"}
+The Collatz conjecture: take a positive integer $n$; if even, halve it; if odd,
 replace it by $3n + 1$. Repeat. The (unproven!) conjecture is that every
 starting value eventually reaches 1.
+
+<p><a href="https://commons.wikimedia.org/wiki/File:Collatz_conjecture_tree_visualization.png#/media/File:Collatz_conjecture_tree_visualization.png"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Collatz_conjecture_tree_visualization.png/1280px-Collatz_conjecture_tree_visualization.png?utm_source=en.wikipedia.org&amp;utm_campaign=imageinfo&amp;utm_content=thumbnail" alt="Collatz conjecture paths for 5000 random starting points below 1 million." height="240" width="426"></a><br>By <a href="//commons.wikimedia.org/w/index.php?title=User:Dkobak&amp;action=edit&amp;redlink=1" class="new" title="User:Dkobak (page does not exist)">Dkobak</a> - <span class="int-own-work" lang="en">Own work</span>, <a href="http://creativecommons.org/publicdomain/zero/1.0/deed.en" title="Creative Commons Zero, Public Domain Dedication">CC0</a>, <a href="https://commons.wikimedia.org/w/index.php?curid=162410338">Link</a></p>
 
 a. With a `while` loop, count the steps needed to reach 1 from $n = 27$.
    (You should get 111.)

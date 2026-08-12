@@ -1178,7 +1178,7 @@ e.  What does the file look like if you forget `row.names = FALSE` (`index=False
 
 ## Matrices and a taste of linear algebra {#sec-week1-matrices}
 
-You know matrices from linear algebra; both our languages know them too, and they are very good at them. A matrix in R is a vector wrapped onto rows and columns by `matrix()`; in numpy, a matrix is simply a 2-D array:
+You know matrices from linear algebra; both our languages know them too, and they are very good at them. A matrix in R is a vector wrapped onto rows and columns by `matrix()`; in numpy, a matrix is simply a 2-D array. Before the first example, one crucial difference in the defaults: given the same numbers, **R fills a matrix column by column** (the *column-major* convention, inherited from Fortran), while **numpy fills it row by row** (the *row-major* convention of the C language). Same six numbers, two different matrices:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -1186,7 +1186,7 @@ You know matrices from linear algebra; both our languages know them too, and the
 **R**
 
 ```{r}
-A <- matrix(c(1, 2, 3, 4, 5, 6), nrow = 2)
+A <- matrix(c(1, 2, 3, 4, 5, 6), nrow = 2)   # fills column by column (default)
 A
 ```
 
@@ -1197,19 +1197,17 @@ A
 **Python**
 
 ```{python}
-A = np.array([1, 2, 3, 4, 5, 6]).reshape(2, 3)
+A = np.array([1, 2, 3, 4, 5, 6]).reshape(2, 3)   # fills row by row (default)
 A
 ```
 
 </div>
 :::
 
-Note the order: R fills matrices **column by column** by default. If your data reads row by
-row (as it usually does on paper), say so with `byrow = TRUE`.
-
-**Note for Python:** numpy's own filling order is the opposite of R's the `order="F"` above ("Fortran order", the column-major convention R inherited) was only there to imitate R's default. The idiomatic numpy build is the second
-chunk's: hand `np.array` a list of rows and no reshaping is needed, so the code looks like
-the matrix.
+Both languages can also fill the other way; you just have to say so. In R,
+`byrow = TRUE` switches to filling by row; in numpy, `order="F"` ("F" for Fortran)
+switches to filling by column. With the switches on, each language reproduces the
+other's default:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -1217,7 +1215,7 @@ the matrix.
 **R**
 
 ```{r}
-A <- matrix(c(1, 2, 3, 4, 5, 6), nrow = 2, byrow = TRUE)
+A <- matrix(c(1, 2, 3, 4, 5, 6), nrow = 2, byrow = TRUE)   # by row instead
 A
 ```
 
@@ -1228,8 +1226,7 @@ A
 **Python**
 
 ```{python}
-A = np.array([[1, 2, 3],
-              [4, 5, 6]])   # a list of rows: numpy's natural reading order
+A = np.array([1, 2, 3, 4, 5, 6]).reshape((2, 3), order="F")   # by column instead
 A
 ```
 
@@ -1289,6 +1286,37 @@ rbind(c(1, 2), c(3, 4))   # two rows
 ```{python}
 np.column_stack([[1, 2], [3, 4]])   # two columns
 np.vstack([[1, 2], [3, 4]])         # two rows
+```
+
+</div>
+:::
+
+**Note for Python:** in practice the idiomatic numpy follows the filling
+order entirely: hand `np.array` a list of rows and the code looks like the matrix,
+no reshaping needed. This is considered to be more pythonic.
+Let us rebuild `A` that way (row-wise in R too, with the
+`rbind()` we just met), so that from here on both languages hold the *same* matrix:
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+A <- rbind(c(1, 2, 3), c(4, 5, 6))
+A
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+A = np.array([[1, 2, 3],
+              [4, 5, 6]])   # a list of rows: numpy's natural reading order
+A
 ```
 
 </div>
@@ -1566,10 +1594,8 @@ np.linalg.solve(A, b)
 
 Mathematically this is $\mathbf{x} = A^{-1}\mathbf{b}$, and `solve(A) %*% b` (Python:
 `np.linalg.inv(A) @ b`) gives the same answer, but the two-argument `solve(A, b)` /
-`np.linalg.solve(A, b)` never forms the inverse explicitly, which is both faster and
-numerically more stable. Statistics is full of linear systems (you are about to meet the
-most famous one in Challenge 1.1), so this one-liner will follow you for the rest of your
-career.
+`np.linalg.solve(A, b)` never forms the inverse explicitly (it uses LU decomposition if you're curious), which is both faster and
+numerically more stable. Statistics is full of linear systems!
 
 ::: {.callout-tip title="Exercise 1.8: Three equations, three unknowns"}
 Consider the system
