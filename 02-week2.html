@@ -292,7 +292,7 @@ window.Quarto = {
 </header>
 
 
-<p>Last week (<a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>) we taught the computer arithmetic. This week we teach it to <em>make decisions</em> and to <em>repeat itself</em>: the two ingredients that turn a calculator into an algorithm. By the end of the chapter we will have built our first genuinely useful one: <strong>gradient descent</strong>, the workhorse optimiser behind most of modern statistics and machine learning (<a href="#sec-week2-gd" class="quarto-xref"><span>Section 2.8</span></a>). Everything else in this chapter is training for that final section.</p>
+<p>Last week (<a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>) we learned about computer arithmetic. This week learn how to <em>make decisions</em> using logic and to <em>iterate a chunk of code</em>: the two ingredients that turn a calculator into an algorithm. By the end of the chapter we will have built our first genuinely useful one: <strong>gradient descent</strong>, the workhorse optimiser behind most of modern statistics and machine learning (<a href="#sec-week2-gd" class="quarto-xref"><span>Section 2.8</span></a>). Everything else in this chapter is training for that final section.</p>
 <section id="sec-week2-comparisons" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="sec-week2-comparisons"><span class="header-section-number">2.1</span> Comparisons</h2>
 <p>A comparison takes two values and returns a <em>logical</em>: <code>TRUE</code> or <code>FALSE</code>. The operators are <code>==</code> (equal), <code>!=</code> (not equal), <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code> and <code>&gt;=</code>.</p>
@@ -350,8 +350,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>Note the double <code>=</code> in <code>==</code>: a single <code>=</code> is assignment, and mixing the two up is a rite of passage.</p>
-<p><strong>Note for Python:</strong> R spells its logicals <code>TRUE</code> and <code>FALSE</code>; Python capitalises only the first letter, <code>True</code> and <code>False</code>. Same objects, different outfits, and each language rejects the other’s spelling.</p>
+<p>Note the double <code>=</code> in <code>==</code>: a single <code>=</code> is assignment.</p>
 <p>Like arithmetic, comparisons are <strong>vectorised</strong>: comparing a vector against a scalar (or another vector: R recycles, numpy broadcasts; <a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>) gives a whole vector of logicals.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -386,6 +385,7 @@ window.Quarto = {
 </div>
 </div>
 <p>One trap worth knowing now: comparing anything with <code>NA</code> (a missing value) gives <code>NA</code>, not <code>FALSE</code>: R refuses to claim it knows how a missing value compares. To test for missingness use <code>is.na()</code>.</p>
+<p><strong>Note for Python:</strong> Python has no true missing-value marker like R’s <code>NA</code>. The closest stand-in is the floating-point “not a number”, <code>np.nan</code>. But where R’s <code>NA</code> <em>propagates</em> through comparisons (<code>NA == NA</code> is <code>NA</code>), <code>nan</code> simply compares <code>False</code> to everything, including itself. Test for it with <code>np.isnan()</code>, never with <code>==</code>. (Proper missing-data handling arrives with pandas in <a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>.)</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -414,7 +414,6 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p><strong>Note for Python:</strong> Python has no true missing-value marker like R’s <code>NA</code>. The closest stand-in is the floating-point “not a number”, <code>np.nan</code>. But where R’s <code>NA</code> <em>propagates</em> through comparisons (<code>NA == NA</code> is <code>NA</code>), <code>nan</code> simply compares <code>False</code> to everything, including itself. Test for it with <code>np.isnan()</code>, never with <code>==</code>. (Proper missing-data handling arrives with pandas in <a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>.)</p>
 <section id="the-floating-point-trap" class="level3" data-number="2.1.1">
 <h3 data-number="2.1.1" class="anchored" data-anchor-id="the-floating-point-trap"><span class="header-section-number">2.1.1</span> The floating-point trap</h3>
 <p>Here is the most famous line of code in numerical computing:</p>
@@ -521,7 +520,6 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p><strong>Note for Python:</strong> the <code>isTRUE()</code> dance is an R quirk. <code>math.isclose()</code> returns a plain <code>True</code>/<code>False</code> you can test directly; the Python column above is only there to prove it.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Exercise 2.1: The pedantic computer">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -553,6 +551,7 @@ Exercise 2.1: The pedantic computer
 <li><code>a | b</code> is <code>FALSE</code> only when both are <code>FALSE</code>;</li>
 <li><code>!a</code> flips the value.</li>
 </ul>
+<p><strong>Note for Python:</strong> on single logicals the operators are <em>words</em>: <code>and</code>, <code>or</code>, <code>not</code> (and <code>^</code> doubles as xor on booleans). Python’s <code>&amp;</code> and <code>|</code> exist too, but as elementwise operators: they become important on numpy arrays in a moment.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -597,8 +596,7 @@ Exercise 2.1: The pedantic computer
 </div>
 </div>
 </div>
-<p><strong>Note for Python:</strong> on single logicals the operators are <em>words</em>: <code>and</code>, <code>or</code>, <code>not</code> (and <code>^</code> doubles as xor on booleans). Python’s <code>&amp;</code> and <code>|</code> exist too, but as elementwise operators: they become important on numpy arrays in a moment.</p>
-<p>In R, comparisons bind tighter than logical operators, and <code>&amp;</code> binds tighter than <code>|</code>, so <code>x &gt; 2 &amp; x &lt; 5</code> means what you hope it means. <strong>Note for Python:</strong> numpy’s <code>&amp;</code> and <code>|</code> bind <em>tighter</em> than comparisons, so that same line would be read as <code>x &gt; (2 &amp; x) &lt; 5</code>, so parentheses around every comparison are mandatory: <code>(x &gt; 2) &amp; (x &lt; 5)</code>. When in doubt, in either language, parenthesise; future you will be grateful.</p>
+<p><strong>Note for R</strong> In R, comparisons bind tighter than logical operators, and <code>&amp;</code> binds tighter than <code>|</code>, so <code>x &gt; 2 &amp; x &lt; 5</code> means what you hope it means. <strong>Note for Python:</strong> numpy’s <code>&amp;</code> and <code>|</code> bind <em>tighter</em> than comparisons, so that same line would be read as <code>x &gt; (2 &amp; x) &lt; 5</code>, so parentheses around every comparison are mandatory: <code>(x &gt; 2) &amp; (x &lt; 5)</code>. When in doubt, in either language, parenthesise.</p>
 <p>All three operators are vectorised (R uses the same <code>&amp;</code>, <code>|</code>, <code>!</code> on vectors; numpy’s elementwise trio is <code>&amp;</code>, <code>|</code>, <code>~</code>), which lets us combine conditions elementwise:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -736,7 +734,7 @@ Exercise 2.2: Leap year logic
 </section>
 <section id="sec-week2-logical-indexing" class="level2" data-number="2.3">
 <h2 data-number="2.3" class="anchored" data-anchor-id="sec-week2-logical-indexing"><span class="header-section-number">2.3</span> Logical indexing</h2>
-<p>Last week we indexed vectors by <em>position</em>: <code>x[3]</code>, <code>x[c(1, 5)]</code>. The second (and in statistics, far more useful) way is to index with a <strong>logical vector</strong>: both R and numpy keep the elements where the index is <code>TRUE</code>.</p>
+<p>Last week we indexed vectors by <em>position</em>: <code>x[3]</code>, <code>x[c(1, 5)]</code>. The second (and in statistics, far more useful) way is to index with a <strong>logical vector</strong>: both R and numpy keep the elements where the index is <code>TRUE</code>. This is sometimes referred as a mask, as it “masks” the elements you want to keep.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -833,41 +831,41 @@ Exercise 2.2: Leap year logic
 </div>
 </div>
 </div>
-<p><strong>Note for Python:</strong> <code>which()</code>’s companion <code>np.where(condition)</code> returns a <em>tuple</em> of index arrays (one per dimension); the <code>[0]</code> extracts the one we want. And of course the positions are 0-based where R’s are 1-based.</p>
-<p>That last trick (the <code>mean()</code> of a logical vector is a proportion) is one of the most-used idioms in statistical computing. Here it is verifying the “68–95” rule for the normal distribution on simulated data (we set the seed so the “random” numbers are reproducible):</p>
+<p><strong>Note for Python:</strong> <code>np.where(condition)</code> returns a <em>tuple</em> of index arrays (one per dimension); the <code>[0]</code> extracts the one we want. And of course the positions are 0-based where R’s are 1-based.</p>
+<p>That last trick (the <code>mean()</code> of a logical vector is a proportion) is one of the most-used idioms in statistical computing. Here it is verifying the <a href="https://en.wikipedia.org/wiki/68%E2%80%9395%E2%80%9399.7_rule">“68–95”</a> rule for the normal distribution on simulated data (we set the seed so the “random” numbers are reproducible):</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb135"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb135-1"><a href="#cb135-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">7432</span>)</span>
+<div class="sourceCode cell-code" id="cb135"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb135-1"><a href="#cb135-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
 <span id="cb135-2"><a href="#cb135-2" aria-hidden="true" tabindex="-1"></a>z <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">10000</span>)        <span class="co"># 10,000 standard normal draws</span></span>
 <span id="cb135-3"><a href="#cb135-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(<span class="fu">abs</span>(z) <span class="sc">&lt;</span> <span class="dv">1</span>)         <span class="co"># theory says about 0.68</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.6808</code></pre>
+<pre><code>[1] 0.6896</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb137"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb137-1"><a href="#cb137-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(<span class="fu">abs</span>(z) <span class="sc">&lt;</span> <span class="dv">2</span>)         <span class="co"># theory says about 0.95</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.9549</code></pre>
+<pre><code>[1] 0.9577</code></pre>
 </div>
 </div>
 </div>
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb139"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb139-1"><a href="#cb139-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">7432</span>)</span>
+<div class="sourceCode cell-code" id="cb139"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb139-1"><a href="#cb139-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">1234</span>)</span>
 <span id="cb139-2"><a href="#cb139-2" aria-hidden="true" tabindex="-1"></a>z <span class="op">=</span> rng.standard_normal(<span class="dv">10000</span>)   <span class="co"># 10,000 standard normal draws</span></span>
 <span id="cb139-3"><a href="#cb139-3" aria-hidden="true" tabindex="-1"></a>np.mean(np.<span class="bu">abs</span>(z) <span class="op">&lt;</span> <span class="dv">1</span>)           <span class="co"># theory says about 0.68</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>np.float64(0.6794)</code></pre>
+<pre><code>np.float64(0.6795)</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb141"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb141-1"><a href="#cb141-1" aria-hidden="true" tabindex="-1"></a>np.mean(np.<span class="bu">abs</span>(z) <span class="op">&lt;</span> <span class="dv">2</span>)           <span class="co"># theory says about 0.95</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>np.float64(0.9549)</code></pre>
+<pre><code>np.float64(0.9554)</code></pre>
 </div>
 </div>
 </div>
 </div>
-<p><strong>A note on seeds in two languages.</strong> <code>set.seed(7432)</code> and <code>rng = np.random.default_rng(7432)</code> each make their own language reproducible, but R and numpy use <em>different</em> generators: the two columns above print different numbers, and always will. Never expect the R and Python streams to match: expect each to match <em>itself</em> on every re-run, and both to agree with the theory.</p>
+<p><strong>A note on seeds in two languages.</strong> <code>set.seed(1234)</code> and <code>rng = np.random.default_rng(1234)</code> each make their own language reproducible, but R and numpy use <em>different</em> generators: the two columns above print different numbers, and always will. Never expect the R and Python streams to match: expect each to match <em>itself</em> on every re-run, and both to agree with the theory.</p>
 <p>Logical indexing also works on the left of an assignment, replacing just the selected elements:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -974,7 +972,7 @@ Exercise 2.3: A century of leap years
 </div>
 </div>
 </div>
-<p>A classic example is <em>FizzBuzz</em>, once allegedly a job-interview filter: print “Fizz” if a number is divisible by 3, “Buzz” if by 5, “FizzBuzz” if by both, and the number otherwise. Order matters: the both-case must come first, or it can never be reached:</p>
+<p>A classic example is <em>FizzBuzz</em>, once allegedly a job-interview filter (today sadly it’s all AI… but some companies would still bring you in person for an interview, so you never know): print “Fizz” if a number is divisible by 3, “Buzz” if by 5, “FizzBuzz” if by both, and the number otherwise. Order matters: the both-case must come first, or it can never be reached:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1141,7 +1139,7 @@ Wed</code></pre>
 </div>
 </div>
 </div>
-<p>When you need positions rather than values, prefer <code>seq_along(x)</code> to <code>1:length(x)</code>. They agree on non-empty vectors, but on an empty vector <code>1:length(x)</code> is <code>1:0</code> (the sequence <code>c(1, 0)</code>), so the loop runs twice on nothing at all, usually with baffling errors. <code>seq_along</code> produces an empty sequence and the loop correctly runs zero times.</p>
+<p>When you need positions rather than values, prefer <code>seq_along(x)</code> to <code>1:length(x)</code>. They agree on non-empty vectors, but on an empty vector <code>1:length(x)</code> is <code>1:0</code> (the sequence <code>c(1, 0)</code>), so the loop runs twice on nothing at all, usually breaking your code (I have seen this over and over in my career). <code>seq_along</code> produces an empty sequence and the loop correctly runs zero times.</p>
 <p><strong>Note for Python:</strong> the positions idiom is <code>range(len(x))</code>, the direct companion of <code>seq_along(x)</code>, just 0-based, and it has no empty-vector trap: <code>range(0)</code> is empty, so the loop correctly runs zero times. Since the positions start at 0, anything arithmetic done with them (like the divide-by-position below) needs an <code>i + 1</code>.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -1275,10 +1273,10 @@ r_i = r_{i-1} + r_{i-2}, \qquad r_1 = r_2 = 1,
 <span id="cb185-12"><a href="#cb185-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">times =</span> <span class="dv">10</span></span>
 <span id="cb185-13"><a href="#cb185-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Unit: milliseconds
+<pre><code>Unit: microseconds
         expr       min        lq      mean    median        uq        max neval
-        grow 558.82037 579.82262 662.84356 593.29494 677.25242 1118.19008    10
- preallocate  13.21512  13.60549  17.30017  16.24372  20.85503   23.00704    10
+        grow 53952.081 54880.850 64098.547 57630.086 60994.811 123979.168    10
+ preallocate   902.635   969.461  1295.593  1170.139  1675.093   1769.111    10
  cld
   a 
    b</code></pre>
@@ -1304,11 +1302,11 @@ r_i = r_{i-1} + r_{i-2}, \qquad r_1 = r_2 = 1,
 <span id="cb187-14"><a href="#cb187-14" aria-hidden="true" tabindex="-1"></a><span class="co"># best of 10 runs of each, in milliseconds</span></span>
 <span id="cb187-15"><a href="#cb187-15" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(grow, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>214.06889000354568</code></pre>
+<pre><code>18.234136994578876</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb189"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb189-1"><a href="#cb189-1" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(preallocate, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>9.059399999387097</code></pre>
+<pre><code>0.7510650029871613</code></pre>
 </div>
 </div>
 </div>
@@ -1469,10 +1467,10 @@ Exercise 2.6: Double your money
 <span id="cb203-8"><a href="#cb203-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">times =</span> <span class="dv">10</span></span>
 <span id="cb203-9"><a href="#cb203-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Unit: milliseconds
-       expr        min         lq      mean    median        uq      max neval
-       loop 379.421003 400.626137 426.42139 418.06372 424.36460 535.6291    10
- vectorised   9.694727   9.806981  70.52376  26.29803  29.54045 515.0480    10
+<pre><code>Unit: microseconds
+       expr       min        lq      mean    median        uq      max neval
+       loop 31014.093 31800.804 32333.473 32223.028 33170.775 34089.19    10
+ vectorised   813.163   850.713  8418.945  2285.709  3017.557 66286.43    10
  cld
   a 
    b</code></pre>
@@ -1495,11 +1493,11 @@ Exercise 2.6: Double your money
 <span id="cb205-11"><a href="#cb205-11" aria-hidden="true" tabindex="-1"></a><span class="co"># best of 10 runs of each, in milliseconds</span></span>
 <span id="cb205-12"><a href="#cb205-12" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(loop, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>2117.425591000938</code></pre>
+<pre><code>166.47640700102784</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb207"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb207-1"><a href="#cb207-1" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(vectorised, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>4.195729001366999</code></pre>
+<pre><code>0.3537699958542362</code></pre>
 </div>
 </div>
 </div>
@@ -1834,7 +1832,7 @@ Exercise 2.8: Turning the step-size dial
 </section>
 <section id="challenges" class="level2" data-number="2.9">
 <h2 data-number="2.9" class="anchored" data-anchor-id="challenges"><span class="header-section-number">2.9</span> Challenges</h2>
-<p>Two optional problems for the fearless, drawing the week together.</p>
+<p>Two optional problems.</p>
 <div class="callout callout-style-default callout-important callout-titled" title="Challenge 2.1: Gradient descent that knows when to stop">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1845,21 +1843,24 @@ Challenge 2.1: Gradient descent that knows when to stop
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Running a fixed 60 iterations is crude: wasteful when converged by iteration 10, insufficient if convergence needs 200. Rebuild the quadratic-loss gradient descent with a <code>while</code> loop that stops when the step just taken is smaller than <code>tol = 1e-8</code> in absolute value, but add a safety cap of <code>max_iter = 5000</code> iterations so a diverging run cannot loop forever (this is one of the rare places where <code>&amp;&amp;</code> earns its keep; in Python, plain <code>and</code>).</p>
+<p>Running a fixed 60 iterations is crude: wasteful when converged by iteration 10, insufficient if convergence needs 200. Rebuild the quadratic-loss gradient descent with a <code>while</code> loop that stops when the step just taken is smaller than <code>tol = 1e-8</code> in absolute value, but add a safety cap of <code>max_iter = 5000</code> iterations so a diverging run cannot loop forever.</p>
 <p>Report the final <code>m</code> and the number of iterations used, for <code>gamma = 0.1</code>, <code>0.01</code> and <code>1.05</code>. For the last one, how does your code know it failed?</p>
 </div>
 </div>
-<div class="callout callout-style-default callout-important callout-titled" title="Challenge 2.2: The hailstone numbers">
+<div class="callout callout-style-default callout-important callout-titled" title="Challenge 2.2: The Collatz conjecture">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Challenge 2.2: The hailstone numbers
+Challenge 2.2: The Collatz conjecture
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The Collatz rule: take a positive integer <span class="math inline">n</span>; if even, halve it; if odd, replace it by <span class="math inline">3n + 1</span>. Repeat. The (unproven!) conjecture is that every starting value eventually reaches 1.</p>
+<p>The Collatz conjecture: take a positive integer <span class="math inline">n</span>; if even, halve it; if odd, replace it by <span class="math inline">3n + 1</span>. Repeat. The (unproven!) conjecture is that every starting value eventually reaches 1.</p>
+<p>
+<a href="https://commons.wikimedia.org/wiki/File:Collatz_conjecture_tree_visualization.png#/media/File:Collatz_conjecture_tree_visualization.png"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Collatz_conjecture_tree_visualization.png/1280px-Collatz_conjecture_tree_visualization.png?utm_source=en.wikipedia.org&amp;utm_campaign=imageinfo&amp;utm_content=thumbnail" alt="Collatz conjecture paths for 5000 random starting points below 1 million." height="426" width="240"></a><br>By <a href="//commons.wikimedia.org/w/index.php?title=User:Dkobak&amp;action=edit&amp;redlink=1" class="new" title="User:Dkobak (page does not exist)">Dkobak</a> - <span class="int-own-work" lang="en">Own work</span>, <a href="http://creativecommons.org/publicdomain/zero/1.0/deed.en" title="Creative Commons Zero, Public Domain Dedication">CC0</a>, <a href="https://commons.wikimedia.org/w/index.php?curid=162410338">Link</a>
+</p>
 <ol type="a">
 <li>With a <code>while</code> loop, count the steps needed to reach 1 from <span class="math inline">n = 27</span>. (You should get 111.)</li>
 <li>Wrap that in a <code>for</code> loop over every starting value from 1 to 5000, storing the step counts in a preallocated vector. Which start takes longest, and how many steps does it need? A one-line plot of counts against starting value is worth a look.</li>
