@@ -1275,10 +1275,10 @@ r_i = r_{i-1} + r_{i-2}, \qquad r_1 = r_2 = 1,
 <span id="cb185-12"><a href="#cb185-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">times =</span> <span class="dv">10</span></span>
 <span id="cb185-13"><a href="#cb185-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Unit: milliseconds
-        expr       min        lq      mean    median        uq        max neval
-        grow 55.797520 62.623015 71.095533 63.965677 65.458148 141.043127    10
- preallocate  1.039057  1.111635  1.340772  1.276112  1.387438   1.947242    10
+<pre><code>Unit: microseconds
+        expr       min       lq      mean    median        uq        max neval
+        grow 53665.274 55198.12 62554.225 56305.076 59680.389 116838.740    10
+ preallocate   950.474   991.75  1197.824  1150.882  1230.908   1671.683    10
  cld
   a 
    b</code></pre>
@@ -1304,18 +1304,18 @@ r_i = r_{i-1} + r_{i-2}, \qquad r_1 = r_2 = 1,
 <span id="cb187-14"><a href="#cb187-14" aria-hidden="true" tabindex="-1"></a><span class="co"># best of 10 runs of each, in milliseconds</span></span>
 <span id="cb187-15"><a href="#cb187-15" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(grow, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>18.991970000115543</code></pre>
+<pre><code>18.440488999658555</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb189"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb189-1"><a href="#cb189-1" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(preallocate, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.7897479999883217</code></pre>
+<pre><code>0.7490250000046217</code></pre>
 </div>
 </div>
 </div>
 </div>
 <p><strong>Note for Python:</strong> <code>timeit</code> wants a <em>function</em> to call, hence the two <code>def</code>s. A full treatment of writing functions is <a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a>’s business; for now, <code>def name(): ...</code> simply packages the block. <code>timeit.repeat(f, number=1, repeat=10)</code> returns ten timings in seconds; the minimum is the honest estimate, and we scale it to milliseconds.</p>
-<p>Same result, dozens of times apart: roughly fifty-fold in the R run, twenty-odd-fold in the Python one, and the magnitudes, not the exact numbers, are the message. Since the copying cost is quadratic, the gap widens as <code>n</code> grows. The habit to build, in either language: <strong>decide the size first, allocate, then fill.</strong></p>
-<p><strong>Note for Python:</strong> the quadratic sin here belongs to <em>numpy arrays</em>. Plain Python lists over-allocate as they grow, so <code>my_list.append(...)</code> is genuinely cheap, and building a list then converting with <code>np.array(my_list)</code> is idiomatic Python. For numerical work, preallocating the numpy array as above remains the habit to build.</p>
+<p>Same result, dozens of times apart! Since the copying cost is quadratic, the gap widens as <code>n</code> grows. The habit to build, in either language: <strong>decide the size first, allocate, then fill.</strong></p>
+<p><strong>Note for Python:</strong> the quadratic growth here belongs to <em>numpy arrays</em>. Plain Python lists over-allocate as they grow, so <code>my_list.append(...)</code> is genuinely cheap, and building a list then converting with <code>np.array(my_list)</code> is idiomatic Python. For numerical work, preallocating the numpy array as above remains the habit to build.</p>
 </section>
 </section>
 <section id="sec-week2-while" class="level2" data-number="2.6">
@@ -1470,9 +1470,12 @@ Exercise 2.6: Double your money
 <span id="cb203-9"><a href="#cb203-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Unit: microseconds
-       expr       min        lq      mean   median        uq      max neval cld
-       loop 33272.428 34229.869 35054.607 34985.29 35342.750 36971.65    10  a 
- vectorised   877.117   976.187  9652.591  2925.89  3870.618 73673.59    10   b</code></pre>
+       expr       min        lq      mean    median        uq      max neval
+       loop 31949.008 33492.240 35118.428 33903.760 35224.351 44153.31    10
+ vectorised   839.422   929.781  9022.094  2768.845  3495.246 68460.76    10
+ cld
+  a 
+   b</code></pre>
 </div>
 </div>
 </div>
@@ -1492,11 +1495,11 @@ Exercise 2.6: Double your money
 <span id="cb205-11"><a href="#cb205-11" aria-hidden="true" tabindex="-1"></a><span class="co"># best of 10 runs of each, in milliseconds</span></span>
 <span id="cb205-12"><a href="#cb205-12" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(loop, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>174.46774199993342</code></pre>
+<pre><code>167.99665600046865</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb207"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb207-1"><a href="#cb207-1" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(vectorised, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.2561270000569493</code></pre>
+<pre><code>0.30205999973986764</code></pre>
 </div>
 </div>
 </div>
@@ -1863,7 +1866,7 @@ Challenge 2.2: The hailstone numbers
 </ol>
 </div>
 </div>
-<p>That is the week: comparisons and logic to make decisions, loops to repeat them, and, stitched together, a first real algorithm. Next week (<a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a>) we stop copy-pasting the gradient-descent loop and wrap it into a <em>function</em> we can hand any problem we like. Functions also unlock the one way of repeating that this week deliberately skipped: <em>recursion</em>, where a function calls itself (<a href="03-week3.html#sec-week3-recursion" class="quarto-xref"><span>Section 3.4</span></a>).</p>
+<p>That is the week: comparisons and logic to make decisions, loops to repeat them, and, stitched together, a first real algorithm. Next week (<a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a>) we stop copy-pasting the gradient-descent loop and wrap it into a <em>function</em> we can hand any problem we like.</p>
 
 
 </section>
