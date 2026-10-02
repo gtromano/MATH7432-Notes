@@ -6,17 +6,14 @@ Statistics on paper is elegant; statistics in practice is code. This module teac
 write that code well, and to understand the algorithms it implements. Everything is in
 both R and Python.
 
-A word on the two languages before anything else. Every code chunk in these notes appears
-twice, side by side: **R on the left, Python on the right**, translated line for line. You
-are expected to **learn both languages**. R is the lingua franca of statistics, Python of
+Every code chunk in these notes appears twice, side by side: **R on the left, Python on the right**, translated line for line. You are expected to **learn both languages**. R is the lingua franca of statistics, Python of
 machine learning and production data science, and the modern statistician needs both in
-their toolset! Neither column is extra homework: each is a bridge to the other. Working
-statisticians cross between the two languages constantly, and the side-by-side layout
-teaches you to make that hop until it feels routine. One practical consequence: the side-by-side layout needs horizontal room, so read the notes on a wide screen (to be fair, it can work on a phone on a single column layout, but it kinda misses the point, and you probably want your phone for doomscrolling rather then reading the notes).
+their toolset! Working statisticians cross between the two languages constantly, and the side-by-side layout
+teaches you to make that hop. One practical consequence: the side-by-side layout needs horizontal room, so read the notes on a wide screen (to be fair, it can work on a phone on a single column layout, but it kinda misses the point, and you probably want your phone for doomscrolling rather then reading the notes).
 
-## Where we are going {.unnumbered}
+## Overview {.unnumbered}
 
-The module has a deliberate arc, so here it is up front:
+The module will follow:
 
 - **Weeks 1–4: Programming in R and Python** (each week: 1h lecture + 2h lab). We start
   from zero and build up both languages: variables, vectors and matrices (@sec-week1); logic, loops
@@ -44,21 +41,16 @@ The module has a deliberate arc, so here it is up front:
 
 ## How to use these notes {.unnumbered}
 
-These notes are meant to be *used*, not read like a novel. The intended workflow:
+The intended workflow:
 
-- **Before the lecture:** skim the week's chapter. You don't need to understand
-  everything: the lecture will give you the overview and the why.
-- **During the lecture:** follow along, ask questions. You can take notes, but I will cover the same materials in the notes, so you don't need to copy everything down. 
-- **In the lab:** work through the chapter at your own pace, copy-pasting the code into
-  RStudio and running it yourself. Change things. Break things. Exercises
+- **Before the lecture:** skim the week's chapter. You don't need to understand everything: the lecture will give you the overview and the why.
+- **During the lecture:** follow along, ask questions. You can take notes, but I will cover the same materials I have in these documents, so you don't need to copy everything down. 
+- **In the lab:** work through the chapter at your own pace, copy-pasting the code into RStudio and running it yourself. Change things. Break things. Exercises
   appear throughout each chapter exactly where the relevant idea is fresh: do them as
   you meet them! If you get stuck, ask one of us for help.
-- **Which language for the exercises?** Since you are building both, use the exercises to
-  train the weaker one. If you already know one of the two languages, do the exercises in
-  the other; if you know neither, alternate languages across the exercises. In every case,
-  check the solutions for both languages.
-- **Afterwards:** worked solutions are released on Moodle once all of the week's labs
-  have ended.
+- **Which language for the exercises?** Since you are building both, use the exercises to train the weaker one. If you already know one of the two languages, do the exercises in
+  the other; if you know neither, alternate languages across the exercises. In every case, check the solutions for both languages.
+- **Afterwards:** worked solutions are released on Moodle once all of the week's labs have ended.
 
 Code you are meant to run appears in grey boxes; its output appears just below.
 

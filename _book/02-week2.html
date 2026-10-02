@@ -292,7 +292,7 @@ window.Quarto = {
 </header>
 
 
-<p>Last week (<a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>) we learned about computer arithmetic. This week learn how to <em>make decisions</em> using logic and to <em>iterate a chunk of code</em>: the two ingredients that turn a calculator into an algorithm. By the end of the chapter we will have built our first genuinely useful one: <strong>gradient descent</strong>, the workhorse optimiser behind most of modern statistics and machine learning (<a href="#sec-week2-gd" class="quarto-xref"><span>Section 2.8</span></a>). Everything else in this chapter is training for that final section.</p>
+<p>Last week (<a href="#sec-week1" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week1</span></a>) we learned about computer arithmetic. This week learn how to <em>make decisions</em> using logic and to <em>iterate a chunk of code</em>: the two ingredients that turn a calculator into an algorithm. By the end of the chapter we will have built our first genuinely useful one: <strong>gradient descent</strong>, the workhorse optimiser behind most of modern statistics and machine learning (<a href="#sec-week2-gd" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week2-gd</span></a>). Everything else in this chapter is training for that final section.</p>
 <section id="sec-week2-comparisons" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="sec-week2-comparisons"><span class="header-section-number">2.1</span> Comparisons</h2>
 <p>A comparison takes two values and returns a <em>logical</em>: <code>TRUE</code> or <code>FALSE</code>. The operators are <code>==</code> (equal), <code>!=</code> (not equal), <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code> and <code>&gt;=</code>.</p>
@@ -351,7 +351,7 @@ window.Quarto = {
 </div>
 </div>
 <p>Note the double <code>=</code> in <code>==</code>: a single <code>=</code> is assignment.</p>
-<p>Like arithmetic, comparisons are <strong>vectorised</strong>: comparing a vector against a scalar (or another vector: R recycles, numpy broadcasts; <a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>) gives a whole vector of logicals.</p>
+<p>Like arithmetic, comparisons are <strong>vectorised</strong>: comparing a vector against a scalar (or another vector: R recycles, numpy broadcasts; <a href="#sec-week1" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week1</span></a>) gives a whole vector of logicals.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -385,7 +385,7 @@ window.Quarto = {
 </div>
 </div>
 <p>One trap worth knowing now: comparing anything with <code>NA</code> (a missing value) gives <code>NA</code>, not <code>FALSE</code>: R refuses to claim it knows how a missing value compares. To test for missingness use <code>is.na()</code>.</p>
-<p><strong>Note for Python:</strong> Python has no true missing-value marker like R’s <code>NA</code>. The closest stand-in is the floating-point “not a number”, <code>np.nan</code>. But where R’s <code>NA</code> <em>propagates</em> through comparisons (<code>NA == NA</code> is <code>NA</code>), <code>nan</code> simply compares <code>False</code> to everything, including itself. Test for it with <code>np.isnan()</code>, never with <code>==</code>. (Proper missing-data handling arrives with pandas in <a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>.)</p>
+<p><strong>Note for Python:</strong> Python has no true missing-value marker like R’s <code>NA</code>. The closest stand-in is the floating-point “not a number”, <code>np.nan</code>. But where R’s <code>NA</code> <em>propagates</em> through comparisons (<code>NA == NA</code> is <code>NA</code>), <code>nan</code> simply compares <code>False</code> to everything, including itself. Test for it with <code>np.isnan()</code>, never with <code>==</code>. (Proper missing-data handling arrives with pandas in <a href="#sec-week4" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week4</span></a>.)</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1273,10 +1273,10 @@ r_i = r_{i-1} + r_{i-2}, \qquad r_1 = r_2 = 1,
 <span id="cb185-12"><a href="#cb185-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">times =</span> <span class="dv">10</span></span>
 <span id="cb185-13"><a href="#cb185-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Unit: microseconds
-        expr       min        lq      mean    median        uq        max neval
-        grow 53952.081 54880.850 64098.547 57630.086 60994.811 123979.168    10
- preallocate   902.635   969.461  1295.593  1170.139  1675.093   1769.111    10
+<pre><code>Unit: milliseconds
+        expr       min        lq      mean   median        uq        max neval
+        grow 60.004290 63.441704 72.258288 64.47635 69.141804 141.692021    10
+ preallocate  1.012785  1.086521  1.505265  1.33620  2.038866   2.110831    10
  cld
   a 
    b</code></pre>
@@ -1302,16 +1302,16 @@ r_i = r_{i-1} + r_{i-2}, \qquad r_1 = r_2 = 1,
 <span id="cb187-14"><a href="#cb187-14" aria-hidden="true" tabindex="-1"></a><span class="co"># best of 10 runs of each, in milliseconds</span></span>
 <span id="cb187-15"><a href="#cb187-15" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(grow, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>18.234136994578876</code></pre>
+<pre><code>20.00593599950662</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb189"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb189-1"><a href="#cb189-1" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(preallocate, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.7510650029871613</code></pre>
+<pre><code>0.8348219998879358</code></pre>
 </div>
 </div>
 </div>
 </div>
-<p><strong>Note for Python:</strong> <code>timeit</code> wants a <em>function</em> to call, hence the two <code>def</code>s. A full treatment of writing functions is <a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a>’s business; for now, <code>def name(): ...</code> simply packages the block. <code>timeit.repeat(f, number=1, repeat=10)</code> returns ten timings in seconds; the minimum is the honest estimate, and we scale it to milliseconds.</p>
+<p><strong>Note for Python:</strong> <code>timeit</code> wants a <em>function</em> to call, hence the two <code>def</code>s. A full treatment of writing functions is <a href="#sec-week3" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week3</span></a>’s business; for now, <code>def name(): ...</code> simply packages the block. <code>timeit.repeat(f, number=1, repeat=10)</code> returns ten timings in seconds; the minimum is the honest estimate, and we scale it to milliseconds.</p>
 <p>Same result, dozens of times apart! Since the copying cost is quadratic, the gap widens as <code>n</code> grows. The habit to build, in either language: <strong>decide the size first, allocate, then fill.</strong></p>
 <p><strong>Note for Python:</strong> the quadratic growth here belongs to <em>numpy arrays</em>. Plain Python lists over-allocate as they grow, so <code>my_list.append(...)</code> is genuinely cheap, and building a list then converting with <code>np.array(my_list)</code> is idiomatic Python. For numerical work, preallocating the numpy array as above remains the habit to build.</p>
 </section>
@@ -1452,7 +1452,7 @@ Exercise 2.6: Double your money
 </section>
 <section id="sec-week2-vectorise" class="level2" data-number="2.7">
 <h2 data-number="2.7" class="anchored" data-anchor-id="sec-week2-vectorise"><span class="header-section-number">2.7</span> When not to loop</h2>
-<p>Time for a confession: much of what beginners write loops for, R and numpy already do better with the vectorised operations of <a href="01-week1.html" class="quarto-xref"><span>Chapter 1</span></a>. Squaring a million numbers needs no loop: <code>x^2</code> (<code>x**2</code>) <em>is</em> the loop, executed in fast compiled code rather than element-by-element in the interpreter:</p>
+<p>Time for a confession: much of what beginners write loops for, R and numpy already do better with the vectorised operations of <a href="#sec-week1" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week1</span></a>. Squaring a million numbers needs no loop: <code>x^2</code> (<code>x**2</code>) <em>is</em> the loop, executed in fast compiled code rather than element-by-element in the interpreter:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1468,12 +1468,9 @@ Exercise 2.6: Double your money
 <span id="cb203-9"><a href="#cb203-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Unit: microseconds
-       expr       min        lq      mean    median        uq      max neval
-       loop 31014.093 31800.804 32333.473 32223.028 33170.775 34089.19    10
- vectorised   813.163   850.713  8418.945  2285.709  3017.557 66286.43    10
- cld
-  a 
-   b</code></pre>
+       expr       min        lq     mean   median        uq      max neval cld
+       loop 37215.842 39600.457 39963.59 40308.88 40575.623 41391.53    10  a 
+ vectorised   988.701  1052.417 11364.87  3090.00  3805.589 89915.88    10   b</code></pre>
 </div>
 </div>
 </div>
@@ -1493,11 +1490,11 @@ Exercise 2.6: Double your money
 <span id="cb205-11"><a href="#cb205-11" aria-hidden="true" tabindex="-1"></a><span class="co"># best of 10 runs of each, in milliseconds</span></span>
 <span id="cb205-12"><a href="#cb205-12" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(loop, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>166.47640700102784</code></pre>
+<pre><code>178.85187499632593</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb207"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb207-1"><a href="#cb207-1" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(vectorised, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.3537699958542362</code></pre>
+<pre><code>0.3447290000622161</code></pre>
 </div>
 </div>
 </div>
@@ -1635,7 +1632,7 @@ m_{k+1} = m_k - \gamma \, L'(m_k),
 </div>
 </div>
 </div>
-<p>It works: sixty iterations of “step against the slope” land on the sample mean to several decimals. (The two columns simulate <em>different</em> datasets, because the streams never match, so they print different numbers: each lands on its own sample mean, 2.66 in the R run and 2.93 in the Python run, both consistent with the true mean of 3 given <span class="math inline">n = 200</span>.) A quick plot of the trajectory (base <code>plot()</code> in R, <code>matplotlib</code> in Python) shows the approach: big early strides, then ever-finer adjustments (quick-and-dirty plots for now; we do plotting properly in <a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>):</p>
+<p>It works: sixty iterations of “step against the slope” land on the sample mean to several decimals. (The two columns simulate <em>different</em> datasets, because the streams never match, so they print different numbers: each lands on its own sample mean, 2.66 in the R run and 2.93 in the Python run, both consistent with the true mean of 3 given <span class="math inline">n = 200</span>.) A quick plot of the trajectory (base <code>plot()</code> in R, <code>matplotlib</code> in Python) shows the approach: big early strides, then ever-finer adjustments (quick-and-dirty plots for now; we do plotting properly in <a href="#sec-week4" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week4</span></a>):</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
@@ -1723,7 +1720,7 @@ m_{k+1} = m_k - \gamma \, L'(m_k),
 </div>
 </div>
 </div>
-<p>Every quantity in that plot is further from the answer than the terrible initial guess. Choosing <span class="math inline">\gamma</span> well (and adapting it on the fly) is a central theme of <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a>; for now, Exercise 2.8 lets you map out the dial yourself.</p>
+<p>Every quantity in that plot is further from the answer than the terrible initial guess. Choosing <span class="math inline">\gamma</span> well (and adapting it on the fly) is a central theme of <a href="#sec-week5" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week5</span></a>; for now, Exercise 2.8 lets you map out the dial yourself.</p>
 </section>
 <section id="beyond-the-quadratic" class="level3" data-number="2.8.4">
 <h3 data-number="2.8.4" class="anchored" data-anchor-id="beyond-the-quadratic"><span class="header-section-number">2.8.4</span> Beyond the quadratic</h3>
@@ -1809,7 +1806,7 @@ g(x) = x^3 + x^2 - x - 1, \qquad g'(x) = 3x^2 + 2x - 1,
 </div>
 </div>
 <p>One honest caveat: gradient descent only follows the slope it can feel, so it finds <em>local</em> minima. Start this example at <span class="math inline">x_1 = -2</span>: downhill now points left, and since <span class="math inline">g \to -\infty</span> there, the iterates march off to <span class="math inline">-\infty</span> without ever looking back. Try it.</p>
-<p>You may have noticed we copy-pasted the same loop three times, editing the derivative by hand each time. That itch has a cure: next week (<a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a>) we wrap gradient descent into a reusable <em>function</em>, and by <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a> it will be fitting real statistical models.</p>
+<p>You may have noticed we copy-pasted the same loop three times, editing the derivative by hand each time. That itch has a cure: next week (<a href="#sec-week3" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week3</span></a>) we wrap gradient descent into a reusable <em>function</em>, and by <a href="#sec-week5" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week5</span></a> it will be fitting real statistical models.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Exercise 2.8: Turning the step-size dial">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1859,7 +1856,7 @@ Challenge 2.2: The Collatz conjecture
 <div class="callout-body-container callout-body">
 <p>The Collatz conjecture: take a positive integer <span class="math inline">n</span>; if even, halve it; if odd, replace it by <span class="math inline">3n + 1</span>. Repeat. The (unproven!) conjecture is that every starting value eventually reaches 1.</p>
 <p>
-<a href="https://commons.wikimedia.org/wiki/File:Collatz_conjecture_tree_visualization.png#/media/File:Collatz_conjecture_tree_visualization.png"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Collatz_conjecture_tree_visualization.png/1280px-Collatz_conjecture_tree_visualization.png?utm_source=en.wikipedia.org&amp;utm_campaign=imageinfo&amp;utm_content=thumbnail" alt="Collatz conjecture paths for 5000 random starting points below 1 million." height="426" width="240"></a><br>By <a href="//commons.wikimedia.org/w/index.php?title=User:Dkobak&amp;action=edit&amp;redlink=1" class="new" title="User:Dkobak (page does not exist)">Dkobak</a> - <span class="int-own-work" lang="en">Own work</span>, <a href="http://creativecommons.org/publicdomain/zero/1.0/deed.en" title="Creative Commons Zero, Public Domain Dedication">CC0</a>, <a href="https://commons.wikimedia.org/w/index.php?curid=162410338">Link</a>
+<a href="https://commons.wikimedia.org/wiki/File:Collatz_conjecture_tree_visualization.png#/media/File:Collatz_conjecture_tree_visualization.png"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Collatz_conjecture_tree_visualization.png/1280px-Collatz_conjecture_tree_visualization.png?utm_source=en.wikipedia.org&amp;utm_campaign=imageinfo&amp;utm_content=thumbnail" alt="Collatz conjecture paths for 5000 random starting points below 1 million." height="240" width="426"></a><br>By <a href="//commons.wikimedia.org/w/index.php?title=User:Dkobak&amp;action=edit&amp;redlink=1" class="new" title="User:Dkobak (page does not exist)">Dkobak</a> - <span class="int-own-work" lang="en">Own work</span>, <a href="http://creativecommons.org/publicdomain/zero/1.0/deed.en" title="Creative Commons Zero, Public Domain Dedication">CC0</a>, <a href="https://commons.wikimedia.org/w/index.php?curid=162410338">Link</a>
 </p>
 <ol type="a">
 <li>With a <code>while</code> loop, count the steps needed to reach 1 from <span class="math inline">n = 27</span>. (You should get 111.)</li>
@@ -1867,7 +1864,7 @@ Challenge 2.2: The Collatz conjecture
 </ol>
 </div>
 </div>
-<p>That is the week: comparisons and logic to make decisions, loops to repeat them, and, stitched together, a first real algorithm. Next week (<a href="03-week3.html" class="quarto-xref"><span>Chapter 3</span></a>) we stop copy-pasting the gradient-descent loop and wrap it into a <em>function</em> we can hand any problem we like.</p>
+<p>That is the week: comparisons and logic to make decisions, loops to repeat them, and, stitched together, a first real algorithm. Next week (<a href="#sec-week3" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week3</span></a>) we stop copy-pasting the gradient-descent loop and wrap it into a <em>function</em> we can hand any problem we like.</p>
 
 
 </section>

@@ -163,7 +163,7 @@ ul.task-list li input[type="checkbox"] {
   <ul>
   <li><a href="#preface" id="toc-preface" class="nav-link active" data-scroll-target="#preface">Preface</a>
   <ul class="collapse">
-  <li><a href="#where-we-are-going" id="toc-where-we-are-going" class="nav-link" data-scroll-target="#where-we-are-going">Where we are going</a></li>
+  <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview">Overview</a></li>
   <li><a href="#how-to-use-these-notes" id="toc-how-to-use-these-notes" class="nav-link" data-scroll-target="#how-to-use-these-notes">How to use these notes</a></li>
   <li><a href="#prerequisites" id="toc-prerequisites" class="nav-link" data-scroll-target="#prerequisites">Prerequisites</a></li>
   <li><a href="#sources" id="toc-sources" class="nav-link" data-scroll-target="#sources">Sources</a></li>
@@ -208,13 +208,13 @@ ul.task-list li input[type="checkbox"] {
 <section id="preface" class="level1 unnumbered">
 <h1 class="unnumbered">Preface</h1>
 <p>Welcome to MATH7432, <em>Computing and Algorithms for Statistics</em>: a Master’s module at Lancaster University about the computational machinery that makes modern statistics run. Statistics on paper is elegant; statistics in practice is code. This module teaches you to write that code well, and to understand the algorithms it implements. Everything is in both R and Python.</p>
-<p>A word on the two languages before anything else. Every code chunk in these notes appears twice, side by side: <strong>R on the left, Python on the right</strong>, translated line for line. You are expected to <strong>learn both languages</strong>. R is the lingua franca of statistics, Python of machine learning and production data science, and the modern statistician needs both in their toolset! Neither column is extra homework: each is a bridge to the other. Working statisticians cross between the two languages constantly, and the side-by-side layout teaches you to make that hop until it feels routine. One practical consequence: the side-by-side layout needs horizontal room, so read the notes on a wide screen (to be fair, it can work on a phone on a single column layout, but it kinda misses the point, and you probably want your phone for doomscrolling rather then reading the notes).</p>
-<section id="where-we-are-going" class="level2 unnumbered">
-<h2 class="unnumbered anchored" data-anchor-id="where-we-are-going">Where we are going</h2>
-<p>The module has a deliberate arc, so here it is up front:</p>
+<p>Every code chunk in these notes appears twice, side by side: <strong>R on the left, Python on the right</strong>, translated line for line. You are expected to <strong>learn both languages</strong>. R is the lingua franca of statistics, Python of machine learning and production data science, and the modern statistician needs both in their toolset! Working statisticians cross between the two languages constantly, and the side-by-side layout teaches you to make that hop. One practical consequence: the side-by-side layout needs horizontal room, so read the notes on a wide screen (to be fair, it can work on a phone on a single column layout, but it kinda misses the point, and you probably want your phone for doomscrolling rather then reading the notes).</p>
+<section id="overview" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="overview">Overview</h2>
+<p>The module will follow:</p>
 <ul>
-<li><p><strong>Weeks 1–4: Programming in R and Python</strong> (each week: 1h lecture + 2h lab). We start from zero and build up both languages: variables, vectors and matrices (<a href="01-week1.html" class="quarto-xref"><span>1&nbsp; Week 1: Introduction to R and Python Programming</span></a>); logic, loops and iteration (<a href="02-week2.html" class="quarto-xref"><span>2&nbsp; Week 2: Logic, Loops and Iteration</span></a>); functions and functional programming (<a href="03-week3.html" class="quarto-xref"><span>3&nbsp; Week 3: Functions and Functional Programming</span></a>); data frames and plotting (<a href="04-week4.html" class="quarto-xref"><span>4&nbsp; Week 4: Data Frames and Plotting</span></a>). A running example threads through these weeks: <strong>gradient descent</strong>, the workhorse optimiser behind half of modern statistics and essentially all of machine learning. It appears in week 2 as a humble loop and grows up alongside your programming skills.</p></li>
-<li><p><strong>Week 5: Optimisation for statistics</strong> (2h lecture + 1h lab). The payoff chapter, where the programming tools meet the statistics: estimation as loss minimisation, stochastic gradient descent, preconditioning, and quasi-Newton methods (BFGS); see <a href="05-week5.html" class="quarto-xref"><span>5&nbsp; Week 5: Introduction to Optimisation for Statistics</span></a>.</p></li>
+<li><p><strong>Weeks 1–4: Programming in R and Python</strong> (each week: 1h lecture + 2h lab). We start from zero and build up both languages: variables, vectors and matrices (<a href="#sec-week1" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week1</span></a>); logic, loops and iteration (<a href="#sec-week2" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week2</span></a>); functions and functional programming (<a href="#sec-week3" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week3</span></a>); data frames and plotting (<a href="#sec-week4" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week4</span></a>). A running example threads through these weeks: <strong>gradient descent</strong>, the workhorse optimiser behind half of modern statistics and essentially all of machine learning. It appears in week 2 as a humble loop and grows up alongside your programming skills.</p></li>
+<li><p><strong>Week 5: Optimisation for statistics</strong> (2h lecture + 1h lab). The payoff chapter, where the programming tools meet the statistics: estimation as loss minimisation, stochastic gradient descent, preconditioning, and quasi-Newton methods (BFGS); see <a href="#sec-week5" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week5</span></a>.</p></li>
 </ul>
 <p><strong>These notes cover weeks 1–5</strong> The materials for weeks 6-10 will be released separately later in term, and will roughly cover the following topics:</p>
 <ul>
@@ -224,10 +224,10 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="how-to-use-these-notes" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="how-to-use-these-notes">How to use these notes</h2>
-<p>These notes are meant to be <em>used</em>, not read like a novel. The intended workflow:</p>
+<p>The intended workflow:</p>
 <ul>
 <li><strong>Before the lecture:</strong> skim the week’s chapter. You don’t need to understand everything: the lecture will give you the overview and the why.</li>
-<li><strong>During the lecture:</strong> follow along, ask questions. You can take notes, but I will cover the same materials in the notes, so you don’t need to copy everything down.</li>
+<li><strong>During the lecture:</strong> follow along, ask questions. You can take notes, but I will cover the same materials I have in these documents, so you don’t need to copy everything down.</li>
 <li><strong>In the lab:</strong> work through the chapter at your own pace, copy-pasting the code into RStudio and running it yourself. Change things. Break things. Exercises appear throughout each chapter exactly where the relevant idea is fresh: do them as you meet them! If you get stuck, ask one of us for help.</li>
 <li><strong>Which language for the exercises?</strong> Since you are building both, use the exercises to train the weaker one. If you already know one of the two languages, do the exercises in the other; if you know neither, alternate languages across the exercises. In every case, check the solutions for both languages.</li>
 <li><strong>Afterwards:</strong> worked solutions are released on Moodle once all of the week’s labs have ended.</li>
@@ -252,7 +252,7 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 <p>This sets of notes essentially descends from the lineage of Debbie Costain, Clement Lee, Chris Nemeth, Tom Palmer, Florian Pein, Eduard Campillo-Funollet, Gaetano Romano and Stuart Sharples. I hope I haven’t missed anyone (and if I have, please let me know).</p>
 <p>For going deeper into R than we do here, the canonical further reading is Hadley Wickham, <em>Advanced R</em>, 2nd edition, <a href="https://adv-r.hadley.nz/" class="uri">https://adv-r.hadley.nz/</a>: free online, and the source of several ideas and examples in these notes.</p>
-<p>Right then. Open RStudio (which, as week 1 explains, speaks both of our languages) and let’s begin with <a href="01-week1.html" class="quarto-xref"><span>1&nbsp; Week 1: Introduction to R and Python Programming</span></a>.</p>
+<p>Right then. Open RStudio (which, as week 1 explains, speaks both of our languages) and let’s begin with <a href="#sec-week1" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week1</span></a>.</p>
 
 
 </section>

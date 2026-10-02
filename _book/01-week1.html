@@ -588,7 +588,7 @@ Exercise 1.1: A glorified calculator
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>X</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-error">
-<pre><code>Error in eval(expr, envir, enclos): object 'X' not found</code></pre>
+<pre><code>Error: object 'X' not found</code></pre>
 </div>
 </div>
 </div>
@@ -732,7 +732,7 @@ Exercise 1.2: Compound interest, minimal effort
 </div>
 </div>
 </div>
-<p>Numbers you know. <strong>Character</strong> values (strings) are text wrapped in quotes: without the quotes, <code>statistics</code> would be the name of a variable. <strong>Logical</strong> values are the atoms of decision-making in a program; <a href="02-week2.html" class="quarto-xref"><span>Chapter 2</span></a> is largely about them, so we park them here.</p>
+<p>Numbers you know. <strong>Character</strong> values (strings) are text wrapped in quotes: without the quotes, <code>statistics</code> would be the name of a variable. <strong>Logical</strong> values are the atoms of decision-making in a program; <a href="#sec-week2" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week2</span></a> is largely about them, so we park them here.</p>
 <p><strong>Note for Python:</strong> the type names differ (<code>float</code> for numeric, <code>str</code> for character, <code>bool</code> for logical) and so does the spelling of the logicals: R has <code>TRUE</code> and <code>FALSE</code> in full capitals (R is the language of anger), Python writes <code>True</code> and <code>False</code> with a capital initial only.</p>
 </section>
 </section>
@@ -960,7 +960,7 @@ Exercise 1.3: Sequence like you mean it
 </div>
 </div>
 </div>
-<p>This style, one expression acting on <span class="math inline">n</span> numbers at once, is called <strong>vectorised</strong> code. It is how R (and numpy, which exists for precisely this) wants to be written: compact, close to the mathematical notation, and (as we will measure in <a href="02-week2.html" class="quarto-xref"><span>Chapter 2</span></a>) much faster than handling elements one at a time.</p>
+<p>This style, one expression acting on <span class="math inline">n</span> numbers at once, is called <strong>vectorised</strong> code. It is how R (and numpy, which exists for precisely this) wants to be written: compact, close to the mathematical notation, and (as we will measure in <a href="#sec-week2" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week2</span></a>) much faster than handling elements one at a time.</p>
 <p>Some functions instead <em>summarise</em> a whole vector into one number, which covers a good share of day-one statistics:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -1261,7 +1261,7 @@ Exercise 1.4: The recycling plant
 </div>
 </div>
 </div>
-<p>One teaser before we move on: in both languages, brackets also accept conditions, so <code>x[x &gt; 50]</code> returns the elements larger than 50. How and why that works is the business of <a href="02-week2.html" class="quarto-xref"><span>Chapter 2</span></a>: resist the urge for one more week.</p>
+<p>One teaser before we move on: in both languages, brackets also accept conditions, so <code>x[x &gt; 50]</code> returns the elements larger than 50. How and why that works is the business of <a href="#sec-week2" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week2</span></a>: resist the urge for one more week.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Exercise 1.5: Marking spree">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1335,7 +1335,7 @@ Exercise 1.5: Marking spree
 </div>
 </div>
 </div>
-<p>That is genuinely all it takes to graph a function. (One asymmetry: base R plots points unless you ask for a line with <code>type = "l"</code>; matplotlib’s <code>plt.plot</code> draws a line unless you ask otherwise; <code>plt.scatter</code> is its point-plotter.) We will keep using quick one-liners like this as visual checks, and do plotting <em>properly</em> (labels, colours, themes, publication quality) in <a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>.</p>
+<p>That is genuinely all it takes to graph a function. (One asymmetry: base R plots points unless you ask for a line with <code>type = "l"</code>; matplotlib’s <code>plt.plot</code> draws a line unless you ask otherwise; <code>plt.scatter</code> is its point-plotter.) We will keep using quick one-liners like this as visual checks, and do plotting <em>properly</em> (labels, colours, themes, publication quality) in <a href="#sec-week4" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week4</span></a>.</p>
 </section>
 </section>
 <section id="saving-your-work-csv-files-and-the-working-directory" class="level2" data-number="1.5">
@@ -1439,7 +1439,7 @@ Hard-coded filepaths
 </div>
 </div>
 </div>
-<p>The printout looks slightly different from a vector: it has a column name (<code>x</code> in R; pandas defaults to <code>0</code>) and numbered rows (from 0 in Python, naturally). That is because <code>read.csv()</code> (and equally pandas’ <code>read_csv()</code>) returns a <strong>data frame</strong>: the table-shaped cousin of the vector, and the single most important object in applied statistics. It gets the star treatment in <a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>; for now, csv out and csv in is all we need.</p>
+<p>The printout looks slightly different from a vector: it has a column name (<code>x</code> in R; pandas defaults to <code>0</code>) and numbered rows (from 0 in Python, naturally). That is because <code>read.csv()</code> (and equally pandas’ <code>read_csv()</code>) returns a <strong>data frame</strong>: the table-shaped cousin of the vector, and the single most important object in applied statistics. It gets the star treatment in <a href="#sec-week4" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week4</span></a>; for now, csv out and csv in is all we need.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Exercise 1.6: There and back again (a csv's tale)">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1820,7 +1820,7 @@ B = \begin{pmatrix} 1 &amp; 4 \\ 2 &amp; 5 \end{pmatrix}.
 </div>
 </div>
 <p><strong>Note for Python:</strong> numpy files all of linear algebra under <code>np.linalg</code>, and names things honestly: <code>np.linalg.inv</code> inverts, <code>np.linalg.solve</code> (coming below) solves systems, <code>np.linalg.det</code> takes determinants. R’s <code>solve()</code> carries the misleading-name burden alone.</p>
-<p>(The <code>round()</code> is there because floating-point arithmetic leaves microscopic dust like <code>2.2e-16</code> where exact zeros should be; more on that in <a href="02-week2.html" class="quarto-xref"><span>Chapter 2</span></a>.) The identity matrix itself, should you need one, is <code>diag(2)</code> in R, <code>np.eye(2)</code> in Python.</p>
+<p>(The <code>round()</code> is there because floating-point arithmetic leaves microscopic dust like <code>2.2e-16</code> where exact zeros should be; more on that in <a href="#sec-week2" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week2</span></a>.) The identity matrix itself, should you need one, is <code>diag(2)</code> in R, <code>np.eye(2)</code> in Python.</p>
 <p>A matrix is invertible if and only if its determinant is non-zero, and <code>det()</code> (<code>np.linalg.det</code>) will tell you:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
@@ -1983,7 +1983,7 @@ $vectors
 </div>
 </div>
 <p><strong>Note for Python:</strong> <code>np.linalg.eig</code> hands back a <em>pair</em> (eigenvalues, eigenvectors) rather than R’s single object, and unlike R it makes no promise about their order (here it happens to match R’s largest-first). For symmetric matrices, and covariance matrices always are, the specialised <code>np.linalg.eigh</code> is faster, more accurate, and sorts eigenvalues in <em>ascending</em> order, so the “top” eigenvalue comes last.</p>
-<p>The eigenvector with the largest eigenvalue points in the direction along which the data varies most, and the eigenvalues split the total variance across those directions. This single idea is principal component analysis, the workhorse of dimension reduction. Eigenvalues will also quietly reappear in <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a>, where they govern how fast our optimisation algorithms converge. For now: <code>eigen()</code> (and <code>np.linalg.eig</code>) exists, and Challenge 1.2 lets you poke at it.</p>
+<p>The eigenvector with the largest eigenvalue points in the direction along which the data varies most, and the eigenvalues split the total variance across those directions. This single idea is principal component analysis, the workhorse of dimension reduction. Eigenvalues will also quietly reappear in <a href="#sec-week5" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week5</span></a>, where they govern how fast our optimisation algorithms converge. For now: <code>eigen()</code> (and <code>np.linalg.eig</code>) exists, and Challenge 1.2 lets you poke at it.</p>
 </section>
 </section>
 <section id="challenges" class="level2" data-number="1.7">
@@ -2024,7 +2024,7 @@ Challenge 1.1: Least squares, a sneak preview
 <li>Compute <span class="math inline">\boldsymbol{\hat\beta}</span> with <code>t()</code>, <code>%*%</code> and <code>solve()</code> (Python: <code>.T</code>, <code>@</code> and <code>np.linalg.inv</code>, or better, <code>np.linalg.solve</code>).</li>
 <li>Plot the data with <code>plot(x, y)</code> and overlay your line with <code>abline(a = beta[1], b = beta[2])</code>. (matplotlib has no <code>abline</code>: use <code>plt.scatter(x, y)</code>, then draw the line yourself with <code>plt.plot(x, beta[0] + beta[1] * x)</code>.) Admire.</li>
 </ol>
-<p>You have just fitted your first regression, with your bare hands, using only week-1 material. In <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a> we will fit models like this by <em>optimisation</em>, and see exactly where this magic formula comes from.</p>
+<p>You have just fitted your first regression, with your bare hands, using only week-1 material. In <a href="#sec-week5" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week5</span></a> we will fit models like this by <em>optimisation</em>, and see exactly where this magic formula comes from.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-important callout-titled" title="Challenge 1.2: Dissecting a covariance matrix">
@@ -2044,7 +2044,7 @@ Challenge 1.2: Dissecting a covariance matrix
 0.4 &amp; 0.6 &amp; 1.0
 \end{pmatrix}.
 </span></p>
-<p><code>eigen(Sigma)</code> returns an object with two pieces, which you can extract as <code>eigen(Sigma)$values</code> and <code>eigen(Sigma)$vectors</code> (more on the <code>$</code> in <a href="04-week4.html" class="quarto-xref"><span>Chapter 4</span></a>). In Python the two pieces arrive directly as a pair: <code>evals, evecs = np.linalg.eig(Sigma)</code>.</p>
+<p><code>eigen(Sigma)</code> returns an object with two pieces, which you can extract as <code>eigen(Sigma)$values</code> and <code>eigen(Sigma)$vectors</code> (more on the <code>$</code> in <a href="#sec-week4" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week4</span></a>). In Python the two pieces arrive directly as a pair: <code>evals, evecs = np.linalg.eig(Sigma)</code>.</p>
 <ol type="a">
 <li>Verify numerically that the eigenvalues sum to the <em>total variance</em> <span class="math inline">\operatorname{tr}(\Sigma)</span>, the sum of the diagonal (see <code>?diag</code>; Python: <code>np.diag</code>, or <code>np.trace</code> for the whole job).</li>
 <li>Store the eigenvector matrix as <code>V</code> and compute <code>t(V) %*% V</code> (<code>V.T @ V</code>), rounded to 10 decimal places. What matrix do you get, and what does that say about the directions the eigenvectors describe?</li>
@@ -2061,7 +2061,7 @@ Challenge 1.2: Dissecting a covariance matrix
 <li>Round-trip your data to disk as csv files (<code>write.csv</code>/<code>read.csv</code>; pandas’ <code>to_csv</code>/<code>read_csv</code>), and know where your session put them.</li>
 <li>Do real linear algebra: <code>%*%</code> (<code>@</code>), <code>t()</code> (<code>.T</code>), <code>det()</code>, <code>solve()</code> for inverses and systems (<code>np.linalg</code>’s <code>det</code>, <code>inv</code> and <code>solve</code>), and a first taste of <code>eigen()</code> (<code>np.linalg.eig</code>).</li>
 </ul>
-<p>Next week, in <a href="02-week2.html" class="quarto-xref"><span>Chapter 2</span></a>, we teach the machine to make decisions: <code>TRUE</code> and <code>FALSE</code> (<code>True</code> and <code>False</code>) in earnest, <code>if</code> and <code>else</code>, loops, and with them our first proper algorithm, gradient descent, which will carry us all the way to <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a>.</p>
+<p>Next week, in <a href="#sec-week2" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week2</span></a>, we teach the machine to make decisions: <code>TRUE</code> and <code>FALSE</code> (<code>True</code> and <code>False</code>) in earnest, <code>if</code> and <code>else</code>, loops, and with them our first proper algorithm, gradient descent, which will carry us all the way to <a href="#sec-week5" class="quarto-xref"><span class="quarto-unresolved-ref">sec-week5</span></a>.</p>
 
 
 </section>
