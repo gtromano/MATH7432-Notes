@@ -635,14 +635,14 @@ Name: calories, dtype: int64</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(milk)  <span class="co"># summary statistics per column, NAs included</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>     type              calories        protein      fibre          carbs      
- Length:4           Min.   : 60.0   Min.   :1   Min.   :1.00   Min.   : 8.00  
- Class :character   1st Qu.: 90.0   1st Qu.:1   1st Qu.:1.25   1st Qu.: 9.50  
- Mode  :character   Median :110.0   Median :2   Median :1.50   Median :15.00  
-                    Mean   :102.5   Mean   :3   Mean   :1.50   Mean   :15.75  
-                    3rd Qu.:122.5   3rd Qu.:4   3rd Qu.:1.75   3rd Qu.:21.25  
-                    Max.   :130.0   Max.   :7   Max.   :2.00   Max.   :25.00  
-                                                NA's   :2                     
+<pre><code>        type      calories        protein      fibre          carbs      
+ Length   :4   Min.   : 60.0   Min.   :1   Min.   :1.00   Min.   : 8.00  
+ N.unique :4   1st Qu.: 90.0   1st Qu.:1   1st Qu.:1.25   1st Qu.: 9.50  
+ N.blank  :0   Median :110.0   Median :2   Median :1.50   Median :15.00  
+ Min.nchar:3   Mean   :102.5   Mean   :3   Mean   :1.50   Mean   :15.75  
+ Max.nchar:6   3rd Qu.:122.5   3rd Qu.:4   3rd Qu.:1.75   3rd Qu.:21.25  
+               Max.   :130.0   Max.   :7   Max.   :2.00   Max.   :25.00  
+                                           NAs    :2                     
      sugars        fat          sugar_frac    
  Min.   : 7   Min.   :2.500   Min.   :0.8750  
  1st Qu.:10   1st Qu.:2.500   1st Qu.:0.8938  
@@ -650,7 +650,7 @@ Name: calories, dtype: int64</code></pre>
  Mean   :13   Mean   :2.875   Mean   :0.9125  
  3rd Qu.:16   3rd Qu.:2.875   3rd Qu.:0.9313  
  Max.   :19   Max.   :4.000   Max.   :0.9500  
- NA's   :2                    NA's   :2       </code></pre>
+ NAs    :2                    NAs    :2       </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(milk, <span class="dv">2</span>)  <span class="co"># first few rows (useful for big data)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">

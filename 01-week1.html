@@ -588,7 +588,7 @@ Exercise 1.1: A glorified calculator
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>X</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-error">
-<pre><code>Error in eval(expr, envir, enclos): object 'X' not found</code></pre>
+<pre><code>Error: object 'X' not found</code></pre>
 </div>
 </div>
 </div>
@@ -1946,6 +1946,13 @@ A \mathbf{v} = \lambda\, \mathbf{v}, \qquad \mathbf{v} \neq \mathbf{0}.
 A\mathbf{w} = c_1 \lambda_1 \mathbf{v}_1 + \cdots + c_d \lambda_d \mathbf{v}_d.
 </span></p>
 <p>The matrix’s entire action, on any vector at all, is therefore captured by <span class="math inline">d</span> separate stretches. The size of each <span class="math inline">\lambda</span> says what happens along its axis: a large <span class="math inline">|\lambda|</span> amplifies, a small one flattens, and <span class="math inline">\lambda = 0</span> destroys the direction outright (that is precisely the singular matrix met earlier in this chapter).</p>
+<p>Here is all of this in one picture, for the matrix <span class="math inline">\Sigma = \begin{pmatrix} 4 &amp; 2 \\ 2 &amp; 3 \end{pmatrix}</span> we will meet in a moment.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/chapter1/w1_eigen.gif" class="img-fluid figure-img" width="420"></p>
+<figcaption>The map <span class="math inline">\mathbf{x} \mapsto \Sigma\mathbf{x}</span> acting on a grid of points. Points on the two dashed red eigen-directions only slide along them; each eigenvector (blue) is stretched by its eigenvalue (green): <span class="math inline">\lambda_1 \approx 5.56</span> and <span class="math inline">\lambda_2 \approx 1.44</span>. The grey vector, not an eigenvector, changes direction. The picture then rotates until the eigenvectors are the axes: in that basis, <span class="math inline">\Sigma</span> is nothing but a stretch along each axis.</figcaption>
+</figure>
+</div>
 <p>In statistics, the <strong>covariance matrix</strong> of a random vector packages the variances (diagonal) and covariances (off-diagonal) of its components. Its eigendecomposition can be quite informative:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
