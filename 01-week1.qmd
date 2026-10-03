@@ -1649,6 +1649,17 @@ a large $|\lambda|$ amplifies, a small one flattens, and $\lambda = 0$ destroys 
 direction outright (that is precisely the singular matrix met earlier in this
 chapter).
 
+Here is all of this in one picture, for the matrix
+$\Sigma = \begin{pmatrix} 4 & 2 \\ 2 & 3 \end{pmatrix}$ we will meet in a moment.
+
+::: {.content-visible when-format="html"}
+![The map $\mathbf{x} \mapsto \Sigma\mathbf{x}$ acting on a grid of points. Points on the two dashed red eigen-directions only slide along them; each eigenvector (blue) is stretched by its eigenvalue (green): $\lambda_1 \approx 5.56$ and $\lambda_2 \approx 1.44$. The grey vector, not an eigenvector, changes direction. The picture then rotates until the eigenvectors are the axes: in that basis, $\Sigma$ is nothing but a stretch along each axis.](images/chapter1/w1_eigen.gif){width="420"}
+:::
+
+::: {.content-visible when-format="pdf"}
+![The map $\mathbf{x} \mapsto \Sigma\mathbf{x}$ acting on a grid of points (left: before; middle: after). Points on the two dashed red eigen-directions only slide along them; each eigenvector (blue) is stretched by its eigenvalue (green): $\lambda_1 \approx 5.56$ and $\lambda_2 \approx 1.44$. The grey vector, not an eigenvector, changes direction. Right: rotating until the eigenvectors are the axes, $\Sigma$ is nothing but a stretch along each axis. (The HTML version of these notes animates this.)](images/chapter1/w1_eigen_static.png){width="100%"}
+:::
+
 In statistics, the **covariance matrix** of a random vector packages the variances (diagonal) and covariances (off-diagonal) of its components. Its eigendecomposition can be quite informative:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}

@@ -1273,10 +1273,10 @@ r_i = r_{i-1} + r_{i-2}, \qquad r_1 = r_2 = 1,
 <span id="cb185-12"><a href="#cb185-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">times =</span> <span class="dv">10</span></span>
 <span id="cb185-13"><a href="#cb185-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Unit: milliseconds
-        expr       min        lq      mean   median        uq        max neval
-        grow 60.004290 63.441704 72.258288 64.47635 69.141804 141.692021    10
- preallocate  1.012785  1.086521  1.505265  1.33620  2.038866   2.110831    10
+<pre><code>Unit: microseconds
+        expr      min        lq      mean    median        uq        max neval
+        grow 56771.81 59576.327 69519.947 61385.369 63512.633 142194.913    10
+ preallocate   915.18  1201.787  1487.057  1527.312  1807.054   2046.162    10
  cld
   a 
    b</code></pre>
@@ -1302,11 +1302,11 @@ r_i = r_{i-1} + r_{i-2}, \qquad r_1 = r_2 = 1,
 <span id="cb187-14"><a href="#cb187-14" aria-hidden="true" tabindex="-1"></a><span class="co"># best of 10 runs of each, in milliseconds</span></span>
 <span id="cb187-15"><a href="#cb187-15" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(grow, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>20.00593599950662</code></pre>
+<pre><code>18.138611001631944</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb189"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb189-1"><a href="#cb189-1" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(preallocate, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.8348219998879358</code></pre>
+<pre><code>0.7263389998115599</code></pre>
 </div>
 </div>
 </div>
@@ -1468,9 +1468,9 @@ Exercise 2.6: Double your money
 <span id="cb203-9"><a href="#cb203-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Unit: microseconds
-       expr       min        lq     mean   median        uq      max neval cld
-       loop 37215.842 39600.457 39963.59 40308.88 40575.623 41391.53    10  a 
- vectorised   988.701  1052.417 11364.87  3090.00  3805.589 89915.88    10   b</code></pre>
+       expr       min       lq     mean    median        uq      max neval cld
+       loop 32934.837 34856.53 36542.87 36805.793 38572.880 38996.54    10  a 
+ vectorised   873.848  1089.66 10798.64  2307.115  2995.329 89013.41    10   b</code></pre>
 </div>
 </div>
 </div>
@@ -1490,11 +1490,11 @@ Exercise 2.6: Double your money
 <span id="cb205-11"><a href="#cb205-11" aria-hidden="true" tabindex="-1"></a><span class="co"># best of 10 runs of each, in milliseconds</span></span>
 <span id="cb205-12"><a href="#cb205-12" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(loop, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>178.85187499632593</code></pre>
+<pre><code>169.35831299997517</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb207"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb207-1"><a href="#cb207-1" aria-hidden="true" tabindex="-1"></a><span class="bu">min</span>(timeit.repeat(vectorised, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">10</span>)) <span class="op">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.3447290000622161</code></pre>
+<pre><code>0.2883869965444319</code></pre>
 </div>
 </div>
 </div>
