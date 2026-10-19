@@ -624,9 +624,16 @@ Ten more terms, roughly a hundred times slower, while the humble preallocated lo
 **R**
 
 ```{r}
-#| error: true
+#| eval: false
 broken <- function(n) broken(n - 1)   # no base case!
 broken(1)
+```
+
+```{r}
+#| echo: false
+# knitr's evaluate (>= 1.0) cannot survive runaway recursion, so the error is caught here instead
+broken <- function(n) broken(n - 1)
+cat(tryCatch(broken(1), error = function(e) paste("Error:", conditionMessage(e))))
 ```
 
 </div>
@@ -1204,7 +1211,7 @@ $$
 x_{n+1} = x_n - \gamma \, f'(x_n),
 $$
 
-with the derivative typed straight into the loop body. Every new target function meant surgery on the loop. Now we know better: the function and its derivative can simply be *arguments*.
+with the derivative typed straight into the loop body. Every new target function meant surgery on the loop. Now we know better: the derivative can simply be an *argument*.
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -1212,7 +1219,7 @@ with the derivative typed straight into the loop body. Every new target function
 **R**
 
 ```{r}
-grad_descent <- function(f, grad, x0, gamma, n) {
+grad_descent <- function(grad, x0, gamma, n) {
   x <- x0
   for (i in 1:n) {
     x <- x - gamma * grad(x)   # the week 2 update, verbatim
@@ -1228,7 +1235,7 @@ grad_descent <- function(f, grad, x0, gamma, n) {
 **Python**
 
 ```{python}
-def grad_descent(f, grad, x0, gamma, n):
+def grad_descent(grad, x0, gamma, n):
     x = x0
     for i in range(n):
         x = x - gamma * grad(x)   # the week 2 update, verbatim
@@ -1238,9 +1245,9 @@ def grad_descent(f, grad, x0, gamma, n):
 </div>
 :::
 
-That is the whole algorithm: pure (no globals touched), reusable, half a dozen lines. You may notice `grad_descent` never actually calls `f`: the update only needs the gradient. We keep `f` in the signature anyway: the objective is how we *check* the answer (see the plot below), and in @sec-week5 this exact interface will carry monitoring, stochastic variants and fancier updates without changing shape. Consider the signature `grad_descent(f, grad, x0, gamma, n)`, identical in both languages by design, a contract between this week and week 5.
+That is the whole algorithm: pure (no globals touched), reusable, half a dozen lines. Notice what is *not* among the arguments: the objective $f$ itself. The update rule only ever evaluates the gradient, so the gradient is all we pass; an argument the body never uses would only be noise. The objective is still useful to *us*, to check the answer (see the plot below), and we simply call it ourselves when we need it. The signature `grad_descent(grad, x0, gamma, n)` is identical in both languages by design, and @sec-week5 keeps it.
 
-Minimising $f(x) = (x-2)^2$, whose gradient is $f'(x) = 2(x-2)$, is now a matter of two lambdas:
+Minimising $f(x) = (x-2)^2$, whose gradient is $f'(x) = 2(x-2)$, is now a matter of one lambda:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -1248,10 +1255,9 @@ Minimising $f(x) = (x-2)^2$, whose gradient is $f'(x) = 2(x-2)$, is now a matter
 **R**
 
 ```{r}
-f      <- \(x) (x - 2)^2
 grad_f <- \(x) 2 * (x - 2)
 
-grad_descent(f, grad_f, x0 = 10, gamma = 0.1, n = 100)
+grad_descent(grad_f, x0 = 10, gamma = 0.1, n = 100)
 ```
 
 </div>
@@ -1261,10 +1267,9 @@ grad_descent(f, grad_f, x0 = 10, gamma = 0.1, n = 100)
 **Python**
 
 ```{python}
-f      = lambda x: (x - 2)**2
 grad_f = lambda x: 2 * (x - 2)
 
-grad_descent(f, grad_f, x0=10, gamma=0.1, n=100)
+grad_descent(grad_f, x0=10, gamma=0.1, n=100)
 ```
 
 </div>
@@ -1281,8 +1286,8 @@ Swapping in a completely different problem costs nothing. Here is the double-wel
 g      <- \(x) x^4 / 4 - x^2 / 2
 grad_g <- \(x) x^3 - x
 
-grad_descent(g, grad_g, x0 =  2, gamma = 0.1, n = 200)
-grad_descent(g, grad_g, x0 = -2, gamma = 0.1, n = 200)   # other basin
+grad_descent(grad_g, x0 =  2, gamma = 0.1, n = 200)
+grad_descent(grad_g, x0 = -2, gamma = 0.1, n = 200)   # other basin
 ```
 
 </div>
@@ -1295,8 +1300,8 @@ grad_descent(g, grad_g, x0 = -2, gamma = 0.1, n = 200)   # other basin
 g      = lambda x: x**4 / 4 - x**2 / 2
 grad_g = lambda x: x**3 - x
 
-grad_descent(g, grad_g, x0=2, gamma=0.1, n=200)
-grad_descent(g, grad_g, x0=-2, gamma=0.1, n=200)   # other basin
+grad_descent(grad_g, x0=2, gamma=0.1, n=200)
+grad_descent(grad_g, x0=-2, gamma=0.1, n=200)   # other basin
 ```
 
 </div>
@@ -1310,7 +1315,7 @@ Gradient descent rolls downhill from wherever you drop it, so it finds the *loca
 **R**
 
 ```{r}
-xhat <- grad_descent(g, grad_g, x0 = 2, gamma = 0.1, n = 200)
+xhat <- grad_descent(grad_g, x0 = 2, gamma = 0.1, n = 200)
 
 xs <- seq(-2, 2, length.out = 400)
 plot(xs, g(xs), type = "l", xlab = "x", ylab = "g(x)")
@@ -1324,7 +1329,7 @@ points(xhat, g(xhat), col = "red", pch = 19)   # our minimiser
 **Python**
 
 ```{python}
-xhat = grad_descent(g, grad_g, x0=2, gamma=0.1, n=200)
+xhat = grad_descent(grad_g, x0=2, gamma=0.1, n=200)
 
 xs = np.linspace(-2, 2, 400)
 plt.plot(xs, g(xs))
@@ -1345,7 +1350,7 @@ One last cautionary demonstration: the step size $\gamma$ is not a detail:
 **R**
 
 ```{r}
-grad_descent(f, grad_f, x0 = 10, gamma = 1.05, n = 50)   # too greedy: diverges
+grad_descent(grad_f, x0 = 10, gamma = 1.05, n = 50)   # too greedy: diverges
 ```
 
 </div>
@@ -1355,7 +1360,7 @@ grad_descent(f, grad_f, x0 = 10, gamma = 1.05, n = 50)   # too greedy: diverges
 **Python**
 
 ```{python}
-grad_descent(f, grad_f, x0=10, gamma=1.05, n=50)   # too greedy: diverges
+grad_descent(grad_f, x0=10, gamma=1.05, n=50)   # too greedy: diverges
 ```
 
 </div>
@@ -1367,7 +1372,7 @@ Each step overshoots the minimum by more than it gained, and the iterates diverg
 Consider $h(x) = e^x + x^2$.
 
 a.  Derive $h'(x)$ by hand, and write both as lambdas.
-b.  Run `grad_descent(h, grad_h, x0 = 1, gamma = 0.1, n = 100)`.
+b.  Run `grad_descent(grad_h, x0 = 1, gamma = 0.1, n = 100)`.
 c.  Sanity-check the result with a base plot (Python: matplotlib) of $h$ over $[-2, 1]$, marking your minimiser with `points()` (Python: `plt.plot(..., "ro")`).
 d.  Compare your answer with R's built-in one-dimensional optimiser: `optimize(h, interval = c(-2, 1))` (Python: `scipy.optimize.minimize_scalar(h, bounds = (-2, 1))`).
 e.  Re-run with `gamma = 1` and with `gamma = 0.001` (same `n`). Describe what goes wrong in each case.
@@ -1379,7 +1384,7 @@ Two optional problems: one teaches `grad_descent` to stop by itself, one
 generalises a classic.
 
 ::: {.callout-important title="Challenge 3.1: Stop when you're done"}
-Our `grad_descent` runs for exactly `n` steps, even if it converged after ten. Write an improved `grad_descent_tol(f, grad, x0, gamma, max_n, tol = 1e-8)` that:
+Our `grad_descent` runs for exactly `n` steps, even if it converged after ten. Write an improved `grad_descent_tol(grad, x0, gamma, max_n, tol = 1e-8)` that:
 
 a.  iterates at most `max_n` times, but **stops early** when the step becomes tiny: $|x_{\text{new}} - x_{\text{old}}| < \texttt{tol}$;
 b.  records every iterate along the way (including `x0`);

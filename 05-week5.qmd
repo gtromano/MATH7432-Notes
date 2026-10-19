@@ -37,13 +37,12 @@ $$
 $$
 
 where $\gamma > 0$ is the **step size** (machine learning people say *learning rate*).
-In @sec-week3 we packaged this into `grad_descent(f, grad, x0, gamma, n)`. Here it is
-again with two upgrades. First, instead of returning only the final point, it records
+In @sec-week3 we packaged this into `grad_descent(grad, x0, gamma, n)`. Here it is
+again with one upgrade: instead of returning only the final point, it records
 the whole trajectory, because this week we want to *watch* the algorithm work.
-Second, it drops `f` from the arguments: look at the update rule, and notice that the
-objective itself is never evaluated. The gradient is all the algorithm needs; the
-function is for us (plots, diagnostics), and we will call it ourselves when we want
-it.
+The arguments stay the same: the objective itself is never evaluated, so the gradient
+is all the algorithm needs; the function is for us (plots, diagnostics), and we call
+it ourselves when we want it.
 
 Algorithm 5.1 states the method formally; the code adds only the bookkeeping that
 records the trajectory.
