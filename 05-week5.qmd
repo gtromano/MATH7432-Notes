@@ -406,10 +406,9 @@ within `tol` of the target?
 
 ```{r}
 steps_to_tol <- function(path, target, tol = 1e-3) {
-  X <- as.matrix(path[, grep("^x", names(path))])
-  dist <- sqrt(colSums((t(X) - target)^2))
-  hit <- which(dist < tol)
-  if (length(hit) == 0) NA_integer_ else path$iter[hit[1]]
+  X <- as.matrix(path[seq_along(target)])   # the x1, ..., xd columns
+  dist <- apply(X, 1, function(x) sqrt(sum((x - target)^2)))
+  path$iter[which(dist < tol)[1]]           # NA if it never gets there
 }
 
 c(crawl = steps_to_tol(grad_descent(grad_ill, c(-9, 1.5), 0.01, 5000), c(0, 0)),
@@ -424,7 +423,7 @@ c(crawl = steps_to_tol(grad_descent(grad_ill, c(-9, 1.5), 0.01, 5000), c(0, 0)),
 
 ```{python}
 def steps_to_tol(path, target, tol=1e-3):
-    X = path.filter(regex="^x").to_numpy()
+    X = path.iloc[:, :len(target)].to_numpy()  # x1, ..., xd
     dist = np.sqrt(((X - target)**2).sum(axis=1))
     hit = np.nonzero(dist < tol)[0]
     return np.nan if len(hit) == 0 else int(path["iter"].iloc[hit[0]])
@@ -1375,7 +1374,14 @@ plt.show()
 :::
 
 Taking $P = (\nabla^2 f)^{-1}$, recomputed at every iterate, with $\gamma = 1$, has a
-name: **Newton's method**. On a quadratic it finishes in one step; near the minimum of
+name: **Newton's method**,
+
+$$
+\mathbf{x}_{t+1} = \mathbf{x}_t - \big(\nabla^2 f(\mathbf{x}_t)\big)^{-1} \nabla f(\mathbf{x}_t),
+$$
+
+which jumps straight to the minimiser of the local quadratic approximation of $f$
+at $\mathbf{x}_t$. On a quadratic it finishes in one step; near the minimum of
 a smooth function it converges *quadratically* (the number of correct digits roughly
 doubles per iteration). So why isn't Newton the end of the chapter?
 
