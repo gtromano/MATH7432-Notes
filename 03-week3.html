@@ -870,12 +870,12 @@ Exercise 3.3: Where does x live?
 <div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(<span class="fu">fib_rec</span>(<span class="dv">20</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.002   0.001   0.002 </code></pre>
+  0.002   0.000   0.001 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(<span class="fu">fib_rec</span>(<span class="dv">30</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.273   0.017   0.290 </code></pre>
+  0.248   0.016   0.265 </code></pre>
 </div>
 </div>
 </div>
@@ -886,11 +886,11 @@ Exercise 3.3: Where does x live?
 <span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb89-3"><a href="#cb89-3" aria-hidden="true" tabindex="-1"></a>timeit.timeit(<span class="st">"fib_rec(20)"</span>, <span class="bu">globals</span><span class="op">=</span><span class="bu">globals</span>(), number<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.00038214099913602695</code></pre>
+<pre><code>0.00037393299862742424</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb91"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a>timeit.timeit(<span class="st">"fib_rec(30)"</span>, <span class="bu">globals</span><span class="op">=</span><span class="bu">globals</span>(), number<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.048352614998293575</code></pre>
+<pre><code>0.04645447099755984</code></pre>
 </div>
 </div>
 </div>
@@ -1544,12 +1544,12 @@ Exercise 3.8: Reduce, reuse, recycle
 <p><span class="math display">
 x_{n+1} = x_n - \gamma \, f'(x_n),
 </span></p>
-<p>with the derivative typed straight into the loop body. Every new target function meant surgery on the loop. Now we know better: the function and its derivative can simply be <em>arguments</em>.</p>
+<p>with the derivative typed straight into the loop body. Every new target function meant surgery on the loop. Now we know better: the derivative can simply be an <em>argument</em>.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb183"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb183-1"><a href="#cb183-1" aria-hidden="true" tabindex="-1"></a>grad_descent <span class="ot">&lt;-</span> <span class="cf">function</span>(f, grad, x0, gamma, n) {</span>
+<div class="sourceCode cell-code" id="cb183"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb183-1"><a href="#cb183-1" aria-hidden="true" tabindex="-1"></a>grad_descent <span class="ot">&lt;-</span> <span class="cf">function</span>(grad, x0, gamma, n) {</span>
 <span id="cb183-2"><a href="#cb183-2" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> x0</span>
 <span id="cb183-3"><a href="#cb183-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n) {</span>
 <span id="cb183-4"><a href="#cb183-4" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> x <span class="sc">-</span> gamma <span class="sc">*</span> <span class="fu">grad</span>(x)   <span class="co"># the week 2 update, verbatim</span></span>
@@ -1561,7 +1561,7 @@ x_{n+1} = x_n - \gamma \, f'(x_n),
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb184"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb184-1"><a href="#cb184-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> grad_descent(f, grad, x0, gamma, n):</span>
+<div class="sourceCode cell-code" id="cb184"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb184-1"><a href="#cb184-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> grad_descent(grad, x0, gamma, n):</span>
 <span id="cb184-2"><a href="#cb184-2" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> x0</span>
 <span id="cb184-3"><a href="#cb184-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n):</span>
 <span id="cb184-4"><a href="#cb184-4" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> x <span class="op">-</span> gamma <span class="op">*</span> grad(x)   <span class="co"># the week 2 update, verbatim</span></span>
@@ -1569,16 +1569,15 @@ x_{n+1} = x_n - \gamma \, f'(x_n),
 </div>
 </div>
 </div>
-<p>That is the whole algorithm: pure (no globals touched), reusable, half a dozen lines. You may notice <code>grad_descent</code> never actually calls <code>f</code>: the update only needs the gradient. We keep <code>f</code> in the signature anyway: the objective is how we <em>check</em> the answer (see the plot below), and in <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a> this exact interface will carry monitoring, stochastic variants and fancier updates without changing shape. Consider the signature <code>grad_descent(f, grad, x0, gamma, n)</code>, identical in both languages by design, a contract between this week and week 5.</p>
-<p>Minimising <span class="math inline">f(x) = (x-2)^2</span>, whose gradient is <span class="math inline">f'(x) = 2(x-2)</span>, is now a matter of two lambdas:</p>
+<p>That is the whole algorithm: pure (no globals touched), reusable, half a dozen lines. Notice what is <em>not</em> among the arguments: the objective <span class="math inline">f</span> itself. The update rule only ever evaluates the gradient, so the gradient is all we pass; an argument the body never uses would only be noise. The objective is still useful to <em>us</em>, to check the answer (see the plot below), and we simply call it ourselves when we need it. The signature <code>grad_descent(grad, x0, gamma, n)</code> is identical in both languages by design, and <a href="05-week5.html" class="quarto-xref"><span>Chapter 5</span></a> keeps it.</p>
+<p>Minimising <span class="math inline">f(x) = (x-2)^2</span>, whose gradient is <span class="math inline">f'(x) = 2(x-2)</span>, is now a matter of one lambda:</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;">
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb185"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb185-1"><a href="#cb185-1" aria-hidden="true" tabindex="-1"></a>f      <span class="ot">&lt;-</span> \(x) (x <span class="sc">-</span> <span class="dv">2</span>)<span class="sc">^</span><span class="dv">2</span></span>
-<span id="cb185-2"><a href="#cb185-2" aria-hidden="true" tabindex="-1"></a>grad_f <span class="ot">&lt;-</span> \(x) <span class="dv">2</span> <span class="sc">*</span> (x <span class="sc">-</span> <span class="dv">2</span>)</span>
-<span id="cb185-3"><a href="#cb185-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb185-4"><a href="#cb185-4" aria-hidden="true" tabindex="-1"></a><span class="fu">grad_descent</span>(f, grad_f, <span class="at">x0 =</span> <span class="dv">10</span>, <span class="at">gamma =</span> <span class="fl">0.1</span>, <span class="at">n =</span> <span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb185"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb185-1"><a href="#cb185-1" aria-hidden="true" tabindex="-1"></a>grad_f <span class="ot">&lt;-</span> \(x) <span class="dv">2</span> <span class="sc">*</span> (x <span class="sc">-</span> <span class="dv">2</span>)</span>
+<span id="cb185-2"><a href="#cb185-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb185-3"><a href="#cb185-3" aria-hidden="true" tabindex="-1"></a><span class="fu">grad_descent</span>(grad_f, <span class="at">x0 =</span> <span class="dv">10</span>, <span class="at">gamma =</span> <span class="fl">0.1</span>, <span class="at">n =</span> <span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 2</code></pre>
 </div>
@@ -1587,10 +1586,9 @@ x_{n+1} = x_n - \gamma \, f'(x_n),
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb187"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb187-1"><a href="#cb187-1" aria-hidden="true" tabindex="-1"></a>f      <span class="op">=</span> <span class="kw">lambda</span> x: (x <span class="op">-</span> <span class="dv">2</span>)<span class="op">**</span><span class="dv">2</span></span>
-<span id="cb187-2"><a href="#cb187-2" aria-hidden="true" tabindex="-1"></a>grad_f <span class="op">=</span> <span class="kw">lambda</span> x: <span class="dv">2</span> <span class="op">*</span> (x <span class="op">-</span> <span class="dv">2</span>)</span>
-<span id="cb187-3"><a href="#cb187-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb187-4"><a href="#cb187-4" aria-hidden="true" tabindex="-1"></a>grad_descent(f, grad_f, x0<span class="op">=</span><span class="dv">10</span>, gamma<span class="op">=</span><span class="fl">0.1</span>, n<span class="op">=</span><span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb187"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb187-1"><a href="#cb187-1" aria-hidden="true" tabindex="-1"></a>grad_f <span class="op">=</span> <span class="kw">lambda</span> x: <span class="dv">2</span> <span class="op">*</span> (x <span class="op">-</span> <span class="dv">2</span>)</span>
+<span id="cb187-2"><a href="#cb187-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb187-3"><a href="#cb187-3" aria-hidden="true" tabindex="-1"></a>grad_descent(grad_f, x0<span class="op">=</span><span class="dv">10</span>, gamma<span class="op">=</span><span class="fl">0.1</span>, n<span class="op">=</span><span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>2.000000001629629</code></pre>
 </div>
@@ -1605,11 +1603,11 @@ x_{n+1} = x_n - \gamma \, f'(x_n),
 <div class="sourceCode cell-code" id="cb189"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb189-1"><a href="#cb189-1" aria-hidden="true" tabindex="-1"></a>g      <span class="ot">&lt;-</span> \(x) x<span class="sc">^</span><span class="dv">4</span> <span class="sc">/</span> <span class="dv">4</span> <span class="sc">-</span> x<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="dv">2</span></span>
 <span id="cb189-2"><a href="#cb189-2" aria-hidden="true" tabindex="-1"></a>grad_g <span class="ot">&lt;-</span> \(x) x<span class="sc">^</span><span class="dv">3</span> <span class="sc">-</span> x</span>
 <span id="cb189-3"><a href="#cb189-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb189-4"><a href="#cb189-4" aria-hidden="true" tabindex="-1"></a><span class="fu">grad_descent</span>(g, grad_g, <span class="at">x0 =</span>  <span class="dv">2</span>, <span class="at">gamma =</span> <span class="fl">0.1</span>, <span class="at">n =</span> <span class="dv">200</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb189-4"><a href="#cb189-4" aria-hidden="true" tabindex="-1"></a><span class="fu">grad_descent</span>(grad_g, <span class="at">x0 =</span>  <span class="dv">2</span>, <span class="at">gamma =</span> <span class="fl">0.1</span>, <span class="at">n =</span> <span class="dv">200</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb191"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb191-1"><a href="#cb191-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grad_descent</span>(g, grad_g, <span class="at">x0 =</span> <span class="sc">-</span><span class="dv">2</span>, <span class="at">gamma =</span> <span class="fl">0.1</span>, <span class="at">n =</span> <span class="dv">200</span>)   <span class="co"># other basin</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb191"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb191-1"><a href="#cb191-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grad_descent</span>(grad_g, <span class="at">x0 =</span> <span class="sc">-</span><span class="dv">2</span>, <span class="at">gamma =</span> <span class="fl">0.1</span>, <span class="at">n =</span> <span class="dv">200</span>)   <span class="co"># other basin</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] -1</code></pre>
 </div>
@@ -1621,11 +1619,11 @@ x_{n+1} = x_n - \gamma \, f'(x_n),
 <div class="sourceCode cell-code" id="cb193"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb193-1"><a href="#cb193-1" aria-hidden="true" tabindex="-1"></a>g      <span class="op">=</span> <span class="kw">lambda</span> x: x<span class="op">**</span><span class="dv">4</span> <span class="op">/</span> <span class="dv">4</span> <span class="op">-</span> x<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> <span class="dv">2</span></span>
 <span id="cb193-2"><a href="#cb193-2" aria-hidden="true" tabindex="-1"></a>grad_g <span class="op">=</span> <span class="kw">lambda</span> x: x<span class="op">**</span><span class="dv">3</span> <span class="op">-</span> x</span>
 <span id="cb193-3"><a href="#cb193-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb193-4"><a href="#cb193-4" aria-hidden="true" tabindex="-1"></a>grad_descent(g, grad_g, x0<span class="op">=</span><span class="dv">2</span>, gamma<span class="op">=</span><span class="fl">0.1</span>, n<span class="op">=</span><span class="dv">200</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb193-4"><a href="#cb193-4" aria-hidden="true" tabindex="-1"></a>grad_descent(grad_g, x0<span class="op">=</span><span class="dv">2</span>, gamma<span class="op">=</span><span class="fl">0.1</span>, n<span class="op">=</span><span class="dv">200</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>1.0000000000000004</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb195"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb195-1"><a href="#cb195-1" aria-hidden="true" tabindex="-1"></a>grad_descent(g, grad_g, x0<span class="op">=-</span><span class="dv">2</span>, gamma<span class="op">=</span><span class="fl">0.1</span>, n<span class="op">=</span><span class="dv">200</span>)   <span class="co"># other basin</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb195"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb195-1"><a href="#cb195-1" aria-hidden="true" tabindex="-1"></a>grad_descent(grad_g, x0<span class="op">=-</span><span class="dv">2</span>, gamma<span class="op">=</span><span class="fl">0.1</span>, n<span class="op">=</span><span class="dv">200</span>)   <span class="co"># other basin</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>-1.0000000000000004</code></pre>
 </div>
@@ -1637,7 +1635,7 @@ x_{n+1} = x_n - \gamma \, f'(x_n),
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb197"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb197-1"><a href="#cb197-1" aria-hidden="true" tabindex="-1"></a>xhat <span class="ot">&lt;-</span> <span class="fu">grad_descent</span>(g, grad_g, <span class="at">x0 =</span> <span class="dv">2</span>, <span class="at">gamma =</span> <span class="fl">0.1</span>, <span class="at">n =</span> <span class="dv">200</span>)</span>
+<div class="sourceCode cell-code" id="cb197"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb197-1"><a href="#cb197-1" aria-hidden="true" tabindex="-1"></a>xhat <span class="ot">&lt;-</span> <span class="fu">grad_descent</span>(grad_g, <span class="at">x0 =</span> <span class="dv">2</span>, <span class="at">gamma =</span> <span class="fl">0.1</span>, <span class="at">n =</span> <span class="dv">200</span>)</span>
 <span id="cb197-2"><a href="#cb197-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb197-3"><a href="#cb197-3" aria-hidden="true" tabindex="-1"></a>xs <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="at">length.out =</span> <span class="dv">400</span>)</span>
 <span id="cb197-4"><a href="#cb197-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(xs, <span class="fu">g</span>(xs), <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">xlab =</span> <span class="st">"x"</span>, <span class="at">ylab =</span> <span class="st">"g(x)"</span>)</span>
@@ -1654,7 +1652,7 @@ x_{n+1} = x_n - \gamma \, f'(x_n),
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb198"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb198-1"><a href="#cb198-1" aria-hidden="true" tabindex="-1"></a>xhat <span class="op">=</span> grad_descent(g, grad_g, x0<span class="op">=</span><span class="dv">2</span>, gamma<span class="op">=</span><span class="fl">0.1</span>, n<span class="op">=</span><span class="dv">200</span>)</span>
+<div class="sourceCode cell-code" id="cb198"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb198-1"><a href="#cb198-1" aria-hidden="true" tabindex="-1"></a>xhat <span class="op">=</span> grad_descent(grad_g, x0<span class="op">=</span><span class="dv">2</span>, gamma<span class="op">=</span><span class="fl">0.1</span>, n<span class="op">=</span><span class="dv">200</span>)</span>
 <span id="cb198-2"><a href="#cb198-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb198-3"><a href="#cb198-3" aria-hidden="true" tabindex="-1"></a>xs <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">400</span>)</span>
 <span id="cb198-4"><a href="#cb198-4" aria-hidden="true" tabindex="-1"></a>plt.plot(xs, g(xs))</span>
@@ -1677,7 +1675,7 @@ x_{n+1} = x_n - \gamma \, f'(x_n),
 <div>
 <p><strong>R</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb199"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb199-1"><a href="#cb199-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grad_descent</span>(f, grad_f, <span class="at">x0 =</span> <span class="dv">10</span>, <span class="at">gamma =</span> <span class="fl">1.05</span>, <span class="at">n =</span> <span class="dv">50</span>)   <span class="co"># too greedy: diverges</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb199"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb199-1"><a href="#cb199-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grad_descent</span>(grad_f, <span class="at">x0 =</span> <span class="dv">10</span>, <span class="at">gamma =</span> <span class="fl">1.05</span>, <span class="at">n =</span> <span class="dv">50</span>)   <span class="co"># too greedy: diverges</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 941.1268</code></pre>
 </div>
@@ -1686,7 +1684,7 @@ x_{n+1} = x_n - \gamma \, f'(x_n),
 <div>
 <p><strong>Python</strong></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb201"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb201-1"><a href="#cb201-1" aria-hidden="true" tabindex="-1"></a>grad_descent(f, grad_f, x0<span class="op">=</span><span class="dv">10</span>, gamma<span class="op">=</span><span class="fl">1.05</span>, n<span class="op">=</span><span class="dv">50</span>)   <span class="co"># too greedy: diverges</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb201"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb201-1"><a href="#cb201-1" aria-hidden="true" tabindex="-1"></a>grad_descent(grad_f, x0<span class="op">=</span><span class="dv">10</span>, gamma<span class="op">=</span><span class="fl">1.05</span>, n<span class="op">=</span><span class="dv">50</span>)   <span class="co"># too greedy: diverges</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>941.1268230375671</code></pre>
 </div>
@@ -1707,7 +1705,7 @@ Exercise 3.9: A new client for grad_descent
 <p>Consider <span class="math inline">h(x) = e^x + x^2</span>.</p>
 <ol type="a">
 <li>Derive <span class="math inline">h'(x)</span> by hand, and write both as lambdas.</li>
-<li>Run <code>grad_descent(h, grad_h, x0 = 1, gamma = 0.1, n = 100)</code>.</li>
+<li>Run <code>grad_descent(grad_h, x0 = 1, gamma = 0.1, n = 100)</code>.</li>
 <li>Sanity-check the result with a base plot (Python: matplotlib) of <span class="math inline">h</span> over <span class="math inline">[-2, 1]</span>, marking your minimiser with <code>points()</code> (Python: <code>plt.plot(..., "ro")</code>).</li>
 <li>Compare your answer with R’s built-in one-dimensional optimiser: <code>optimize(h, interval = c(-2, 1))</code> (Python: <code>scipy.optimize.minimize_scalar(h, bounds = (-2, 1))</code>).</li>
 <li>Re-run with <code>gamma = 1</code> and with <code>gamma = 0.001</code> (same <code>n</code>). Describe what goes wrong in each case.</li>
@@ -1728,7 +1726,7 @@ Challenge 3.1: Stop when you’re done
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Our <code>grad_descent</code> runs for exactly <code>n</code> steps, even if it converged after ten. Write an improved <code>grad_descent_tol(f, grad, x0, gamma, max_n, tol = 1e-8)</code> that:</p>
+<p>Our <code>grad_descent</code> runs for exactly <code>n</code> steps, even if it converged after ten. Write an improved <code>grad_descent_tol(grad, x0, gamma, max_n, tol = 1e-8)</code> that:</p>
 <ol type="a">
 <li>iterates at most <code>max_n</code> times, but <strong>stops early</strong> when the step becomes tiny: <span class="math inline">|x_{\text{new}} - x_{\text{old}}| &lt; \texttt{tol}</span>;</li>
 <li>records every iterate along the way (including <code>x0</code>);</li>
