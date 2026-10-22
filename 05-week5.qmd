@@ -322,8 +322,9 @@ It's like in Goldilocks and the Three Bears: the step size can be
 
 #### The condition number {#sec-week5-conditioning}
 
-There is a clean piece of intuition behind this. For a quadratic, gradient descent in
-each coordinate multiplies the error by $(1 - \gamma \lambda)$ per step, where
+There is a clean piece of intuition behind this. For a quadratic, gradient descent
+multiplies the error along each principal axis of the bowl (for our valley, simply
+the two coordinate axes) by $(1 - \gamma \lambda)$ per step, where
 $\lambda$ is the curvature in that direction. These directional curvatures are
 exactly the *eigenvalues* of the **Hessian** of $f$, its symmetric matrix of second
 derivatives $\nabla^2 f$: the `eigen()` from @sec-week1 (Python: `np.linalg.eig()`),
@@ -880,7 +881,72 @@ $$
 \qquad I_t \sim \text{Uniform}\{1, \dots, n\},
 $$
 
-is **stochastic gradient descent** (SGD). The step size has quietly acquired a
+is **stochastic gradient descent** (SGD).
+
+**Example: one observation's gradient.** So far we have mostly written the logistic
+gradient in matrix form, $\frac{1}{n} X^\top(\sigma(X\boldsymbol\beta) - \mathbf{y})$.
+SGD never builds that product: it works with one row of $X$ at a time. For our model
+with an intercept and one covariate, observation $i$ has
+$\mathbf{x}_i = (1, x_i)^\top$ and $\eta_i = \beta_0 + \beta_1 x_i$, so the
+per-observation gradient from @sec-week5-losses, written out in full, is
+
+$$
+\nabla \ell_i(\boldsymbol\beta)
+= \big(\sigma(\eta_i) - y_i\big)\, \mathbf{x}_i
+= \big(\sigma(\beta_0 + \beta_1 x_i) - y_i\big)
+  \begin{pmatrix} 1 \\ x_i \end{pmatrix}
+= \begin{pmatrix}
+    \sigma(\beta_0 + \beta_1 x_i) - y_i \\[2pt]
+    \big(\sigma(\beta_0 + \beta_1 x_i) - y_i\big)\, x_i
+  \end{pmatrix}:
+$$
+
+two numbers, computed from one $(x_i, y_i)$ pair only. To see it at work, take a
+tiny dataset of $n = 3$ observations,
+$(x_1, y_1) = (1.2, 1)$, $(x_2, y_2) = (-0.8, 1)$, $(x_3, y_3) = (0.5, 0)$, and
+evaluate at the starting point $\boldsymbol\beta = (0, 0)$. There every
+$\eta_i = 0$ and $\sigma(0) = 1/2$, so the residuals $\sigma(\eta_i) - y_i$ are
+$-\tfrac12, -\tfrac12, +\tfrac12$ and
+
+$$
+\nabla \ell_1 = -\tfrac12 \begin{pmatrix} 1 \\ 1.2 \end{pmatrix}
+             = \begin{pmatrix} -0.5 \\ -0.6 \end{pmatrix},
+\qquad
+\nabla \ell_2 = -\tfrac12 \begin{pmatrix} 1 \\ -0.8 \end{pmatrix}
+             = \begin{pmatrix} -0.5 \\ 0.4 \end{pmatrix},
+\qquad
+\nabla \ell_3 = \tfrac12 \begin{pmatrix} 1 \\ 0.5 \end{pmatrix}
+             = \begin{pmatrix} 0.5 \\ 0.25 \end{pmatrix}.
+$$
+
+Each one, on its own, has a clear meaning. An SGD step moves *against* the gradient,
+so drawing observation 1 ($y_1 = 1$ at $x_1 = 1.2$) raises both $\beta_0$ and
+$\beta_1$, which raises the predicted probability at $x = 1.2$; drawing observation
+2 ($y_2 = 1$ at $x_2 = -0.8$) raises $\beta_0$ but *lowers* $\beta_1$, which raises
+the predicted probability at $x = -0.8$; drawing observation 3 ($y_3 = 0$) pushes
+the prediction at $x = 0.5$ down. Every observation pulls the parameters towards
+fitting *itself*, and the three pulls disagree. Their average is the full gradient,
+
+$$
+\nabla L(\mathbf{0})
+= \tfrac13 \big(\nabla \ell_1 + \nabla \ell_2 + \nabla \ell_3\big)
+= \tfrac13 \begin{pmatrix} -0.5 \\ 0.05 \end{pmatrix}
+\approx \begin{pmatrix} -0.167 \\ 0.017 \end{pmatrix},
+$$
+
+which you can check is exactly what the matrix form gives with
+$X = \begin{pmatrix} 1 & 1.2 \\ 1 & -0.8 \\ 1 & 0.5 \end{pmatrix}$ and
+$\sigma(X\mathbf{0}) - \mathbf{y} = (-\tfrac12, -\tfrac12, \tfrac12)^\top$: the
+product $X^\top(\cdot)$ is nothing but the sum of the three per-observation vectors.
+SGD picks one of the three, each with probability $1/3$, so the *expected* SGD
+direction is this average: that is the unbiasedness above, made concrete. Any single
+draw, however, can point somewhere quite different (draw 2 even has the opposite
+sign in the $\beta_1$ coordinate). That disagreement is the noise SGD has to live
+with. (For least squares the recipe is the same with a different residual:
+$\nabla \ell_i(\boldsymbol\beta) = (\mathbf{x}_i^\top\boldsymbol\beta - y_i)\,\mathbf{x}_i$.)
+The function `nll_grad_i` coded below is this formula, one line long.
+
+The step size has quietly acquired a
 subscript $t$, and it is load-bearing. With the full gradient, the steps shrink on
 their own as the minimum approaches, because $\nabla L \to \mathbf{0}$ there. The
 noisy stand-in does us no such favour: even standing exactly at the minimiser, a
@@ -1241,6 +1307,67 @@ $$
 $P$ reshapes the descent direction, stretching it in flat directions and shrinking it
 in steep ones. Plain gradient descent is $P = I$.
 
+**Intuition: preconditioning is a change of coordinates.** Take the valley
+$f(x_1, x_2) = x_1^2/2 + 10\,x_2^2/2$ of @sec-week5-stepsize, and the matrix
+$P = \mathrm{diag}(1, 1/10)$ (why exactly this one, shortly). Rather than changing
+the algorithm, change the ruler: measure the steep coordinate in units $\sqrt{10}$
+times finer by setting
+
+$$
+\mathbf{z} = P^{-1/2}\mathbf{x}, \quad\text{i.e.}\quad
+z_1 = x_1, \qquad z_2 = \sqrt{10}\, x_2 .
+$$
+
+(Why $\sqrt{10}$ and not $10$? The Hessian holds *second* derivatives, so stretching
+$x_2$ by a factor $s$ divides its curvature by $s^2$: to turn curvature $10$ into $1$
+we need $s^2 = 10$.)
+
+Substituting $x_2 = z_2/\sqrt{10}$, the same function in the new coordinates is
+$f = z_1^2/2 + z_2^2/2$: the narrow valley has become a perfectly **round bowl**.
+In a round bowl the gradient points straight at the minimum, and plain gradient
+descent with $\gamma = 1$ jumps there in one step:
+$\mathbf{z} - 1 \cdot \nabla_{\mathbf{z}} f = \mathbf{z} - \mathbf{z} = \mathbf{0}$.
+Now translate that step back to $\mathbf{x}$. By the chain rule,
+$\nabla_{\mathbf{z}} f = P^{1/2} \nabla_{\mathbf{x}} f$ (here simply
+$\partial f / \partial z_2 = \tfrac{1}{\sqrt{10}}\, \partial f / \partial x_2$),
+and $\mathbf{x} = P^{1/2}\mathbf{z}$, so a plain step in $\mathbf{z}$ becomes
+
+$$
+\mathbf{x} - \gamma\, P^{1/2} \big(P^{1/2} \nabla_{\mathbf{x}} f\big)
+= \mathbf{x} - \gamma\, P\, \nabla_{\mathbf{x}} f
+$$
+
+in $\mathbf{x}$: exactly the preconditioned update. **Preconditioned gradient
+descent is plain gradient descent run in rescaled coordinates.** The animation
+below shows (a) the original step, where $-\nabla f$ is perpendicular to the
+elongated contours and so points *across* the valley instead of along it; then the
+rescaling, during which the contours turn into circles and the steepest-descent
+direction swings round to face the minimum; (b) the plain step in the round bowl;
+and finally the squeeze back to $\mathbf{x}$, where that same step is the
+preconditioned step $-P\nabla f$.
+
+```{python}
+#| include: false
+# the animation below is drawn by scripts/make_precond_animation.py: remake it if missing
+import os, subprocess, sys
+if not all(os.path.exists(f) for f in ["images/chapter5/w5_precond.gif",
+                                       "images/chapter5/w5_precond_static.png"]):
+    subprocess.run([sys.executable, "scripts/make_precond_animation.py"], check=True)
+```
+
+::: {.content-visible when-format="html"}
+![Preconditioning as a change of coordinates, on the valley $f = x_1^2/2 + 10\,x_2^2/2$ starting from $(-9, 1.5)$. (a) In the original coordinates, $-\nabla f$ (grey) is perpendicular to the contours and points across the valley, so gradient descent ($\gamma = 0.18$, blue) zig-zags. Stretching the $x_2$ axis by $\sqrt{10}$ makes the contours circles, and the steepest-descent direction turns towards the minimum. (b) In the round bowl a single plain step with $\gamma = 1$ (green) lands on the minimum. Squeezed back to $\mathbf{x}$, that green step is the preconditioned step $-P\nabla f$ with $P = \mathrm{diag}(1, 1/10)$.](images/chapter5/w5_precond.gif){width="480"}
+:::
+
+::: {.content-visible when-format="pdf"}
+![Preconditioning as a change of coordinates, on the valley $f = x_1^2/2 + 10\,x_2^2/2$ starting from $(-9, 1.5)$. (a) In the original coordinates, $-\nabla f$ (dashed) is perpendicular to the contours and points across the valley, so gradient descent ($\gamma = 0.18$, blue) zig-zags. (b) After stretching the $x_2$ axis by $\sqrt{10}$ the contours are circles, and a single plain step with $\gamma = 1$ (green) lands on the minimum. Right: back in $\mathbf{x}$, that green step is the preconditioned step $-P\nabla f$ with $P = \mathrm{diag}(1, 1/10)$. (The HTML version of these notes animates this.)](images/chapter5/w5_precond_static.png){width="100%"}
+:::
+
+The same reading works for any symmetric positive-definite $P$: its square root
+$P^{1/2}$ exists (take the eigendecomposition from @sec-week1 and square-root the
+eigenvalues), and choosing $P$ amounts to choosing the coordinates in which plain
+gradient descent will run. A good $P$ is one that makes the bowl round.
+
 Algorithm 5.3 is Algorithm 5.1 with one matrix slipped in.
 
 ::: {.callout-note icon=false title="Algorithm 5.3: Preconditioned gradient descent"}
@@ -1298,8 +1425,23 @@ def grad_descent_pre(grad, x0, gamma, n, P):
 </div>
 :::
 
-What is the *ideal* $P$? Our valley has Hessian $H = \mathrm{diag}(1, 10)$:
-curvature 1 along $x_1$, 10 along $x_2$. Choosing
+What is the *ideal* $P$? Start from the Hessian of our valley. Differentiating
+$f(x_1, x_2) = x_1^2/2 + 10\,x_2^2/2$ twice,
+
+$$
+\frac{\partial^2 f}{\partial x_1^2} = 1, \qquad
+\frac{\partial^2 f}{\partial x_2^2} = 10, \qquad
+\frac{\partial^2 f}{\partial x_1 \partial x_2} = 0
+\qquad\Longrightarrow\qquad
+H = \begin{pmatrix} 1 & 0 \\ 0 & 10 \end{pmatrix} = \mathrm{diag}(1, 10):
+$$
+
+curvature 1 along $x_1$, 10 along $x_2$. The off-diagonal entries vanish because
+$f$ contains no term mixing $x_1$ and $x_2$: it is a function of $x_1$ alone plus a
+function of $x_2$ alone, so the slope in one coordinate never depends on the other.
+Geometrically, the axes of the elliptical contours line up with the coordinate
+axes. **This is a property of our example, chosen to keep the algebra light, not of
+Hessians in general**; we return to the general case below. Choosing
 $P = H^{-1} = \mathrm{diag}(1, 1/10)$ divides each direction by its own curvature, so
 *every* direction behaves like curvature 1: the valley becomes a perfectly round
 bowl, $\kappa = 1$. With $\gamma = 1$:
@@ -1332,47 +1474,6 @@ path_pre.round(10)
 
 One step. Not "converges quickly": *lands exactly on the minimum in one step*.
 
-::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
-<div>
-
-**R**
-
-```{r}
-both_pre <- bind_rows(mutate(path_zig, method = "GD, gamma = 0.18"),
-                      mutate(path_pre, method = "preconditioned, gamma = 1"))
-
-ggplot(contour_data(f_ill, c(-10, 3), c(-4, 4)), aes(x1, x2)) +
-  geom_contour(aes(z = f), bins = 20, colour = "grey70") +
-  geom_path(data = both_pre, aes(colour = method), linewidth = 0.4) +
-  geom_point(data = both_pre, aes(colour = method), size = 0.9) +
-  scale_colour_manual(values = c("GD, gamma = 0.18" = "#0072B2",
-                                 "preconditioned, gamma = 1" = "#009E73")) +
-  theme_minimal()
-```
-
-</div>
-
-<div>
-
-**Python**
-
-```{python}
-both_pre = [(path_zig, "#0072B2", "GD, gamma = 0.18"),
-            (path_pre, "#009E73", "preconditioned, gamma = 1")]
-
-x1, x2, f_grid = contour_data(f_ill, (-10, 3), (-4, 4))
-fig, ax = plt.subplots()
-ax.contour(x1, x2, f_grid, levels=20, colors="0.7", linewidths=0.5)
-for p, colour, label in both_pre:
-    ax.plot(p["x1"], p["x2"], color=colour, linewidth=0.8, label=label)
-    ax.scatter(p["x1"], p["x2"], color=colour, s=8)
-ax.legend()
-plt.show()
-```
-
-</div>
-:::
-
 Taking $P = (\nabla^2 f)^{-1}$, recomputed at every iterate, with $\gamma = 1$, has a
 name: **Newton's method**,
 
@@ -1392,9 +1493,36 @@ doubles per iteration). So why isn't Newton the end of the chapter?
   then $-H^{-1}\nabla f$ may not even point downhill. Making Newton robust takes real
   engineering.
 
+**What if the Hessian is not diagonal?** Rotate the same valley by $45^\circ$, so
+that it runs diagonally across the plane:
+
+$$
+f(x_1, x_2) = \tfrac12\, \mathbf{x}^\top H \mathbf{x},
+\qquad
+H = \begin{pmatrix} 5.5 & 4.5 \\ 4.5 & 5.5 \end{pmatrix},
+$$
+
+which expands to $f = 2.75\,x_1^2 + 4.5\,x_1 x_2 + 2.75\,x_2^2$. The cross term
+$x_1 x_2$ puts $4.5$ off the diagonal. The eigenvalues of $H$ are still $10$ and $1$
+(along the diagonal directions $(1, 1)$ and $(1, -1)$), so $\kappa = 10$ exactly as
+before; only the orientation has changed. Two things follow.
+
+- The *full* inverse still works: $P = H^{-1}$ rescales along the eigenvectors of
+  $H$, makes the bowl round, and lands on the minimum in one step, whatever the
+  orientation. But that is Newton's method, at Newton's price.
+- The obvious cheap way out, keeping only the *diagonal* of $H$, does not. Its
+  diagonal is $\mathrm{diag}(5.5, 5.5)$, so
+  $P = \mathrm{diag}(1/5.5, 1/5.5) = I/5.5$: a multiple of the identity, which only
+  rescales $\gamma$ and leaves $\kappa = 10$, and the zig-zag, untouched.
+
+A diagonal $P$ can only stretch along the coordinate axes. It fixes valleys aligned
+with those axes and is powerless against ones that are not.
+
 Cheap compromises are everywhere in statistics and machine learning: use only the
 *diagonal* of the Hessian (exactly our $P$ above: for axis-aligned problems it is the
-whole story, and in general it is a decent approximation); or simply **standardise
+whole story; for rotated ones, as we just saw, it can miss the point entirely, but it
+reliably fixes the most common statistical ailment, covariates on wildly different
+scales); or simply **standardise
 your covariates**, which is preconditioning by a diagonal matrix before the algorithm
 even starts. If you remember one practical trick from this section: *rescale your
 variables before optimising*. Exercise 5.3 shows what happens if you don't.
