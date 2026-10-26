@@ -14,9 +14,7 @@ import matplotlib
 matplotlib.rcParams["figure.figsize"] = (6, 4)
 ```
 
-This is the week where everything pays off. In @sec-week2 we met gradient descent in
-one dimension, in @sec-week3 we wrapped it into a reusable function, and in @sec-week4
-we learnt to draw pictures of what our code is doing. This week we put those tools to
+In @sec-week2 we met gradient descent in one dimension, in @sec-week3 we wrapped it into a reusable function, and in @sec-week4 we learnt to draw pictures of what our code is doing. This week we put those tools to
 work on the problem that underlies an enormous amount of modern statistics: **Fitting a model is minimising a function.**
 
 Maximum likelihood, least squares, penalised regression, neural networks: behind each
@@ -37,15 +35,10 @@ $$
 $$
 
 where $\gamma > 0$ is the **step size** (machine learning people say *learning rate*).
-In @sec-week3 we packaged this into `grad_descent(grad, x0, gamma, n)`. Here it is
-again with one upgrade: instead of returning only the final point, it records
-the whole trajectory, because this week we want to *watch* the algorithm work.
-The arguments stay the same: the objective itself is never evaluated, so the gradient
-is all the algorithm needs; the function is for us (plots, diagnostics), and we call
-it ourselves when we want it.
-
+In @sec-week3 we packaged this into `grad_descent(grad, x0, gamma, n)`.
 Algorithm 5.1 states the method formally; the code adds only the bookkeeping that
-records the trajectory.
+records the trajectory (instead of returning only the final point, it records
+the whole trajectory, because this week we want to *watch* the algorithm work).
 
 ::: {.callout-note icon=false title="Algorithm 5.1: Gradient descent"}
 **Input:** the gradient $\nabla f$ of an objective $f : \mathbb{R}^d \to \mathbb{R}$,
@@ -320,16 +313,42 @@ It's like in Goldilocks and the Three Bears: the step size can be
 
 <p><a href="https://commons.wikimedia.org/wiki/File:The_Three_Bears_-_Project_Gutenberg_eText_17034.jpg#/media/File:The_Three_Bears_-_Project_Gutenberg_eText_17034.jpg"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/The_Three_Bears_-_Project_Gutenberg_eText_17034.jpg/500px-The_Three_Bears_-_Project_Gutenberg_eText_17034.jpg?utm_source=en.wikipedia.org&amp;utm_campaign=imageinfo&amp;utm_content=thumbnail" alt="The Three Bears - Project Gutenberg eText 17034.jpg" height="571" width="500"></a><br>By Arthur Rackham - <a rel="nofollow" class="external free" href="http://www.gutenberg.org/etext/17034">http://www.gutenberg.org/etext/17034</a>, Public Domain, <a href="https://commons.wikimedia.org/w/index.php?curid=562870">Link</a></p>
 
-#### The condition number {#sec-week5-conditioning}
 
 There is a clean piece of intuition behind this. For a quadratic, gradient descent
 multiplies the error along each principal axis of the bowl (for our valley, simply
 the two coordinate axes) by $(1 - \gamma \lambda)$ per step, where
-$\lambda$ is the curvature in that direction. These directional curvatures are
-exactly the *eigenvalues* of the **Hessian** of $f$, its symmetric matrix of second
-derivatives $\nabla^2 f$: the `eigen()` from @sec-week1 (Python: `np.linalg.eig()`),
-quietly reappearing as promised. Formally, collect the eigenvalues of the Hessian
-into the set $\{\lambda_1, \lambda_2, \dots, \lambda_d\}$ and pick out its two
+$\lambda$ is the curvature in that direction.
+
+```{r}
+#| echo: false
+#| label: fig-week5-factors
+#| fig-cap: "Fraction of the starting error left in each coordinate after $k$ steps, i.e. $(1-\\gamma\\lambda)^k$, for the valley with $\\lambda = 1$ (along $x_1$) and $\\lambda = 10$ (along $x_2$). The right panel is clipped to $[-4, 4]$."
+#| fig-width: 9
+#| fig-height: 3.2
+#| out-width: "100%"
+k <- 0:8
+gammas <- c(0.01, 0.18, 0.25)
+titles <- c("gamma = 0.01: crawling", "gamma = 0.18: zig-zag", "gamma = 0.25: exploding")
+cols <- c("#0072B2", "#D55E00")
+op <- par(mfrow = c(1, 3), mar = c(4, 4, 2.5, 1), cex = 0.9)
+for (i in 1:3) {
+  g <- gammas[i]
+  plot(NA, xlim = c(0, 8), ylim = c(-4, 4), xlab = "step k",
+       ylab = if (i == 1) "fraction of error left" else "", main = titles[i])
+  abline(h = c(-1, 0, 1), lty = c(3, 1, 3), col = "grey60")
+  lines(k, (1 - g * 1)^k,  col = cols[1], lwd = 2, type = "o", pch = 16)
+  lines(k, (1 - g * 10)^k, col = cols[2], lwd = 2, type = "o", pch = 16)
+  if (i == 1) legend("topright", c("x1 (curvature 1)", "x2 (curvature 10)"),
+                     col = cols, lwd = 2, pch = 16, bty = "n", cex = 0.8)
+}
+par(op)
+```
+
+Read the three panels as the three trajectories above, one coordinate at a time.
+
+#### The condition number {#sec-week5-conditioning}
+
+These directional curvatures are exactly the *eigenvalues* of the **Hessian** of $f$, its symmetric matrix of second derivatives $\nabla^2 f$. Formally, collect the eigenvalues of the Hessian into the set $\{\lambda_1, \lambda_2, \dots, \lambda_d\}$ and pick out its two
 extremes:
 
 $$
@@ -367,6 +386,8 @@ why $0.18$ was stable, if only just, and $0.25$ diverged. Its condition number i
 $\kappa = 10/1 = 10$, and that is already annoying: the zig-zag panel is what
 $\kappa = 10$ looks like.
 
+::: {.callout-note collapse="true" icon=false title="[OPTIONAL] Condition numbers: why statistical problems are ill-conditioned"}
+
 If you have met condition numbers in a linear algebra course, you may know a
 different-looking definition: $\kappa(A) = \sigma_{\max}(A) / \sigma_{\min}(A)$, a
 ratio of **singular values**, measuring how much solving $A\mathbf{x} = \mathbf{b}$
@@ -393,9 +414,13 @@ kilograms (a scale ratio of just $10^3$) can already push $\kappa$ past $10^6$, 
 plain gradient descent simply stops being a usable tool. At the extreme
 $\sigma_{\min} = 0$, $\kappa$ is infinite and $X^\top X$ is exactly the *singular*
 matrix that @sec-week1 warned cannot be inverted; a huge $\kappa$ means nearly so.
-This is why Exercise 5.3 will ask you to stare at the column scales of its design
-matrix. Hold that thought; ill-conditioning is the recurring obstacle for the rest of the
-chapter.
+
+:::
+
+Whether or not you open the box above, take this with you: covariates on very
+different scales make $\kappa$ huge and gradient descent crawl, which is why
+Exercise 5.3 will ask you to stare at the column scales of its design matrix.
+Ill-conditioning is the recurring obstacle for the rest of the chapter.
 
 A small helper we will use to compare methods fairly: how many iterations until we are
 within `tol` of the target?
@@ -901,62 +926,17 @@ $$
   \end{pmatrix}:
 $$
 
-two numbers, computed from one $(x_i, y_i)$ pair only. To see it at work, take a
-tiny dataset of $n = 3$ observations,
-$(x_1, y_1) = (1.2, 1)$, $(x_2, y_2) = (-0.8, 1)$, $(x_3, y_3) = (0.5, 0)$, and
-evaluate at the starting point $\boldsymbol\beta = (0, 0)$. There every
-$\eta_i = 0$ and $\sigma(0) = 1/2$, so the residuals $\sigma(\eta_i) - y_i$ are
-$-\tfrac12, -\tfrac12, +\tfrac12$ and
-
-$$
-\nabla \ell_1 = -\tfrac12 \begin{pmatrix} 1 \\ 1.2 \end{pmatrix}
-             = \begin{pmatrix} -0.5 \\ -0.6 \end{pmatrix},
-\qquad
-\nabla \ell_2 = -\tfrac12 \begin{pmatrix} 1 \\ -0.8 \end{pmatrix}
-             = \begin{pmatrix} -0.5 \\ 0.4 \end{pmatrix},
-\qquad
-\nabla \ell_3 = \tfrac12 \begin{pmatrix} 1 \\ 0.5 \end{pmatrix}
-             = \begin{pmatrix} 0.5 \\ 0.25 \end{pmatrix}.
-$$
-
-Each one, on its own, has a clear meaning. An SGD step moves *against* the gradient,
-so drawing observation 1 ($y_1 = 1$ at $x_1 = 1.2$) raises both $\beta_0$ and
-$\beta_1$, which raises the predicted probability at $x = 1.2$; drawing observation
-2 ($y_2 = 1$ at $x_2 = -0.8$) raises $\beta_0$ but *lowers* $\beta_1$, which raises
-the predicted probability at $x = -0.8$; drawing observation 3 ($y_3 = 0$) pushes
-the prediction at $x = 0.5$ down. Every observation pulls the parameters towards
-fitting *itself*, and the three pulls disagree. Their average is the full gradient,
-
-$$
-\nabla L(\mathbf{0})
-= \tfrac13 \big(\nabla \ell_1 + \nabla \ell_2 + \nabla \ell_3\big)
-= \tfrac13 \begin{pmatrix} -0.5 \\ 0.05 \end{pmatrix}
-\approx \begin{pmatrix} -0.167 \\ 0.017 \end{pmatrix},
-$$
-
-which you can check is exactly what the matrix form gives with
-$X = \begin{pmatrix} 1 & 1.2 \\ 1 & -0.8 \\ 1 & 0.5 \end{pmatrix}$ and
-$\sigma(X\mathbf{0}) - \mathbf{y} = (-\tfrac12, -\tfrac12, \tfrac12)^\top$: the
-product $X^\top(\cdot)$ is nothing but the sum of the three per-observation vectors.
-SGD picks one of the three, each with probability $1/3$, so the *expected* SGD
-direction is this average: that is the unbiasedness above, made concrete. Any single
-draw, however, can point somewhere quite different (draw 2 even has the opposite
-sign in the $\beta_1$ coordinate). That disagreement is the noise SGD has to live
-with. (For least squares the recipe is the same with a different residual:
-$\nabla \ell_i(\boldsymbol\beta) = (\mathbf{x}_i^\top\boldsymbol\beta - y_i)\,\mathbf{x}_i$.)
+two numbers, computed from one $(x_i, y_i)$ pair only.
 The function `nll_grad_i` coded below is this formula, one line long.
 
-The step size has quietly acquired a
-subscript $t$, and it is load-bearing. With the full gradient, the steps shrink on
-their own as the minimum approaches, because $\nabla L \to \mathbf{0}$ there. The
-noisy stand-in does us no such favour: even standing exactly at the minimiser, a
-randomly drawn observation pushes the iterate *somewhere* (only the average of the
-pushes is zero), so with a constant $\gamma$ the iterates can never settle. They
-reach the neighbourhood of the minimiser quickly and then rattle around it forever,
-in a "noise ball" whose radius grows with $\gamma$. The cure is a **decaying
-schedule** $\gamma_t$: shrink the steps to damp the noise, but not so fast that
-the algorithm runs out of fuel before arriving. The classical recipe (Robbins and
-Monro, 1951: this algorithm is older than the computer you are running it on) asks,
+The step size now carries a subscript $t$, and it matters. With the full gradient,
+steps shrink on their own near the minimum, because $\nabla L \to \mathbf{0}$. With
+SGD they don't: even at the minimiser, a single observation pushes the iterate
+*somewhere* (only the average push is zero). A constant $\gamma$ therefore never
+settles: the iterates reach the minimiser's neighbourhood quickly, then rattle
+around it in a "noise ball" whose radius grows with $\gamma$. The cure is a
+**decaying schedule** $\gamma_t$: shrink the steps to damp the noise, but not so
+fast that we run out of fuel. The classical recipe (Robbins and Monro, 1951) asks,
 informally, for
 
 $$
@@ -965,9 +945,9 @@ $$
 \sum_{t=1}^{\infty} \gamma_t^2 < \infty:
 $$
 
-infinite total travel, so the iterate can reach the minimiser however far away it
-started, but finite total squared steps, so the noise averages out. Schedules like
-$\gamma_t = a/(b + t)$ satisfy both, which is why you keep seeing that shape.
+infinite total travel, so we can reach the minimiser from anywhere, but finite total
+squared steps, so the noise averages out. Schedules like $\gamma_t = a/(b + t)$
+satisfy both.
 
 A compromise between one sample and all $n$
 is a **mini-batch**: average $\nabla\ell_i$ over a random subset $B$ of size $m$. Still
