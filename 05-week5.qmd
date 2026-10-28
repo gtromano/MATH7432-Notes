@@ -217,263 +217,7 @@ plt.show()
 </div>
 :::
 
-The path marches straight into the bowl. Lovely. Time to break it.
-
-### Why the step size is hard {#sec-week5-stepsize}
-
-The step size $\gamma$ is doing a lot of quiet work. To expose it, we use a function
-that is deliberately *ill-conditioned* (much steeper in one direction than the other):
-
-$$
-f(x_1, x_2) = \frac{x_1^2}{2} + \frac{10\, x_2^2}{2},
-\qquad
-\nabla f(x_1, x_2) = \begin{pmatrix} x_1 \\ 10\,x_2 \end{pmatrix}.
-$$
-
-Think of a long narrow valley: gentle along $x_1$ (curvature $1$), steep across it in
-$x_2$ (curvature $10$). Watch what three different step sizes do, starting from
-$(-9, 1.5)$.
-
-::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
-<div>
-
-**R**
-
-```{r}
-#| fig-width: 9
-#| fig-height: 3.4
-#| out-width: "100%"
-f_ill <- \(x) x[1]^2 / 2 + 10 * x[2]^2 / 2
-grad_ill <- \(x) c(x[1], 10 * x[2])
-
-path_small <- grad_descent(grad_ill, c(-9, 1.5), gamma = 0.01, n = 60)
-path_zig   <- grad_descent(grad_ill, c(-9, 1.5), gamma = 0.18, n = 60)
-path_exploding  <- grad_descent(grad_ill, c(-9, 1.5), gamma = 0.25, n = 8)
-
-# one labelled data frame, one facet per step size (week 4 tricks)
-path_small$gamma <- "gamma = 0.01: crawling"
-path_zig$gamma   <- "gamma = 0.18: zig-zag"
-path_exploding$gamma  <- "gamma = 0.25: exploding"
-paths3 <- rbind(path_small, path_zig, path_exploding)
-paths3$gamma <- factor(paths3$gamma, levels = unique(paths3$gamma))
-
-# the contour layer has no `gamma` column, so it is drawn in every facet
-ggplot(contour_data(f_ill, c(-10, 3), c(-4, 4)), aes(x1, x2)) +
-  geom_contour(aes(z = f), bins = 20, colour = "grey70") +
-  geom_path(data = paths3, colour = "#0072B2", linewidth = 0.4) +
-  geom_point(data = paths3, colour = "#0072B2", size = 0.9) +
-  coord_cartesian(ylim = c(-4, 4)) +
-  facet_wrap(~ gamma) +
-  theme_minimal()
-```
-
-</div>
-
-<div>
-
-**Python**
-
-```{python}
-f_ill = lambda x: x[0]**2 / 2 + 10 * x[1]**2 / 2
-grad_ill = lambda x: np.array([x[0], 10 * x[1]])
-
-path_small = grad_descent(grad_ill, np.array([-9, 1.5]), gamma=0.01, n=60)
-path_zig   = grad_descent(grad_ill, np.array([-9, 1.5]), gamma=0.18, n=60)
-path_exploding  = grad_descent(grad_ill, np.array([-9, 1.5]), gamma=0.25, n=8)
-
-# one list of labelled paths, one subplot per step size (no facets in matplotlib)
-titles = ["gamma = 0.01: crawling", "gamma = 0.18: zig-zag", "gamma = 0.25: exploding"]
-paths3 = [path_small, path_zig, path_exploding]
-
-# the same contours are drawn in every panel, then one trajectory per panel
-x1, x2, f_grid = contour_data(f_ill, (-10, 3), (-4, 4))
-fig, axes = plt.subplots(1, 3, figsize=(9, 3.4), sharey=True)
-for ax, p, ttl in zip(axes, paths3, titles):
-    ax.contour(x1, x2, f_grid, levels=20, colors="0.7", linewidths=0.5)
-    ax.plot(p["x1"], p["x2"], color="#0072B2", linewidth=0.8)
-    ax.scatter(p["x1"], p["x2"], color="#0072B2", s=8)
-    ax.set_ylim(-4, 4)
-    ax.set_title(ttl, fontsize=9)
-plt.show()
-```
-
-</div>
-:::
-
-It's like in Goldilocks and the Three Bears: the step size can be
-
-- **Too small** ($\gamma = 0.01$): every step is safe and almost useless. After 60
-  iterations we have barely moved along the valley.
-- **Near the limit** ($\gamma = 0.18$): the steep $x_2$ direction overshoots and
-  bounces from one wall of the valley to the other (the famous **zig-zag**) while
-  slowly drifting towards the minimum.
-- **Too big** ($\gamma = 0.25$): each bounce is *bigger* than the last. The iterates
-  diverge. (The panel is clipped: the true trajectory has already left the
-  plotting window.)
-
-<p><a href="https://commons.wikimedia.org/wiki/File:The_Three_Bears_-_Project_Gutenberg_eText_17034.jpg#/media/File:The_Three_Bears_-_Project_Gutenberg_eText_17034.jpg"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/The_Three_Bears_-_Project_Gutenberg_eText_17034.jpg/500px-The_Three_Bears_-_Project_Gutenberg_eText_17034.jpg?utm_source=en.wikipedia.org&amp;utm_campaign=imageinfo&amp;utm_content=thumbnail" alt="The Three Bears - Project Gutenberg eText 17034.jpg" height="571" width="500"></a><br>By Arthur Rackham - <a rel="nofollow" class="external free" href="http://www.gutenberg.org/etext/17034">http://www.gutenberg.org/etext/17034</a>, Public Domain, <a href="https://commons.wikimedia.org/w/index.php?curid=562870">Link</a></p>
-
-
-There is a clean piece of intuition behind this. For a quadratic, gradient descent
-multiplies the error along each principal axis of the bowl (for our valley, simply
-the two coordinate axes) by $(1 - \gamma \lambda)$ per step, where
-$\lambda$ is the curvature in that direction.
-
-```{r}
-#| echo: false
-#| label: fig-week5-factors
-#| fig-cap: "Fraction of the starting error left in each coordinate after $k$ steps, i.e. $(1-\\gamma\\lambda)^k$, for the valley with $\\lambda = 1$ (along $x_1$) and $\\lambda = 10$ (along $x_2$). The right panel is clipped to $[-4, 4]$."
-#| fig-width: 9
-#| fig-height: 3.2
-#| out-width: "100%"
-k <- 0:8
-gammas <- c(0.01, 0.18, 0.25)
-titles <- c("gamma = 0.01: crawling", "gamma = 0.18: zig-zag", "gamma = 0.25: exploding")
-cols <- c("#0072B2", "#D55E00")
-op <- par(mfrow = c(1, 3), mar = c(4, 4, 2.5, 1), cex = 0.9)
-for (i in 1:3) {
-  g <- gammas[i]
-  plot(NA, xlim = c(0, 8), ylim = c(-4, 4), xlab = "step k",
-       ylab = if (i == 1) "fraction of error left" else "", main = titles[i])
-  abline(h = c(-1, 0, 1), lty = c(3, 1, 3), col = "grey60")
-  lines(k, (1 - g * 1)^k,  col = cols[1], lwd = 2, type = "o", pch = 16)
-  lines(k, (1 - g * 10)^k, col = cols[2], lwd = 2, type = "o", pch = 16)
-  if (i == 1) legend("topright", c("x1 (curvature 1)", "x2 (curvature 10)"),
-                     col = cols, lwd = 2, pch = 16, bty = "n", cex = 0.8)
-}
-par(op)
-```
-
-Read the three panels as the three trajectories above, one coordinate at a time.
-
-#### The condition number {#sec-week5-conditioning}
-
-These directional curvatures are exactly the *eigenvalues* of the **Hessian** of $f$, its symmetric matrix of second derivatives $\nabla^2 f$. Formally, collect the eigenvalues of the Hessian into the set $\{\lambda_1, \lambda_2, \dots, \lambda_d\}$ and pick out its two
-extremes:
-
-$$
-\lambda_{\max} = \max_{j} \lambda_j
-\quad \text{(the steepest curvature)},
-\qquad
-\lambda_{\min} = \min_{j} \lambda_j
-\quad \text{(the flattest)}.
-$$
-
-Stability requires $|1 - \gamma \lambda_j| < 1$ for *every* direction $j$, and the
-steepest one is the binding constraint:
-
-$$
-\gamma < \frac{2}{\lambda_{\max}}.
-$$
-
-Progress in the flattest direction, meanwhile, is governed by $\lambda_{\min}$: per
-step its error shrinks by $(1 - \gamma\lambda_{\min})$, at best about
-$(1 - \lambda_{\min}/\lambda_{\max})$. The tension between the two extremes is
-measured by their ratio,
-
-$$
-\kappa = \frac{\lambda_{\max}}{\lambda_{\min}}
-\qquad \text{(the condition number)},
-$$
-
-which controls how many iterations you need: as $\kappa$ grows, the iteration count
-grows in proportion.
-
-In our example, the valley has curvatures $1$ (along $x_1$) and $10$ (across it,
-along $x_2$), so $\lambda_{\max} = 10$ and the stability bound is
-$\gamma < 2/10 = 0.2$: exactly
-why $0.18$ was stable, if only just, and $0.25$ diverged. Its condition number is
-$\kappa = 10/1 = 10$, and that is already annoying: the zig-zag panel is what
-$\kappa = 10$ looks like.
-
-::: {.callout-note collapse="true" icon=false title="[OPTIONAL] Condition numbers: why statistical problems are ill-conditioned"}
-
-If you have met condition numbers in a linear algebra course, you may know a
-different-looking definition: $\kappa(A) = \sigma_{\max}(A) / \sigma_{\min}(A)$, a
-ratio of **singular values**, measuring how much solving $A\mathbf{x} = \mathbf{b}$
-amplifies small errors in the inputs. There is no conflict. Our $\kappa$ is the
-condition number *of the Hessian*, and a Hessian is always symmetric (mixed partial
-derivatives commute) and, at a minimum, positive (semi-)definite; for such matrices
-the singular values *are* the eigenvalues, so
-$\lambda_{\max}/\lambda_{\min}$ and $\sigma_{\max}/\sigma_{\min}$ are the same
-number. (For a general symmetric matrix, $\sigma_i = |\lambda_i|$; eigenvalues and
-singular values genuinely part ways only for non-symmetric matrices, which a
-Hessian never is.) One notation warning for further reading: optimisation texts
-typically write $L = \lambda_{\max}$ and $\mu = \lambda_{\min}$, calling them the
-*smoothness* and *strong-convexity* constants, and state the condition number as
-$L/\mu$; same objects, different costume.
-
-The singular-value view also explains why *statistical* problems are so often
-ill-conditioned. A model fit through a design matrix $X$ (Challenge 1.1's least
-squares; the logistic regression of @sec-week5-losses, where a diagonal matrix of
-observation weights gets pinched between $X^\top$ and $X$) has a Hessian of the
-form $X^\top X / n$, and the eigenvalues of $X^\top X$ are the *squared* singular
-values of $X$. Whatever imbalance the columns of $X$ carry, the optimisation
-problem therefore suffers it twice over: one covariate in grams and another in
-kilograms (a scale ratio of just $10^3$) can already push $\kappa$ past $10^6$, and
-plain gradient descent simply stops being a usable tool. At the extreme
-$\sigma_{\min} = 0$, $\kappa$ is infinite and $X^\top X$ is exactly the *singular*
-matrix that @sec-week1 warned cannot be inverted; a huge $\kappa$ means nearly so.
-
-:::
-
-Whether or not you open the box above, take this with you: covariates on very
-different scales make $\kappa$ huge and gradient descent crawl, which is why
-Exercise 5.3 will ask you to stare at the column scales of its design matrix.
-Ill-conditioning is the recurring obstacle for the rest of the chapter.
-
-A small helper we will use to compare methods fairly: how many iterations until we are
-within `tol` of the target?
-
-::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
-<div>
-
-**R**
-
-```{r}
-steps_to_tol <- function(path, target, tol = 1e-3) {
-  X <- as.matrix(path[seq_along(target)])   # the x1, ..., xd columns
-  dist <- apply(X, 1, function(x) sqrt(sum((x - target)^2)))
-  path$iter[which(dist < tol)[1]]           # NA if it never gets there
-}
-
-c(crawl = steps_to_tol(grad_descent(grad_ill, c(-9, 1.5), 0.01, 5000), c(0, 0)),
-  zig   = steps_to_tol(grad_descent(grad_ill, c(-9, 1.5), 0.18, 5000), c(0, 0)))
-```
-
-</div>
-
-<div>
-
-**Python**
-
-```{python}
-def steps_to_tol(path, target, tol=1e-3):
-    X = path.iloc[:, :len(target)].to_numpy()  # x1, ..., xd
-    dist = np.sqrt(((X - target)**2).sum(axis=1))
-    hit = np.nonzero(dist < tol)[0]
-    return np.nan if len(hit) == 0 else int(path["iter"].iloc[hit[0]])
-
-{"crawl": steps_to_tol(grad_descent(grad_ill, np.array([-9, 1.5]), 0.01, 5000),
-                       np.array([0, 0])),
- "zig":   steps_to_tol(grad_descent(grad_ill, np.array([-9, 1.5]), 0.18, 5000),
-                       np.array([0, 0]))}
-```
-
-</div>
-:::
-
-::: {.callout-tip title="Exercise 5.1: Goldilocks and the step size"}
-Consider $f(x_1, x_2) = x_1^2/2 + 25\,x_2^2/2$, with gradient
-$\nabla f = (x_1, \, 25 x_2)$, starting point $(-8, 2)$, and true minimum $(0,0)$.
-
-a. Using the stability condition $\gamma < 2/\lambda_{\max}$, predict the largest stable step
-   size. Check your prediction by running `grad_descent()` with $\gamma$ just below
-   and just above it (a small `n`, say 100, is enough to see divergence).
-b. Use `steps_to_tol()` to count the iterations needed to get within $10^{-3}$ of
-   the minimum for $\gamma = 0.005, 0.04$ and $0.07$ (use a generous `n`, e.g.
-   20000). What do you conclude about how to choose $\gamma$?
-:::
+The path marches straight into the bowl. Lovely.
 
 ### Estimation is optimisation {#sec-week5-losses}
 
@@ -675,9 +419,8 @@ def nll_grad(b):
 Time to descend. The model has two parameters, so we can watch gradient descent
 walk over the loss surface of a real statistical model exactly as we watched it
 cross the toy bowls. We start from $\boldsymbol\beta = (0, 0)$, which predicts every
-observation as a 50/50 coin toss, and take a hand-tuned $\gamma = 2$: large, but
-safe here, because the contours below reveal a friendly, nearly round bowl (small
-$\kappa$). Exercise 5.3 shows how quickly that luxury disappears on real covariates.
+observation as a 50/50 coin toss, and take a hand-tuned $\gamma = 2$ (why this
+value works, and others would not, is the subject of @sec-week5-stepsize).
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -754,7 +497,8 @@ The contours are contours of the NLL $L(\beta_0, \beta_1)$: a picture worth keep
 in mind every time you fit *any* model. The path marches straight into the bowl and
 stops at the maximum likelihood estimate. The fit itself is done; what the rest of
 the chapter adds is how to get there *cheaply* when $n$ is enormous
-(@sec-week5-sgd), and how to stop hand-tuning $\gamma$ (@sec-week5-bfgs).
+(@sec-week5-sgd), why the step size is so delicate (@sec-week5-stepsize), and how
+to stop hand-tuning it (@sec-week5-bfgs).
 
 #### Approximate gradients {#sec-week5-numgrad}
 
@@ -830,8 +574,43 @@ inside its `grad` argument; any function that maps a vector to a vector will do,
 including one manufactured on the spot from the loss itself. That is a job for a
 function factory (@sec-week3-factories): curry the loss $L$ and the step $h$ into
 `num_grad`, receive a function of $\boldsymbol\beta$ alone, and hand that straight
-to `grad_descent()`. As an example, we rerun the descent and compare with the
-exact-gradient run:
+to `grad_descent()`. As an example, we rerun the descent and compare it with the
+exact-gradient run.
+
+To compare runs fairly we need a small helper, which the rest of the chapter reuses:
+how many iterations until a path is within `tol` of a target?
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+steps_to_tol <- function(path, target, tol = 1e-3) {
+  X <- as.matrix(path[seq_along(target)])   # the x1, ..., xd columns
+  dist <- apply(X, 1, function(x) sqrt(sum((x - target)^2)))
+  path$iter[which(dist < tol)[1]]           # NA if it never gets there
+}
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+def steps_to_tol(path, target, tol=1e-3):
+    X = path.iloc[:, :len(target)].to_numpy()  # x1, ..., xd
+    dist = np.sqrt(((X - target)**2).sum(axis=1))
+    hit = np.nonzero(dist < tol)[0]
+    return np.nan if len(hit) == 0 else int(path["iter"].iloc[hit[0]])
+```
+
+</div>
+:::
+
+Now the rerun, next to the exact-gradient one:
 
 ::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
 <div>
@@ -1193,7 +972,7 @@ $1/\sqrt{n}$, so chasing the tenth decimal of the minimiser is vanity), SGD is t
 only affordable option. It is the workhorse that trains essentially every neural
 network.
 
-:::: {.callout-tip title="Exercise 5.2: Mini-batch SGD"}
+:::: {.callout-tip title="Exercise 5.1: Mini-batch SGD"}
 Fill in the blanks to turn `sgd()` into mini-batch SGD, then run it on the logistic
 loss. The batch gradient function is given. Note (on the R side) the `drop = FALSE`:
 when the batch holds a single index, `X_log[idx, ]` would silently collapse the
@@ -1268,13 +1047,265 @@ size buy you, and what does it cost?
 
 ## Fixing the geometry: preconditioning and BFGS {#sec-week5-precond}
 
-Back to the zig-zag valley of @sec-week5-stepsize. The step size was capped by the
-steep direction, progress was throttled along the flat one, and the trajectory
-wasted its energy bouncing between walls. This section solves that geometry problem
-twice: first by hand, then automatically.
+This section is about the shape of the functions we minimise. First we see why their
+geometry makes the step size so delicate; then we fix that geometry twice: first by
+hand, then automatically.
 
+### Why the step size is hard {#sec-week5-stepsize}
+
+So far every descent in this chapter has run with a step size picked by hand, and
+behaved. Time to break it. The step size $\gamma$ is doing a lot of quiet work. To
+expose it, we use a function that is deliberately *ill-conditioned* (much steeper in
+one direction than the other):
+
+$$
+f(x_1, x_2) = \frac{x_1^2}{2} + \frac{10\, x_2^2}{2},
+\qquad
+\nabla f(x_1, x_2) = \begin{pmatrix} x_1 \\ 10\,x_2 \end{pmatrix}.
+$$
+
+Think of a long narrow valley: gentle along $x_1$ (curvature $1$), steep across it in
+$x_2$ (curvature $10$). Watch what three different step sizes do, starting from
+$(-9, 1.5)$.
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+#| fig-width: 9
+#| fig-height: 3.4
+#| out-width: "100%"
+f_ill <- \(x) x[1]^2 / 2 + 10 * x[2]^2 / 2
+grad_ill <- \(x) c(x[1], 10 * x[2])
+
+path_small <- grad_descent(grad_ill, c(-9, 1.5), gamma = 0.01, n = 60)
+path_zig   <- grad_descent(grad_ill, c(-9, 1.5), gamma = 0.18, n = 60)
+path_exploding  <- grad_descent(grad_ill, c(-9, 1.5), gamma = 0.25, n = 8)
+
+# one labelled data frame, one facet per step size (week 4 tricks)
+path_small$gamma <- "gamma = 0.01: crawling"
+path_zig$gamma   <- "gamma = 0.18: zig-zag"
+path_exploding$gamma  <- "gamma = 0.25: exploding"
+paths3 <- rbind(path_small, path_zig, path_exploding)
+paths3$gamma <- factor(paths3$gamma, levels = unique(paths3$gamma))
+
+# the contour layer has no `gamma` column, so it is drawn in every facet
+ggplot(contour_data(f_ill, c(-10, 3), c(-4, 4)), aes(x1, x2)) +
+  geom_contour(aes(z = f), bins = 20, colour = "grey70") +
+  geom_path(data = paths3, colour = "#0072B2", linewidth = 0.4) +
+  geom_point(data = paths3, colour = "#0072B2", size = 0.9) +
+  coord_cartesian(ylim = c(-4, 4)) +
+  facet_wrap(~ gamma) +
+  theme_minimal()
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+f_ill = lambda x: x[0]**2 / 2 + 10 * x[1]**2 / 2
+grad_ill = lambda x: np.array([x[0], 10 * x[1]])
+
+path_small = grad_descent(grad_ill, np.array([-9, 1.5]), gamma=0.01, n=60)
+path_zig   = grad_descent(grad_ill, np.array([-9, 1.5]), gamma=0.18, n=60)
+path_exploding  = grad_descent(grad_ill, np.array([-9, 1.5]), gamma=0.25, n=8)
+
+# one list of labelled paths, one subplot per step size (no facets in matplotlib)
+titles = ["gamma = 0.01: crawling", "gamma = 0.18: zig-zag", "gamma = 0.25: exploding"]
+paths3 = [path_small, path_zig, path_exploding]
+
+# the same contours are drawn in every panel, then one trajectory per panel
+x1, x2, f_grid = contour_data(f_ill, (-10, 3), (-4, 4))
+fig, axes = plt.subplots(1, 3, figsize=(9, 3.4), sharey=True)
+for ax, p, ttl in zip(axes, paths3, titles):
+    ax.contour(x1, x2, f_grid, levels=20, colors="0.7", linewidths=0.5)
+    ax.plot(p["x1"], p["x2"], color="#0072B2", linewidth=0.8)
+    ax.scatter(p["x1"], p["x2"], color="#0072B2", s=8)
+    ax.set_ylim(-4, 4)
+    ax.set_title(ttl, fontsize=9)
+plt.show()
+```
+
+</div>
+:::
+
+It's like in Goldilocks and the Three Bears: the step size can be
+
+- **Too small** ($\gamma = 0.01$): every step is safe and almost useless. After 60
+  iterations we have barely moved along the valley.
+- **Near the limit** ($\gamma = 0.18$): the steep $x_2$ direction overshoots and
+  bounces from one wall of the valley to the other (the famous **zig-zag**) while
+  slowly drifting towards the minimum.
+- **Too big** ($\gamma = 0.25$): each bounce is *bigger* than the last. The iterates
+  diverge. (The panel is clipped: the true trajectory has already left the
+  plotting window.)
+
+<p><a href="https://commons.wikimedia.org/wiki/File:The_Three_Bears_-_Project_Gutenberg_eText_17034.jpg#/media/File:The_Three_Bears_-_Project_Gutenberg_eText_17034.jpg"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/The_Three_Bears_-_Project_Gutenberg_eText_17034.jpg/500px-The_Three_Bears_-_Project_Gutenberg_eText_17034.jpg?utm_source=en.wikipedia.org&amp;utm_campaign=imageinfo&amp;utm_content=thumbnail" alt="The Three Bears - Project Gutenberg eText 17034.jpg" height="571" width="500"></a><br>By Arthur Rackham - <a rel="nofollow" class="external free" href="http://www.gutenberg.org/etext/17034">http://www.gutenberg.org/etext/17034</a>, Public Domain, <a href="https://commons.wikimedia.org/w/index.php?curid=562870">Link</a></p>
+
+
+There is a clean piece of intuition behind this. For a quadratic, gradient descent
+multiplies the error along each principal axis of the bowl (for our valley, simply
+the two coordinate axes) by $(1 - \gamma \lambda)$ per step, where
+$\lambda$ is the curvature in that direction.
+
+```{r}
+#| echo: false
+#| label: fig-week5-factors
+#| fig-cap: "Fraction of the starting error left in each coordinate after $k$ steps, i.e. $(1-\\gamma\\lambda)^k$, for the valley with $\\lambda = 1$ (along $x_1$) and $\\lambda = 10$ (along $x_2$). The right panel is clipped to $[-4, 4]$."
+#| fig-width: 9
+#| fig-height: 3.2
+#| out-width: "100%"
+k <- 0:8
+gammas <- c(0.01, 0.18, 0.25)
+titles <- c("gamma = 0.01: crawling", "gamma = 0.18: zig-zag", "gamma = 0.25: exploding")
+cols <- c("#0072B2", "#D55E00")
+op <- par(mfrow = c(1, 3), mar = c(4, 4, 2.5, 1), cex = 0.9)
+for (i in 1:3) {
+  g <- gammas[i]
+  plot(NA, xlim = c(0, 8), ylim = c(-4, 4), xlab = "step k",
+       ylab = if (i == 1) "fraction of error left" else "", main = titles[i])
+  abline(h = c(-1, 0, 1), lty = c(3, 1, 3), col = "grey60")
+  lines(k, (1 - g * 1)^k,  col = cols[1], lwd = 2, type = "o", pch = 16)
+  lines(k, (1 - g * 10)^k, col = cols[2], lwd = 2, type = "o", pch = 16)
+  if (i == 1) legend("topright", c("x1 (curvature 1)", "x2 (curvature 10)"),
+                     col = cols, lwd = 2, pch = 16, bty = "n", cex = 0.8)
+}
+par(op)
+```
+
+Read the three panels as the three trajectories above, one coordinate at a time.
+
+#### The condition number {#sec-week5-conditioning}
+
+These directional curvatures are exactly the *eigenvalues* of the **Hessian** of $f$, its symmetric matrix of second derivatives $\nabla^2 f$. Formally, collect the eigenvalues of the Hessian into the set $\{\lambda_1, \lambda_2, \dots, \lambda_d\}$ and pick out its two
+extremes:
+
+$$
+\lambda_{\max} = \max_{j} \lambda_j
+\quad \text{(the steepest curvature)},
+\qquad
+\lambda_{\min} = \min_{j} \lambda_j
+\quad \text{(the flattest)}.
+$$
+
+Stability requires $|1 - \gamma \lambda_j| < 1$ for *every* direction $j$, and the
+steepest one is the binding constraint:
+
+$$
+\gamma < \frac{2}{\lambda_{\max}}.
+$$
+
+Progress in the flattest direction, meanwhile, is governed by $\lambda_{\min}$: per
+step its error shrinks by $(1 - \gamma\lambda_{\min})$, at best about
+$(1 - \lambda_{\min}/\lambda_{\max})$. The tension between the two extremes is
+measured by their ratio,
+
+$$
+\kappa = \frac{\lambda_{\max}}{\lambda_{\min}}
+\qquad \text{(the condition number)},
+$$
+
+which controls how many iterations you need: as $\kappa$ grows, the iteration count
+grows in proportion.
+
+In our example, the valley has curvatures $1$ (along $x_1$) and $10$ (across it,
+along $x_2$), so $\lambda_{\max} = 10$ and the stability bound is
+$\gamma < 2/10 = 0.2$: exactly
+why $0.18$ was stable, if only just, and $0.25$ diverged. Its condition number is
+$\kappa = 10/1 = 10$, and that is already annoying: the zig-zag panel is what
+$\kappa = 10$ looks like.
+
+The same reasoning explains, in hindsight, the hand-tuned $\gamma = 2$ of
+@sec-week5-losses: large, but safe there, because the contours of that negative
+log-likelihood form a friendly, nearly round bowl (small $\kappa$).
+
+::: {.callout-note collapse="true" icon=false title="[OPTIONAL] Condition numbers: why statistical problems are ill-conditioned"}
+
+If you have met condition numbers in a linear algebra course, you may know a
+different-looking definition: $\kappa(A) = \sigma_{\max}(A) / \sigma_{\min}(A)$, a
+ratio of **singular values**, measuring how much solving $A\mathbf{x} = \mathbf{b}$
+amplifies small errors in the inputs. There is no conflict. Our $\kappa$ is the
+condition number *of the Hessian*, and a Hessian is always symmetric (mixed partial
+derivatives commute) and, at a minimum, positive (semi-)definite; for such matrices
+the singular values *are* the eigenvalues, so
+$\lambda_{\max}/\lambda_{\min}$ and $\sigma_{\max}/\sigma_{\min}$ are the same
+number. (For a general symmetric matrix, $\sigma_i = |\lambda_i|$; eigenvalues and
+singular values genuinely part ways only for non-symmetric matrices, which a
+Hessian never is.) One notation warning for further reading: optimisation texts
+typically write $L = \lambda_{\max}$ and $\mu = \lambda_{\min}$, calling them the
+*smoothness* and *strong-convexity* constants, and state the condition number as
+$L/\mu$; same objects, different costume.
+
+The singular-value view also explains why *statistical* problems are so often
+ill-conditioned. A model fit through a design matrix $X$ (Challenge 1.1's least
+squares; the logistic regression of @sec-week5-losses, where a diagonal matrix of
+observation weights gets pinched between $X^\top$ and $X$) has a Hessian of the
+form $X^\top X / n$, and the eigenvalues of $X^\top X$ are the *squared* singular
+values of $X$. Whatever imbalance the columns of $X$ carry, the optimisation
+problem therefore suffers it twice over: one covariate in grams and another in
+kilograms (a scale ratio of just $10^3$) can already push $\kappa$ past $10^6$, and
+plain gradient descent simply stops being a usable tool. At the extreme
+$\sigma_{\min} = 0$, $\kappa$ is infinite and $X^\top X$ is exactly the *singular*
+matrix that @sec-week1 warned cannot be inverted; a huge $\kappa$ means nearly so.
+
+:::
+
+Whether or not you open the box above, take this with you: covariates on very
+different scales make $\kappa$ huge and gradient descent crawl, which is why
+Exercise 5.3 will ask you to stare at the column scales of its design matrix.
+Ill-conditioning is the recurring obstacle for the rest of the chapter.
+
+The `steps_to_tol()` helper of @sec-week5-numgrad puts a number on the crawl and on
+the zig-zag: the iterations each needs to get within $10^{-3}$ of the minimum.
+
+::: {style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-column-gap: 10px;"}
+<div>
+
+**R**
+
+```{r}
+c(crawl = steps_to_tol(grad_descent(grad_ill, c(-9, 1.5), 0.01, 5000), c(0, 0)),
+  zig   = steps_to_tol(grad_descent(grad_ill, c(-9, 1.5), 0.18, 5000), c(0, 0)))
+```
+
+</div>
+
+<div>
+
+**Python**
+
+```{python}
+{"crawl": steps_to_tol(grad_descent(grad_ill, np.array([-9, 1.5]), 0.01, 5000),
+                       np.array([0, 0])),
+ "zig":   steps_to_tol(grad_descent(grad_ill, np.array([-9, 1.5]), 0.18, 5000),
+                       np.array([0, 0]))}
+```
+
+</div>
+:::
+
+::: {.callout-tip title="Exercise 5.2: Goldilocks and the step size"}
+Consider $f(x_1, x_2) = x_1^2/2 + 25\,x_2^2/2$, with gradient
+$\nabla f = (x_1, \, 25 x_2)$, starting point $(-8, 2)$, and true minimum $(0,0)$.
+
+a. Using the stability condition $\gamma < 2/\lambda_{\max}$, predict the largest stable step
+   size. Check your prediction by running `grad_descent()` with $\gamma$ just below
+   and just above it (a small `n`, say 100, is enough to see divergence).
+b. Use `steps_to_tol()` to count the iterations needed to get within $10^{-3}$ of
+   the minimum for $\gamma = 0.005, 0.04$ and $0.07$ (use a generous `n`, e.g.
+   20000). What do you conclude about how to choose $\gamma$?
+:::
 
 ### Preconditioning {#sec-week5-precond-p}
+
+Back to the zig-zag valley of @sec-week5-stepsize. The step size was capped by the
+steep direction, progress was throttled along the flat one, and the trajectory
+wasted its energy bouncing between walls. Time to fix it.
 
 If the valley is ten times steeper in $x_2$
 than in $x_1$, then take steps ten times smaller in $x_2$. Formally, pick a symmetric
