@@ -1854,7 +1854,15 @@ all over statistics and machine learning:
   of observations and millions of parameters: mini-batch SGD is the core engine. However, 
   as the geometry of the loss landscape is often ill-conditioned in those ML models, we tend to find that a separate class
   of gradient descent algorithms, called **momentum** based SGD, which include Adam. In short, these accelerate convergence by using a moving average of past gradients to smooth out the zig-zagging and help navigate the loss landscape more effectively.
-  - **Sampling algorithms.** When you meet Markov chain Monte Carlo in weeks 8–10 of
+- **Sampling algorithms.** When you meet Markov chain Monte Carlo in weeks 8–10 of
   this module, you will find the same geometry problem in a new costume: a sampler
   exploring an elongated, ill-conditioned posterior zig-zags just like gradient
   descent did.
+- **Automatic differentiation.** In @sec-week5-numgrad we traded the calculus for
+  $2d$ loss evaluations per step. Modern software offers a third way: *automatic
+  differentiation* reads the code that computes the loss and, applying the chain rule
+  to each elementary operation in it, returns the *exact* gradient, at a small multiple
+  of the cost of evaluating the loss, however many parameters there are. It is what
+  makes training neural networks with millions of parameters possible (there it goes
+  by the name of *backpropagation*). You will meet it again in weeks 8–10 of this
+  module, and in future modules.
