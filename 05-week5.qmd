@@ -1540,70 +1540,146 @@ variables before optimising*. Exercise 5.3 shows what happens if you don't.
 
 ### BFGS: learning the Hessian as you go {#sec-week5-bfgs}
 
-Newton's method needs second derivatives we cannot afford. But here is the clever
-observation: the gradients we are *already computing* contain second-order
-information. By Taylor expansion, for nearby iterates,
+We now know what the ideal preconditioner wants: $P = H^{-1}$, the inverse of the
+Hessian, which makes the bowl round; recomputed at every iterate, it is Newton's method.
+We also know its price: $d^2$ second derivatives and a $d \times d$ linear system at
+every step. **Quasi-Newton** methods keep the preconditioned step of Algorithm 5.3, but
+replace the exact inverse Hessian by a matrix $B_k \approx H^{-1}$ that is *estimated*
+along the way, and refined a little at every step:
 
 $$
-\nabla f(\mathbf{x}_{k+1}) - \nabla f(\mathbf{x}_k)
-\;\approx\;
-H \, (\mathbf{x}_{k+1} - \mathbf{x}_k),
+\mathbf{x}_{k+1} = \mathbf{x}_k - \gamma_k \, B_k \nabla f_k,
 $$
 
-so each step tells us how the gradient *changed* when we moved in one particular
-direction: one slice of the Hessian, for free. Quasi-Newton methods maintain a
-running approximation $B_k \approx H^{-1}$ and require it to explain the most recent
-step exactly, the **secant condition**:
+where $\nabla f_k$ is short for $\nabla f(\mathbf{x}_k)$ and the step length $\gamma_k$
+is chosen by a line search. We start from $B_0 = I$, so the first step is a plain
+gradient step.^[Many textbooks write $B_k$ for an approximation of the Hessian $H$
+itself, and $H_k$ for its inverse, so their formulas look the other way round. Here
+$B_k$ always approximates $H^{-1}$, the matrix the step actually uses.]
+
+But what is $B_k$, and how do we build it without ever computing a second derivative?
+Recall @sec-week5-numgrad: a *difference of losses*, divided by the distance between
+the two points, approximates a first derivative. The same trick one level up turns a
+*difference of gradients* into second derivatives.
+
+In one dimension, write $s_k = x_{k+1} - x_k$ for the step and
+$y_k = f'(x_{k+1}) - f'(x_k)$ for the change in slope. A first-order Taylor expansion
+of $f'$ around $x_k$ gives $y_k \approx f''(x_k)\, s_k$, so
 
 $$
-B_{k+1} \, \underbrace{\big(\nabla f_{k+1} - \nabla f_k\big)}_{\mathbf{y}_k}
-= \underbrace{\mathbf{x}_{k+1} - \mathbf{x}_k}_{\mathbf{s}_k}.
+f''(x_k) \approx \frac{y_k}{s_k}
+\qquad\text{and, inverting,}\qquad
+B_{k+1} = \frac{s_k}{y_k} \approx \frac{1}{f''(x_k)}:
 $$
 
-**BFGS** (Broyden–Fletcher–Goldfarb–Shanno, 1970: four people found it independently
-in the same year) updates $B_k$ by the smallest symmetric modification that satisfies
-the secant condition, a *rank-two update*: cheap matrix–vector algebra, no matrix
-inversion, and $B_k$ stays positive definite so the step $-B_k \nabla f_k$ always
-points downhill (provided each step actually observes positive curvature,
-$\mathbf{y}_k^\top \mathbf{s}_k > 0$: the line search inside `optim()` and
-`minimize()` sees to this). For the curious, the update is
+the inverse curvature the step needs, from two derivatives the algorithm has computed
+anyway. ($y_k / s_k$ is the slope of the secant line through two points of the graph of
+$f'$, hence the name of what follows.)
+
+In $d$ dimensions, with $\mathbf{s}_k = \mathbf{x}_{k+1} - \mathbf{x}_k$ and
+$\mathbf{y}_k = \nabla f_{k+1} - \nabla f_k$, the same expansion reads
+$\mathbf{y}_k \approx H \mathbf{s}_k$ (exactly, for a quadratic $f$), that is
+$H^{-1} \mathbf{y}_k \approx \mathbf{s}_k$. We cannot divide by a vector, so instead we
+ask $B_{k+1}$ to satisfy this relation exactly for the step just taken, the
+**secant condition**:
+
+$$
+B_{k+1} \, \mathbf{y}_k = \mathbf{s}_k,
+$$
+
+which in one dimension is $B_{k+1} = s_k / y_k$ again.
+
+In $d$ dimensions the secant condition does not determine $B_{k+1}$: it only fixes what
+the matrix does to one vector, $\mathbf{y}_k$, and many matrices do that. So BFGS does
+not build $B_{k+1}$ from scratch: it *updates* $B_k$, by the smallest correction that
+gives
+
+1. **the secant condition**, $B_{k+1}\mathbf{y}_k = \mathbf{s}_k$, for the new step;
+2. **symmetry**, as for $H^{-1}$;
+3. **positive definiteness**, so that the next step $-B_{k+1}\nabla f_{k+1}$ still
+   points downhill.
+
+Being a small correction, it keeps what $B_k$ learned from the earlier steps and adds
+what the new step teaches.
+
+**BFGS** (Broyden–Fletcher–Goldfarb–Shanno, 1970: four people found it independently in
+the same year) gives this update in closed form:
 
 $$
 B_{k+1} = \big(I - \rho_k \mathbf{s}_k \mathbf{y}_k^\top\big) B_k
           \big(I - \rho_k \mathbf{y}_k \mathbf{s}_k^\top\big)
           + \rho_k \mathbf{s}_k \mathbf{s}_k^\top,
-\qquad \rho_k = \frac{1}{\mathbf{y}_k^\top \mathbf{s}_k},
+\qquad \rho_k = \frac{1}{\mathbf{y}_k^\top \mathbf{s}_k}.
 $$
 
-and we will not derive it. The point to retain is the *idea*: start with $B_0 = I$
-(plain gradient descent), and let each observed gradient difference teach the
-algorithm a bit more of the local geometry. After a handful of steps BFGS is taking
-nearly Newton-quality steps while having only ever evaluated $f$ and $\nabla f$.
+We will not derive it ("smallest" is measured in a suitably weighted norm); the box
+below checks that it delivers the three properties, and cheaply.
+
+::: {.callout-note collapse="true" icon=false title="[OPTIONAL] Checking the BFGS update"}
+- **It satisfies the secant condition.** Apply it to $\mathbf{y}_k$. The right-hand
+  bracket kills $\mathbf{y}_k$,
+  $\big(I - \rho_k \mathbf{y}_k \mathbf{s}_k^\top\big)\mathbf{y}_k
+   = \mathbf{y}_k - \mathbf{y}_k \, \frac{\mathbf{s}_k^\top \mathbf{y}_k}{\mathbf{y}_k^\top \mathbf{s}_k}
+   = \mathbf{0}$,
+  so the first term vanishes, and the second leaves
+  $\rho_k \mathbf{s}_k (\mathbf{s}_k^\top \mathbf{y}_k) = \mathbf{s}_k$.
+- **It stays symmetric.** The two brackets are transposes of each other, so the first
+  term has the form $M B_k M^\top$ (with $M = I - \rho_k \mathbf{s}_k \mathbf{y}_k^\top$),
+  and $\mathbf{s}_k \mathbf{s}_k^\top$ is symmetric.
+- **It stays positive definite**, so every step $-B_k \nabla f_k$ points downhill,
+  provided $\mathbf{y}_k^\top \mathbf{s}_k > 0$: along the step, the gradient grew in
+  the direction we moved, i.e. $f$ curved upwards. For $\mathbf{v} \neq \mathbf{0}$,
+  $\mathbf{v}^\top B_{k+1} \mathbf{v}
+   = (M^\top \mathbf{v})^\top B_k (M^\top \mathbf{v}) + \rho_k (\mathbf{s}_k^\top \mathbf{v})^2$:
+  both terms are non-negative, and they cannot both be zero (if
+  $\mathbf{s}_k^\top \mathbf{v} = 0$ then $M^\top \mathbf{v} = \mathbf{v}$, and the
+  first term is $\mathbf{v}^\top B_k \mathbf{v} > 0$). Implementations make sure the
+  condition holds: the line search of `minimize()` picks $\gamma_k$ so that it does,
+  and `optim()` checks it and restarts from $B = I$ when it fails.
+- **It is cheap.** Multiplying out, $B_{k+1} - B_k$ is built from the two vectors
+  $\mathbf{s}_k$ and $B_k \mathbf{y}_k$ alone: a *rank-two* correction, costing
+  $O(d^2)$ operations, with no matrix ever inverted (Newton: $O(d^3)$).
+:::
+
+The secant condition leaves room for other updates too: other choices of "closest", or
+other extra requirements, give other quasi-Newton methods with the same secant
+condition. **DFP** applies the same idea to an approximation of $H$ itself rather than
+of $H^{-1}$; **SR1** is the unique symmetric rank-*one* update, but it need not stay
+positive definite; the **Broyden family** blends BFGS and DFP. BFGS is the default in
+practice: it keeps $B_k$ positive definite, and it recovers best from a poor $B_k$.
+
+To see it learn, run BFGS on the valley of @sec-week5-stepsize, $H = \mathrm{diag}(1, 10)$,
+from $\mathbf{x}_0 = (-9, 1.5)$ with $B_0 = I$ and exact line searches. After the first
+update,
+$B_1 \approx \begin{pmatrix} 1.30 & 0.02 \\ 0.02 & 0.10 \end{pmatrix}$: after one step
+it has already found that $x_2$ is ten times steeper. After the second,
+$B_2 = \mathrm{diag}(1, 1/10) = H^{-1}$ exactly, and the iterate sits on the minimum.
+This is general: on a quadratic in $d$ dimensions with exact line searches, BFGS
+recovers $H^{-1}$ after $d$ steps. On other functions $H$ changes from point to point,
+and $B_k$ keeps tracking it: after a handful of steps BFGS is taking nearly
+Newton-quality steps while having only ever evaluated $f$ and $\nabla f$.
 
 Algorithm 5.4 collects the whole loop in one place.
 
 ::: {.callout-note icon=false title="Algorithm 5.4: BFGS"}
 **Input:** objective $f$, gradient $\nabla f$, start point $\mathbf{x}_0$, tolerance
-$\varepsilon > 0$ (in practice also an iteration cap, as in `optim()` and
-`minimize()`).
+$\varepsilon > 0$.
 
 **Output:** the final iterate, an approximate minimiser.
 
-1. initialise $B_0 \leftarrow I$, so the first step is a plain gradient step
+1. $B_0 \leftarrow I$
 2. **for** $k = 0, 1, 2, \dots$ until $\|\nabla f_k\| \le \varepsilon$:
-    a. step to $\mathbf{x}_{k+1} \leftarrow \mathbf{x}_k - \gamma_k \, B_k \nabla f_k$,
-       with the step length $\gamma_k$ chosen by a line search
-    b. record the step $\mathbf{s}_k = \mathbf{x}_{k+1} - \mathbf{x}_k$ and the
-       gradient difference $\mathbf{y}_k = \nabla f_{k+1} - \nabla f_k$
-    c. update $B_k$ to $B_{k+1}$ by the rank-two formula above: the smallest
-       symmetric modification of $B_k$ satisfying the secant condition
-       $B_{k+1} \mathbf{y}_k = \mathbf{s}_k$ ($B_{k+1}$ stays positive definite
-       because the line search ensures $\mathbf{y}_k^\top \mathbf{s}_k > 0$)
-3. **return** the final iterate $\mathbf{x}_k$
+    a. $\mathbf{x}_{k+1} \leftarrow \mathbf{x}_k - \gamma_k \, B_k \nabla f_k$, with
+       $\gamma_k$ from a line search
+    b. $\mathbf{s}_k \leftarrow \mathbf{x}_{k+1} - \mathbf{x}_k$,
+       $\;\mathbf{y}_k \leftarrow \nabla f_{k+1} - \nabla f_k$
+    c. $B_{k+1} \leftarrow \big(I - \rho_k \mathbf{s}_k \mathbf{y}_k^\top\big) B_k
+       \big(I - \rho_k \mathbf{y}_k \mathbf{s}_k^\top\big)
+       + \rho_k \mathbf{s}_k \mathbf{s}_k^\top$, with
+       $\rho_k = 1 / (\mathbf{y}_k^\top \mathbf{s}_k)$, as defined above
+3. **return** $\mathbf{x}_k$
 
-Here $\nabla f_k$ is short for $\nabla f(\mathbf{x}_k)$, and $B_k \approx H^{-1}$
-throughout: this $B$ is the traditional quasi-Newton symbol for the inverse-Hessian
-approximation, nothing to do with the mini-batches $B_t$ of Algorithm 5.2.
+$B_k$ has nothing to do with the mini-batches $B_t$ of Algorithm 5.2.
 :::
 
 You will never implement BFGS yourself, because both languages ship it (R as
