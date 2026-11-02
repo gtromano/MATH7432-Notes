@@ -1551,11 +1551,36 @@ $$
 \mathbf{x}_{k+1} = \mathbf{x}_k - \gamma_k \, B_k \nabla f_k,
 $$
 
-where $\nabla f_k$ is short for $\nabla f(\mathbf{x}_k)$ and the step length $\gamma_k$
-is chosen by a line search. We start from $B_0 = I$, so the first step is a plain
-gradient step.^[Many textbooks write $B_k$ for an approximation of the Hessian $H$
-itself, and $H_k$ for its inverse, so their formulas look the other way round. Here
-$B_k$ always approximates $H^{-1}$, the matrix the step actually uses.]
+where $\nabla f_k$ is short for $\nabla f(\mathbf{x}_k)$. We start from $B_0 = I$, so
+the first step is a plain gradient step.^[Many textbooks write $B_k$ for an
+approximation of the Hessian $H$ itself, and $H_k$ for its inverse, so their formulas
+look the other way round. Here $B_k$ always approximates $H^{-1}$, the matrix the step
+actually uses.]
+
+Unlike in gradient descent, the step size $\gamma_k$ is not set by hand: it is chosen
+afresh at every iteration by a **line search**. Once $B_k$ is known, so is the
+direction of the step, $-B_k \nabla f_k$; what is left is how far to go along it.
+Along that direction $f$ is a function of the single number $\gamma$,
+
+$$
+\phi(\gamma) = f\big(\mathbf{x}_k - \gamma \, B_k \nabla f_k\big), \qquad \gamma > 0,
+$$
+
+and a line search is any rule that picks $\gamma_k$ by evaluating $\phi$. The ideal is
+an *exact* line search, $\gamma_k = \arg\min_{\gamma > 0} \phi(\gamma)$, the best step
+along the line. That is a one-dimensional optimisation problem of its own: easy for a
+quadratic (we use it in the example below), too costly to solve at every iteration in
+general. In practice it is enough that $f$ goes down by a reasonable amount, and the
+simplest rule that achieves this is **backtracking**: try the full step $\gamma = 1$
+(the natural first guess: for Newton's method it lands on the minimum of a quadratic);
+if $f$ did not decrease enough, halve $\gamma$ and try again, until it does (since
+$-B_k \nabla f_k$ points downhill, a step that fails was too long: it overshot to the
+other side of the valley).^["Enough" means $\phi(\gamma) \le \phi(0) + c\,\gamma\,\phi'(0)$ for a small
+constant such as $c = 10^{-4}$ (the *Armijo condition*): the decrease must be at least
+a small fraction of what the slope at $\gamma = 0$ promises, which rules out steps
+that barely improve $f$. The line search in `minimize()` also asks the slope to have
+flattened enough (the *Wolfe conditions*); this is what guarantees
+$\mathbf{y}_k^\top \mathbf{s}_k > 0$ below.]
 
 But what is $B_k$, and how do we build it without ever computing a second derivative?
 Recall @sec-week5-numgrad: a *difference of losses*, divided by the distance between
