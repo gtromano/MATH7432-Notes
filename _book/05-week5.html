@@ -1290,7 +1290,7 @@ Figure&nbsp;5.1: Fraction of the starting error left in each coordinate after <s
 </section>
 <section id="sec-week5-precond-p" class="level3" data-number="5.2.2">
 <h3 data-number="5.2.2" class="anchored" data-anchor-id="sec-week5-precond-p"><span class="header-section-number">5.2.2</span> Preconditioning</h3>
-<p>Back to the zig-zag valley of <a href="#sec-week5-stepsize" class="quarto-xref"><span>Section 5.2.1</span></a>. The step size was capped by the steep direction, progress was throttled along the flat one, and the trajectory wasted its energy bouncing between walls. Time to fix it.</p>
+<p>Back to the zig-zag valley of <a href="#sec-week5-stepsize" class="quarto-xref"><span>Section 5.2.1</span></a>. The step size was capped by the steep direction, progress was throttled along the flat one, and the trajectory wasted its energy bouncing between walls. No choice of <span class="math inline">\gamma</span> escapes this: tuning <span class="math inline">\gamma</span> buys the best of a bad situation (e.g.&nbsp;below <span class="math inline">2/\lambda_{\max}</span> we will not diverge), but the speed is set by <span class="math inline">\kappa</span>, and to go faster we have to change the geometry itself. Time to fix it.</p>
 <p>If the valley is ten times steeper in <span class="math inline">x_2</span> than in <span class="math inline">x_1</span>, then take steps ten times smaller in <span class="math inline">x_2</span>. Formally, pick a symmetric positive-definite matrix <span class="math inline">P</span> and update</p>
 <p><span class="math display">
 \mathbf{x}_{t+1} = \mathbf{x}_t - \gamma \, P \, \nabla f(\mathbf{x}_t).
@@ -1719,9 +1719,14 @@ B_{k+1} = \big(I - \rho_k \mathbf{s}_k \mathbf{y}_k^\top\big) B_k
 </div>
 </div>
 <ol type="a">
-<li>Fit with <code>optim(c(0, 0, 0), nll_cars, nll_cars_grad, method = "BFGS")</code> and compare the NLL at the optimum with <code>glm(am ~ hp + wt, data = mtcars, family = binomial)</code> (compute <code>nll_cars(coef(...))</code>). Check <code>$convergence</code>: if it is not <code>0</code>, look up what that means in <code>?optim</code> and fix it via the <code>control</code> argument.</li>
-<li>Now try your own <code>grad_descent()</code> with <code>gamma = 1e-3</code>, then with <code>gamma = 1e-4</code> and <code>n = 20000</code>. Describe what happens in each case.</li>
-<li>Explain (b) in one or two sentences using <a href="#sec-week5-conditioning" class="quarto-xref"><span>Section 5.2.1.1</span></a>. Hint: look at the scales of the columns of <code>X_cars</code>. Which section of this chapter offers a fix that would let gradient descent compete?</li>
+<li><p>Fit with <code>optim(c(0, 0, 0), nll_cars, nll_cars_grad, method = "BFGS")</code> and compare the NLL at the optimum with <code>glm(am ~ hp + wt, data = mtcars, family = binomial)</code> (compute <code>nll_cars(coef(...))</code>). Check <code>$convergence</code>: if it is not <code>0</code>, look up what that means in <code>?optim</code> and fix it via the <code>control</code> argument.</p></li>
+<li><p>Now try your own <code>grad_descent()</code> with <code>gamma = 1e-3</code>, then with <code>gamma = 1e-4</code> and <code>n = 20000</code>. Describe what happens in each case.</p></li>
+<li><p>Explain (b) in one or two sentences using <a href="#sec-week5-conditioning" class="quarto-xref"><span>Section 5.2.1.1</span></a>. Hint: look at the scales of the columns of <code>X_cars</code>. Which section of this chapter offers a fix that would let gradient descent compete?</p>
+<p>To put numbers on the hint, you need the Hessian of the logistic loss: <span class="math display">
+\nabla^2 L(\boldsymbol\beta) = \frac{1}{n} X^\top W X,
+\qquad
+W = \mathrm{diag}\big(p_1(1 - p_1),\, \dots,\, p_n(1 - p_n)\big),
+</span> where <span class="math inline">p_i</span> is the fitted probability of observation <span class="math inline">i</span> at <span class="math inline">\boldsymbol\beta</span>. At the starting point <span class="math inline">\boldsymbol\beta = \mathbf{0}</span>, every <span class="math inline">p_i = 1/2</span>, so every weight is <span class="math inline">p_i(1 - p_i) = 1/4</span> (also the largest value it can take), and the Hessian is <span class="math inline">X^\top X / (4n)</span>. Compute its eigenvalues (<code>eigen()</code> in R, <code>np.linalg.eigvalsh()</code> in Python): what do <span class="math inline">\lambda_{\max}</span> and <span class="math inline">\kappa</span> say about <span class="math inline">\gamma = 10^{-3}</span> and <span class="math inline">10^{-4}</span>?</p></li>
 </ol>
 <p><strong>Note for Python:</strong> the fit in (a) is <code>sp.optimize.minimize(nll_cars, np.zeros(3), jac=nll_cars_grad, method="BFGS")</code>; the fields to check are <code>.success</code> and <code>.message</code>, and options such as iteration caps go in <code>options = {"maxiter": 500}</code>. With no <code>glm()</code> in Python, compare against a strict-tolerance refit (<code>options = {"gtol": 1e-10}</code>), as the reference row of the table above did.</p>
 </div>

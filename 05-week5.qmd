@@ -1305,7 +1305,10 @@ b. Use `steps_to_tol()` to count the iterations needed to get within $10^{-3}$ o
 
 Back to the zig-zag valley of @sec-week5-stepsize. The step size was capped by the
 steep direction, progress was throttled along the flat one, and the trajectory
-wasted its energy bouncing between walls. Time to fix it.
+wasted its energy bouncing between walls. No choice of $\gamma$ escapes this: tuning
+$\gamma$ buys the best of a bad situation (e.g. below $2/\lambda_{\max}$ we will not
+diverge), but the speed is set by $\kappa$, and to go faster we have to change the
+geometry itself. Time to fix it.
 
 If the valley is ten times steeper in $x_2$
 than in $x_1$, then take steps ten times smaller in $x_2$. Formally, pick a symmetric
@@ -1930,6 +1933,19 @@ b. Now try your own `grad_descent()` with `gamma = 1e-3`, then with `gamma = 1e-
 c. Explain (b) in one or two sentences using @sec-week5-conditioning. Hint: look at
    the scales of the columns of `X_cars`. Which section of this chapter offers a fix
    that would let gradient descent compete?
+
+   To put numbers on the hint, you need the Hessian of the logistic loss:
+   $$
+   \nabla^2 L(\boldsymbol\beta) = \frac{1}{n} X^\top W X,
+   \qquad
+   W = \mathrm{diag}\big(p_1(1 - p_1),\, \dots,\, p_n(1 - p_n)\big),
+   $$
+   where $p_i$ is the fitted probability of observation $i$ at $\boldsymbol\beta$. At
+   the starting point $\boldsymbol\beta = \mathbf{0}$, every $p_i = 1/2$, so every
+   weight is $p_i(1 - p_i) = 1/4$ (also the largest value it can take), and the
+   Hessian is $X^\top X / (4n)$. Compute its eigenvalues (`eigen()` in R,
+   `np.linalg.eigvalsh()` in Python): what do $\lambda_{\max}$ and $\kappa$ say about
+   $\gamma = 10^{-3}$ and $10^{-4}$?
 
 **Note for Python:** the fit in (a) is
 `sp.optimize.minimize(nll_cars, np.zeros(3), jac=nll_cars_grad, method="BFGS")`; the
