@@ -1290,7 +1290,7 @@ Figure&nbsp;5.1: Fraction of the starting error left in each coordinate after <s
 </section>
 <section id="sec-week5-precond-p" class="level3" data-number="5.2.2">
 <h3 data-number="5.2.2" class="anchored" data-anchor-id="sec-week5-precond-p"><span class="header-section-number">5.2.2</span> Preconditioning</h3>
-<p>Back to the zig-zag valley of <a href="#sec-week5-stepsize" class="quarto-xref"><span>Section 5.2.1</span></a>. The step size was capped by the steep direction, progress was throttled along the flat one, and the trajectory wasted its energy bouncing between walls. Time to fix it.</p>
+<p>Back to the zig-zag valley of <a href="#sec-week5-stepsize" class="quarto-xref"><span>Section 5.2.1</span></a>. The step size was capped by the steep direction, progress was throttled along the flat one, and the trajectory wasted its energy bouncing between walls. No choice of <span class="math inline">\gamma</span> escapes this: tuning <span class="math inline">\gamma</span> buys the best of a bad situation (e.g.&nbsp;below <span class="math inline">2/\lambda_{\max}</span> we will not diverge), but the speed is set by <span class="math inline">\kappa</span>, and to go faster we have to change the geometry itself. Time to fix it.</p>
 <p>If the valley is ten times steeper in <span class="math inline">x_2</span> than in <span class="math inline">x_1</span>, then take steps ten times smaller in <span class="math inline">x_2</span>. Formally, pick a symmetric positive-definite matrix <span class="math inline">P</span> and update</p>
 <p><span class="math display">
 \mathbf{x}_{t+1} = \mathbf{x}_t - \gamma \, P \, \nabla f(\mathbf{x}_t).
@@ -1440,25 +1440,70 @@ H = \begin{pmatrix} 5.5 &amp; 4.5 \\ 4.5 &amp; 5.5 \end{pmatrix},
 </section>
 <section id="sec-week5-bfgs" class="level3" data-number="5.2.3">
 <h3 data-number="5.2.3" class="anchored" data-anchor-id="sec-week5-bfgs"><span class="header-section-number">5.2.3</span> BFGS: learning the Hessian as you go</h3>
-<p>Newton’s method needs second derivatives we cannot afford. But here is the clever observation: the gradients we are <em>already computing</em> contain second-order information. By Taylor expansion, for nearby iterates,</p>
+<p>We now know what the ideal preconditioner wants: <span class="math inline">P = H^{-1}</span>, the inverse of the Hessian, which makes the bowl round; recomputed at every iterate, it is Newton’s method. We also know its price: <span class="math inline">d^2</span> second derivatives and a <span class="math inline">d \times d</span> linear system at every step. <strong>Quasi-Newton</strong> methods keep the preconditioned step of Algorithm 5.3, but replace the exact inverse Hessian by a matrix <span class="math inline">B_k \approx H^{-1}</span> that is <em>estimated</em> along the way, and refined a little at every step:</p>
 <p><span class="math display">
-\nabla f(\mathbf{x}_{k+1}) - \nabla f(\mathbf{x}_k)
-\;\approx\;
-H \, (\mathbf{x}_{k+1} - \mathbf{x}_k),
+\mathbf{x}_{k+1} = \mathbf{x}_k - \gamma_k \, B_k \nabla f_k,
 </span></p>
-<p>so each step tells us how the gradient <em>changed</em> when we moved in one particular direction: one slice of the Hessian, for free. Quasi-Newton methods maintain a running approximation <span class="math inline">B_k \approx H^{-1}</span> and require it to explain the most recent step exactly, the <strong>secant condition</strong>:</p>
+<p>where <span class="math inline">\nabla f_k</span> is short for <span class="math inline">\nabla f(\mathbf{x}_k)</span>. We start from <span class="math inline">B_0 = I</span>, so the first step is a plain gradient step.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
+<p>Unlike in gradient descent, the step size <span class="math inline">\gamma_k</span> is not set by hand: it is chosen afresh at every iteration by a <strong>line search</strong>. Once <span class="math inline">B_k</span> is known, so is the direction of the step, <span class="math inline">-B_k \nabla f_k</span>; what is left is how far to go along it. Along that direction <span class="math inline">f</span> is a function of the single number <span class="math inline">\gamma</span>,</p>
 <p><span class="math display">
-B_{k+1} \, \underbrace{\big(\nabla f_{k+1} - \nabla f_k\big)}_{\mathbf{y}_k}
-= \underbrace{\mathbf{x}_{k+1} - \mathbf{x}_k}_{\mathbf{s}_k}.
+\phi(\gamma) = f\big(\mathbf{x}_k - \gamma \, B_k \nabla f_k\big), \qquad \gamma &gt; 0,
 </span></p>
-<p><strong>BFGS</strong> (Broyden–Fletcher–Goldfarb–Shanno, 1970: four people found it independently in the same year) updates <span class="math inline">B_k</span> by the smallest symmetric modification that satisfies the secant condition, a <em>rank-two update</em>: cheap matrix–vector algebra, no matrix inversion, and <span class="math inline">B_k</span> stays positive definite so the step <span class="math inline">-B_k \nabla f_k</span> always points downhill (provided each step actually observes positive curvature, <span class="math inline">\mathbf{y}_k^\top \mathbf{s}_k &gt; 0</span>: the line search inside <code>optim()</code> and <code>minimize()</code> sees to this). For the curious, the update is</p>
+<p>and a line search is any rule that picks <span class="math inline">\gamma_k</span> by evaluating <span class="math inline">\phi</span>. The ideal is an <em>exact</em> line search, <span class="math inline">\gamma_k = \arg\min_{\gamma &gt; 0} \phi(\gamma)</span>, the best step along the line. That is a one-dimensional optimisation problem of its own: easy for a quadratic (we use it in the example below), too costly to solve at every iteration in general. In practice it is enough that <span class="math inline">f</span> goes down by a reasonable amount, and the simplest rule that achieves this is <strong>backtracking</strong>: try the full step <span class="math inline">\gamma = 1</span> (the natural first guess: for Newton’s method it lands on the minimum of a quadratic); if <span class="math inline">f</span> did not decrease enough, halve <span class="math inline">\gamma</span> and try again, until it does (since <span class="math inline">-B_k \nabla f_k</span> points downhill, a step that fails was too long: it overshot to the other side of the valley).<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
+<p>But what is <span class="math inline">B_k</span>, and how do we build it without ever computing a second derivative? Recall <a href="#sec-week5-numgrad" class="quarto-xref"><span>Section 5.1.1.1</span></a>: a <em>difference of losses</em>, divided by the distance between the two points, approximates a first derivative. The same trick one level up turns a <em>difference of gradients</em> into second derivatives.</p>
+<p>In one dimension, write <span class="math inline">s_k = x_{k+1} - x_k</span> for the step and <span class="math inline">y_k = f'(x_{k+1}) - f'(x_k)</span> for the change in slope. A first-order Taylor expansion of <span class="math inline">f'</span> around <span class="math inline">x_k</span> gives <span class="math inline">y_k \approx f''(x_k)\, s_k</span>, so</p>
+<p><span class="math display">
+f''(x_k) \approx \frac{y_k}{s_k}
+\qquad\text{and, inverting,}\qquad
+B_{k+1} = \frac{s_k}{y_k} \approx \frac{1}{f''(x_k)}:
+</span></p>
+<p>the inverse curvature the step needs, from two derivatives the algorithm has computed anyway. (<span class="math inline">y_k / s_k</span> is the slope of the secant line through two points of the graph of <span class="math inline">f'</span>, hence the name of what follows.)</p>
+<p>In <span class="math inline">d</span> dimensions, with <span class="math inline">\mathbf{s}_k = \mathbf{x}_{k+1} - \mathbf{x}_k</span> and <span class="math inline">\mathbf{y}_k = \nabla f_{k+1} - \nabla f_k</span>, the same expansion reads <span class="math inline">\mathbf{y}_k \approx H \mathbf{s}_k</span> (exactly, for a quadratic <span class="math inline">f</span>), that is <span class="math inline">H^{-1} \mathbf{y}_k \approx \mathbf{s}_k</span>. We cannot divide by a vector, so instead we ask <span class="math inline">B_{k+1}</span> to satisfy this relation exactly for the step just taken, the <strong>secant condition</strong>:</p>
+<p><span class="math display">
+B_{k+1} \, \mathbf{y}_k = \mathbf{s}_k,
+</span></p>
+<p>which in one dimension is <span class="math inline">B_{k+1} = s_k / y_k</span> again.</p>
+<p>In <span class="math inline">d</span> dimensions the secant condition does not determine <span class="math inline">B_{k+1}</span>: it only fixes what the matrix does to one vector, <span class="math inline">\mathbf{y}_k</span>, and many matrices do that. So BFGS does not build <span class="math inline">B_{k+1}</span> from scratch: it <em>updates</em> <span class="math inline">B_k</span>, by the smallest correction that gives</p>
+<ol type="1">
+<li><strong>the secant condition</strong>, <span class="math inline">B_{k+1}\mathbf{y}_k = \mathbf{s}_k</span>, for the new step;</li>
+<li><strong>symmetry</strong>, as for <span class="math inline">H^{-1}</span>;</li>
+<li><strong>positive definiteness</strong>, so that the next step <span class="math inline">-B_{k+1}\nabla f_{k+1}</span> still points downhill.</li>
+</ol>
+<p>Being a small correction, it keeps what <span class="math inline">B_k</span> learned from the earlier steps and adds what the new step teaches.</p>
+<p><strong>BFGS</strong> (Broyden–Fletcher–Goldfarb–Shanno, 1970: four people found it independently in the same year) gives this update in closed form:</p>
 <p><span class="math display">
 B_{k+1} = \big(I - \rho_k \mathbf{s}_k \mathbf{y}_k^\top\big) B_k
           \big(I - \rho_k \mathbf{y}_k \mathbf{s}_k^\top\big)
           + \rho_k \mathbf{s}_k \mathbf{s}_k^\top,
-\qquad \rho_k = \frac{1}{\mathbf{y}_k^\top \mathbf{s}_k},
+\qquad \rho_k = \frac{1}{\mathbf{y}_k^\top \mathbf{s}_k}.
 </span></p>
-<p>and we will not derive it. The point to retain is the <em>idea</em>: start with <span class="math inline">B_0 = I</span> (plain gradient descent), and let each observed gradient difference teach the algorithm a bit more of the local geometry. After a handful of steps BFGS is taking nearly Newton-quality steps while having only ever evaluated <span class="math inline">f</span> and <span class="math inline">\nabla f</span>.</p>
+<p>We will not derive it (“smallest” is measured in a suitably weighted norm); the box below checks that it delivers the three properties, and cheaply.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled" title="[OPTIONAL] Checking the BFGS update">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>[OPTIONAL] Checking the BFGS update
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-8" class="callout-8-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>It satisfies the secant condition.</strong> Apply it to <span class="math inline">\mathbf{y}_k</span>. The right-hand bracket kills <span class="math inline">\mathbf{y}_k</span>, <span class="math inline">\big(I - \rho_k \mathbf{y}_k \mathbf{s}_k^\top\big)\mathbf{y}_k
+= \mathbf{y}_k - \mathbf{y}_k \, \frac{\mathbf{s}_k^\top \mathbf{y}_k}{\mathbf{y}_k^\top \mathbf{s}_k}
+= \mathbf{0}</span>, so the first term vanishes, and the second leaves <span class="math inline">\rho_k \mathbf{s}_k (\mathbf{s}_k^\top \mathbf{y}_k) = \mathbf{s}_k</span>.</li>
+<li><strong>It stays symmetric.</strong> The two brackets are transposes of each other, so the first term has the form <span class="math inline">M B_k M^\top</span> (with <span class="math inline">M = I - \rho_k \mathbf{s}_k \mathbf{y}_k^\top</span>), and <span class="math inline">\mathbf{s}_k \mathbf{s}_k^\top</span> is symmetric.</li>
+<li><strong>It stays positive definite</strong>, so every step <span class="math inline">-B_k \nabla f_k</span> points downhill, provided <span class="math inline">\mathbf{y}_k^\top \mathbf{s}_k &gt; 0</span>: along the step, the gradient grew in the direction we moved, i.e.&nbsp;<span class="math inline">f</span> curved upwards. For <span class="math inline">\mathbf{v} \neq \mathbf{0}</span>, <span class="math inline">\mathbf{v}^\top B_{k+1} \mathbf{v}
+= (M^\top \mathbf{v})^\top B_k (M^\top \mathbf{v}) + \rho_k (\mathbf{s}_k^\top \mathbf{v})^2</span>: both terms are non-negative, and they cannot both be zero (if <span class="math inline">\mathbf{s}_k^\top \mathbf{v} = 0</span> then <span class="math inline">M^\top \mathbf{v} = \mathbf{v}</span>, and the first term is <span class="math inline">\mathbf{v}^\top B_k \mathbf{v} &gt; 0</span>). Implementations make sure the condition holds: the line search of <code>minimize()</code> picks <span class="math inline">\gamma_k</span> so that it does, and <code>optim()</code> checks it and restarts from <span class="math inline">B = I</span> when it fails.</li>
+<li><strong>It is cheap.</strong> Multiplying out, <span class="math inline">B_{k+1} - B_k</span> is built from the two vectors <span class="math inline">\mathbf{s}_k</span> and <span class="math inline">B_k \mathbf{y}_k</span> alone: a <em>rank-two</em> correction, costing <span class="math inline">O(d^2)</span> operations, with no matrix ever inverted (Newton: <span class="math inline">O(d^3)</span>).</li>
+</ul>
+</div>
+</div>
+</div>
+<p>The secant condition leaves room for other updates too: other choices of “closest”, or other extra requirements, give other quasi-Newton methods with the same secant condition. <strong>DFP</strong> applies the same idea to an approximation of <span class="math inline">H</span> itself rather than of <span class="math inline">H^{-1}</span>; <strong>SR1</strong> is the unique symmetric rank-<em>one</em> update, but it need not stay positive definite; the <strong>Broyden family</strong> blends BFGS and DFP. BFGS is the default in practice: it keeps <span class="math inline">B_k</span> positive definite, and it recovers best from a poor <span class="math inline">B_k</span>.</p>
+<p>To see it learn, run BFGS on the valley of <a href="#sec-week5-stepsize" class="quarto-xref"><span>Section 5.2.1</span></a>, <span class="math inline">H = \mathrm{diag}(1, 10)</span>, from <span class="math inline">\mathbf{x}_0 = (-9, 1.5)</span> with <span class="math inline">B_0 = I</span> and exact line searches. After the first update, <span class="math inline">B_1 \approx \begin{pmatrix} 1.30 &amp; 0.02 \\ 0.02 &amp; 0.10 \end{pmatrix}</span>: after one step it has already found that <span class="math inline">x_2</span> is ten times steeper. After the second, <span class="math inline">B_2 = \mathrm{diag}(1, 1/10) = H^{-1}</span> exactly, and the iterate sits on the minimum. This is general: on a quadratic in <span class="math inline">d</span> dimensions with exact line searches, BFGS recovers <span class="math inline">H^{-1}</span> after <span class="math inline">d</span> steps. On other functions <span class="math inline">H</span> changes from point to point, and <span class="math inline">B_k</span> keeps tracking it: after a handful of steps BFGS is taking nearly Newton-quality steps while having only ever evaluated <span class="math inline">f</span> and <span class="math inline">\nabla f</span>.</p>
 <p>Algorithm 5.4 collects the whole loop in one place.</p>
 <div class="callout callout-style-default callout-note no-icon callout-titled" title="Algorithm 5.4: BFGS">
 <div class="callout-header d-flex align-content-center">
@@ -1470,19 +1515,21 @@ B_{k+1} = \big(I - \rho_k \mathbf{s}_k \mathbf{y}_k^\top\big) B_k
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>Input:</strong> objective <span class="math inline">f</span>, gradient <span class="math inline">\nabla f</span>, start point <span class="math inline">\mathbf{x}_0</span>, tolerance <span class="math inline">\varepsilon &gt; 0</span> (in practice also an iteration cap, as in <code>optim()</code> and <code>minimize()</code>).</p>
+<p><strong>Input:</strong> objective <span class="math inline">f</span>, gradient <span class="math inline">\nabla f</span>, start point <span class="math inline">\mathbf{x}_0</span>, tolerance <span class="math inline">\varepsilon &gt; 0</span>.</p>
 <p><strong>Output:</strong> the final iterate, an approximate minimiser.</p>
 <ol type="1">
-<li>initialise <span class="math inline">B_0 \leftarrow I</span>, so the first step is a plain gradient step</li>
+<li><span class="math inline">B_0 \leftarrow I</span></li>
 <li><strong>for</strong> <span class="math inline">k = 0, 1, 2, \dots</span> until <span class="math inline">\|\nabla f_k\| \le \varepsilon</span>:
 <ol type="a">
-<li>step to <span class="math inline">\mathbf{x}_{k+1} \leftarrow \mathbf{x}_k - \gamma_k \, B_k \nabla f_k</span>, with the step length <span class="math inline">\gamma_k</span> chosen by a line search</li>
-<li>record the step <span class="math inline">\mathbf{s}_k = \mathbf{x}_{k+1} - \mathbf{x}_k</span> and the gradient difference <span class="math inline">\mathbf{y}_k = \nabla f_{k+1} - \nabla f_k</span></li>
-<li>update <span class="math inline">B_k</span> to <span class="math inline">B_{k+1}</span> by the rank-two formula above: the smallest symmetric modification of <span class="math inline">B_k</span> satisfying the secant condition <span class="math inline">B_{k+1} \mathbf{y}_k = \mathbf{s}_k</span> (<span class="math inline">B_{k+1}</span> stays positive definite because the line search ensures <span class="math inline">\mathbf{y}_k^\top \mathbf{s}_k &gt; 0</span>)</li>
+<li><span class="math inline">\mathbf{x}_{k+1} \leftarrow \mathbf{x}_k - \gamma_k \, B_k \nabla f_k</span>, with <span class="math inline">\gamma_k</span> from a line search</li>
+<li><span class="math inline">\mathbf{s}_k \leftarrow \mathbf{x}_{k+1} - \mathbf{x}_k</span>, <span class="math inline">\;\mathbf{y}_k \leftarrow \nabla f_{k+1} - \nabla f_k</span></li>
+<li><span class="math inline">B_{k+1} \leftarrow \big(I - \rho_k \mathbf{s}_k \mathbf{y}_k^\top\big) B_k
+\big(I - \rho_k \mathbf{y}_k \mathbf{s}_k^\top\big)
++ \rho_k \mathbf{s}_k \mathbf{s}_k^\top</span>, with <span class="math inline">\rho_k = 1 / (\mathbf{y}_k^\top \mathbf{s}_k)</span>, as defined above</li>
 </ol></li>
-<li><strong>return</strong> the final iterate <span class="math inline">\mathbf{x}_k</span></li>
+<li><strong>return</strong> <span class="math inline">\mathbf{x}_k</span></li>
 </ol>
-<p>Here <span class="math inline">\nabla f_k</span> is short for <span class="math inline">\nabla f(\mathbf{x}_k)</span>, and <span class="math inline">B_k \approx H^{-1}</span> throughout: this <span class="math inline">B</span> is the traditional quasi-Newton symbol for the inverse-Hessian approximation, nothing to do with the mini-batches <span class="math inline">B_t</span> of Algorithm 5.2.</p>
+<p><span class="math inline">B_k</span> has nothing to do with the mini-batches <span class="math inline">B_t</span> of Algorithm 5.2.</p>
 </div>
 </div>
 <p>You will never implement BFGS yourself, because both languages ship it (R as <code>optim()</code>, Python inside <code>scipy.optimize.minimize()</code>):</p>
@@ -1672,9 +1719,14 @@ B_{k+1} = \big(I - \rho_k \mathbf{s}_k \mathbf{y}_k^\top\big) B_k
 </div>
 </div>
 <ol type="a">
-<li>Fit with <code>optim(c(0, 0, 0), nll_cars, nll_cars_grad, method = "BFGS")</code> and compare the NLL at the optimum with <code>glm(am ~ hp + wt, data = mtcars, family = binomial)</code> (compute <code>nll_cars(coef(...))</code>). Check <code>$convergence</code>: if it is not <code>0</code>, look up what that means in <code>?optim</code> and fix it via the <code>control</code> argument.</li>
-<li>Now try your own <code>grad_descent()</code> with <code>gamma = 1e-3</code>, then with <code>gamma = 1e-4</code> and <code>n = 20000</code>. Describe what happens in each case.</li>
-<li>Explain (b) in one or two sentences using <a href="#sec-week5-conditioning" class="quarto-xref"><span>Section 5.2.1.1</span></a>. Hint: look at the scales of the columns of <code>X_cars</code>. Which section of this chapter offers a fix that would let gradient descent compete?</li>
+<li><p>Fit with <code>optim(c(0, 0, 0), nll_cars, nll_cars_grad, method = "BFGS")</code> and compare the NLL at the optimum with <code>glm(am ~ hp + wt, data = mtcars, family = binomial)</code> (compute <code>nll_cars(coef(...))</code>). Check <code>$convergence</code>: if it is not <code>0</code>, look up what that means in <code>?optim</code> and fix it via the <code>control</code> argument.</p></li>
+<li><p>Now try your own <code>grad_descent()</code> with <code>gamma = 1e-3</code>, then with <code>gamma = 1e-4</code> and <code>n = 20000</code>. Describe what happens in each case.</p></li>
+<li><p>Explain (b) in one or two sentences using <a href="#sec-week5-conditioning" class="quarto-xref"><span>Section 5.2.1.1</span></a>. Hint: look at the scales of the columns of <code>X_cars</code>. Which section of this chapter offers a fix that would let gradient descent compete?</p>
+<p>To put numbers on the hint, you need the Hessian of the logistic loss: <span class="math display">
+\nabla^2 L(\boldsymbol\beta) = \frac{1}{n} X^\top W X,
+\qquad
+W = \mathrm{diag}\big(p_1(1 - p_1),\, \dots,\, p_n(1 - p_n)\big),
+</span> where <span class="math inline">p_i</span> is the fitted probability of observation <span class="math inline">i</span> at <span class="math inline">\boldsymbol\beta</span>. At the starting point <span class="math inline">\boldsymbol\beta = \mathbf{0}</span>, every <span class="math inline">p_i = 1/2</span>, so every weight is <span class="math inline">p_i(1 - p_i) = 1/4</span> (also the largest value it can take), and the Hessian is <span class="math inline">X^\top X / (4n)</span>. Compute its eigenvalues (<code>eigen()</code> in R, <code>np.linalg.eigvalsh()</code> in Python): what do <span class="math inline">\lambda_{\max}</span> and <span class="math inline">\kappa</span> say about <span class="math inline">\gamma = 10^{-3}</span> and <span class="math inline">10^{-4}</span>?</p></li>
 </ol>
 <p><strong>Note for Python:</strong> the fit in (a) is <code>sp.optimize.minimize(nll_cars, np.zeros(3), jac=nll_cars_grad, method="BFGS")</code>; the fields to check are <code>.success</code> and <code>.message</code>, and options such as iteration caps go in <code>options = {"maxiter": 500}</code>. With no <code>glm()</code> in Python, compare against a strict-tolerance refit (<code>options = {"gtol": 1e-10}</code>), as the reference row of the table above did.</p>
 </div>
@@ -1692,6 +1744,13 @@ B_{k+1} = \big(I - \rho_k \mathbf{s}_k \mathbf{y}_k^\top\big) B_k
 </ul>
 
 
+</section>
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn1"><p>Many textbooks write <span class="math inline">B_k</span> for an approximation of the Hessian <span class="math inline">H</span> itself, and <span class="math inline">H_k</span> for its inverse, so their formulas look the other way round. Here <span class="math inline">B_k</span> always approximates <span class="math inline">H^{-1}</span>, the matrix the step actually uses.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>“Enough” means <span class="math inline">\phi(\gamma) \le \phi(0) + c\,\gamma\,\phi'(0)</span> for a small constant such as <span class="math inline">c = 10^{-4}</span> (the <em>Armijo condition</em>): the decrease must be at least a small fraction of what the slope at <span class="math inline">\gamma = 0</span> promises, which rules out steps that barely improve <span class="math inline">f</span>. The line search in <code>minimize()</code> also asks the slope to have flattened enough (the <em>Wolfe conditions</em>); this is what guarantees <span class="math inline">\mathbf{y}_k^\top \mathbf{s}_k &gt; 0</span> below.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
 </section>
 
 </main> <!-- /main -->
